@@ -32,56 +32,56 @@ values."
       dotspacemacs-configuration-layers
       '(
         octave
-          ruby
-          helm
-          (auto-completion :variables
-             auto-completion-enable-help-tooltip t
-             auto-completion-enable-snippets-in-popup t
-             auto-completion-enable-sort-by-usage t)
-          ;;semantic
-          gtags
-          spell-checking
-          syntax-checking
-          csv
-          python
-          ;; ----------------------------------------------------------------
-          ;; Example of useful layers you may want to use right away.
-          ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
-          ;; <M-m f e R> (Emacs style) to install them.
-          ;; ----------------------------------------------------------------
-          (c-c++ :variables
-                 c-c++-enable-clang-support t
-                 c-c++-default-mode-for-headers 'c++-mode
-                 )
-          rust
-          (common-lisp :variables
-                       common-lisp-style-default 'sbcl)
-          javascript
-          better-defaults
-          emacs-lisp
-          git
-          markdown
-          html
-          java
-          org
-          latex
-          bibtex
-          yaml
-          nginx
-          pdf-tools
-          ipython-notebook
-          (erc :variables
-               erc-server-list
-               '(("irc.mozilla.org"
-                 :port "6697"
-                 :ssl t
-                 :nick "[spook]"
-                 )))
-          (shell :variables
-                  shell-default-height 30
-                  shell-default-position 'bottom)
-          version-control
-          )
+        ruby
+        helm
+        (auto-completion :variables
+                         auto-completion-enable-help-tooltip t
+                         auto-completion-enable-snippets-in-popup t
+                         auto-completion-enable-sort-by-usage t)
+        ;;semantic
+        gtags
+        spell-checking
+        syntax-checking
+        csv
+        python
+        ;; ----------------------------------------------------------------
+        ;; Example of useful layers you may want to use right away.
+        ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
+        ;; <M-m f e R> (Emacs style) to install them.
+        ;; ----------------------------------------------------------------
+        (c-c++ :variables
+               c-c++-enable-clang-support t
+               c-c++-default-mode-for-headers 'c++-mode
+               )
+        rust
+        (common-lisp :variables
+                     common-lisp-style-default 'sbcl)
+        javascript
+        better-defaults
+        emacs-lisp
+        git
+        markdown
+        html
+        java
+        org
+        latex
+        bibtex
+        yaml
+        nginx
+        pdf-tools
+        ipython-notebook
+        (erc :variables
+             erc-server-list
+             '(("irc.mozilla.org"
+                :port "6697"
+                :ssl t
+                :nick "[spook]"
+                )))
+        (shell :variables
+               shell-default-height 30
+               shell-default-position 'bottom)
+        version-control
+        )
       ;; List of additional packages that will be installed without being
       ;; wrapped in a layer. If you need some configuration for these
       ;; packages, then consider creating a layer. You can also put the
@@ -90,7 +90,7 @@ values."
                                            dark-mint-theme
                                            android-mode
                                            gandalf-theme
-                                           seti-theme
+                                           seti
                                            (mips-mode
                                             :mode "\\.s$")
                                            )
@@ -359,6 +359,22 @@ before packages are loaded. If you are unsure, you should try in setting them in
       c-default-style "bsd"
       c-basic-offset 3
       c-basic-indent 3)
+
+   ;; Weird Theme edits
+   (custom-theme-set-faces
+    'gandalf
+    '(underline ((t (:underline t))))
+    '(italic ((t (:slant italic)))))
+   ;; (setq-default
+   ;;  dotspacemacs-default-font '("Source Code Pro"
+   ;;                              :size 13
+   ;;                              :weight normal
+   ;;                              :width normal
+   ;;                              :powerline-scale 1.1))
+
+   ;; (add-to-list 'default-frame-alist
+   ;;              '(font . "Source Code Pro-14"))
+
    )
 
 (defun dotspacemacs/user-config ()
@@ -450,6 +466,7 @@ you should place your code here."
 
    ;;ORG MODE
    (add-hook 'org-mode-hook (lambda () (linum-mode 0)))
+   (add-hook 'org-mode-hook (lambda () (visual-line-mode t)))
    ;; I am childish with my configs
    (setq org-bullets-bullet-list (quote ("◉" "▣" "●" "◼" "►" "▷" "◆")))
    (setq org-hide-emphasis-markers t)
@@ -459,12 +476,6 @@ you should place your code here."
 
    ;;POMIDOR
    (add-hook 'pomidor-mode-hook (lambda () (linum-mode 0)))
-
-   ;; Weird Theme edits
-   (custom-theme-set-faces
-    'gandalf
-    '(underline ((t (:underline t))))
-    '(italic ((t (:slant italic)))))
 
    )
 
