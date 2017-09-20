@@ -60,7 +60,6 @@ values."
           better-defaults
           emacs-lisp
           git
-          asm
           markdown
           html
           java
@@ -93,7 +92,7 @@ values."
                                            gandalf-theme
                                            seti-theme
                                            (mips-mode
-                                            :mode "\\.mips$")
+                                            :mode "\\.s$")
                                            )
       ;; A list of packages that cannot be updated.
       dotspacemacs-frozen-packages '()
@@ -401,11 +400,17 @@ you should place your code here."
    ;;SPACING, TABS, AND LANG CONFIGURATIONS
    ;;-------------------------------
 
+   ;; MIPS
+   ;; allows mips to override asm and assembly mode for .asm files
+   (add-to-list 'auto-mode-alist '("\\.asm$" . mips-mode))
+   (add-hook 'mips-mode-hook 'fci-mode)
+
    ;;C AND C++
    ;;No tabs, set to 3 spaces when found
    (setq-default indent-tabs-mode nil)
    (setq-default tab-width 4)
    (setq c-guess-current-offset nil)
+   (add-hook 'c++-mode-hook 'fci-mode)
    ;;(setq company-backends (delete 'company-semantic company-backends))
    ;;(add-to-list 'company-backends '(company-clang company-dabbrev))
 
@@ -420,13 +425,16 @@ you should place your code here."
             (python-shell-completion-native-get-completions
                (get-buffer-process (current-buffer))
                nil "_"))))
-   
+
    (setq-default py-indent-tabs-mode nil)
    (setq python-indent 4)
    (setq python-indent-offset 4)
    (setq python-guess-indent nil)
    (setenv "WORKON_HOME" "~/.pyenv/versions/")
    (add-hook 'python-mode-hook 'fci-mode)
+
+   ;; if quotes act up again in python mode, try this:
+   ;;(add-hook 'python-mode-hook (lambda() (smartparens-mode 0)))
 
    ;;JAVA
    (setq eclim-eclipse-dirs "~/eclipse")
@@ -442,12 +450,21 @@ you should place your code here."
 
    ;;ORG MODE
    (add-hook 'org-mode-hook (lambda () (linum-mode 0)))
+   ;; I am childish with my configs
+   (setq org-bullets-bullet-list (quote ("◉" "▣" "●" "◼" "►" "▷" "◆")))
+   (setq org-hide-emphasis-markers t)
 
    ;;PDF TOOLS
    (add-hook 'pdf-view-mode-hook (lambda () (linum-mode 0)))
 
    ;;POMIDOR
    (add-hook 'pomidor-mode-hook (lambda () (linum-mode 0)))
+
+   ;; Weird Theme edits
+   (custom-theme-set-faces
+    'gandalf
+    '(underline ((t (:underline t))))
+    '(italic ((t (:slant italic)))))
 
    )
 
@@ -468,7 +485,7 @@ you should place your code here."
    (quote
     ("67e998c3c23fe24ed0fb92b9de75011b92f35d3e89344157ae0d544d50a63a72" "4af6fad34321a1ce23d8ab3486c662de122e8c6c1de97baed3aa4c10fe55e060" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "5999e12c8070b9090a2a1bbcd02ec28906e150bb2cdce5ace4f965c76cf30476" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "5e2dc1360a92bb73dafa11c46ba0f30fa5f49df887a8ede4e3533c3ab6270e08" "c1390663960169cd92f58aad44ba3253227d8f715c026438303c09b9fb66cdfb" "a632c5ce9bd5bcdbb7e22bf278d802711074413fd5f681f39f21d340064ff292" "1b1e54d9e0b607010937d697556cd5ea66ec9c01e555bb7acea776471da59055" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "2d16f85f22f1841390dfc1234bd5acfcce202d9bb1512aa8eabd0068051ac8c3" default)))
  '(evil-want-Y-yank-to-eol nil)
- '(fci-rule-color "steel blue")
+ '(fci-rule-color "steel blue" t)
  '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
  '(highlight-tail-colors
    (quote
@@ -489,7 +506,8 @@ you should place your code here."
  '(pos-tip-foreground-color "#242728")
  '(safe-local-variable-values
    (quote
-    ((company-clang-arguments . "-I/home/spook/projects/classes/cs310/223/")
+    ((clang-format-style . c++11)
+     (company-clang-arguments . "-I/home/spook/projects/classes/cs310/223/")
      (company-clang-arguments . "-I/home/spook/projects/classes/cs310/217"))))
  '(vc-annotate-background nil)
  '(vc-annotate-color-map
@@ -525,4 +543,5 @@ you should place your code here."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(default ((t (:background nil))))
- '(org-level-4 ((t (:foreground "dodger blue")))))
+ '(org-level-4 ((t (:foreground "dodger blue"))))
+ )
