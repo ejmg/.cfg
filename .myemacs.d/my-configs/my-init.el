@@ -13,3 +13,11 @@ tangled, and the tangled file is compiled."
 (use-package ivy :ensure t
 :diminish (ivy-mode . "")
 :init (ivy-mode t))
+
+(find-file  "/home/spook/.myemacs.d/my-configs/test.org")
+
+(org-babel-tangle)
+(load-file  "/home/spook/.myemacs.d/my-configs/test.el")
+
+;; byte compilation
+(byte-compile-file "/home/spook/.myemacs.d/my-configs/test.el")

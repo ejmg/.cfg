@@ -31,3 +31,14 @@ We want our changes in org to be reflected back into our actual =.el= files. The
    :diminish (ivy-mode . "")
    :init (ivy-mode t))
    #+END_SRC
+
+** Can I load other org files from here?
+   #+BEGIN_SRC emacs-lisp
+   (find-file  "/home/spook/.myemacs.d/my-configs/test.org")
+
+   (org-babel-tangle)
+   (load-file  "/home/spook/.myemacs.d/my-configs/test.el")
+
+   ;; byte compilation
+   (byte-compile-file "/home/spook/.myemacs.d/my-configs/test.el")
+   #+END_SRC
