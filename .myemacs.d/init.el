@@ -33,9 +33,13 @@
 (require 'use-package)
 (require 'org)
 
+;; find the config file and load it
 (find-file  "/home/spook/.myemacs.d/my-configs/my-init.org")
 
+;; extract all the code blocks from my-init.org
 (org-babel-tangle)
+
+;; convert it into my-init.el
 (load-file  "/home/spook/.myemacs.d/my-configs/my-init.el")
 
 ;; byte compilation

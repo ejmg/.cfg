@@ -3,34 +3,69 @@
 #+BABEL: :cache yes
 #+PROPERTY: header-args :tangle yes
 
-* my-init configurations
+* my-init
+  configurations for my emacs. these configs are opinionated and probably bad, use at your own 
+  hazard.
 
-** babel and tangling
-We want our changes in org to be reflected back into our actual =.el= files. The hook below achieves exactly this upon saving any changes into an =.org= file that emacs uses for configurations.
-#+BEGIN_SRC emacs-lisp
-   (defun tangle-init ()
-     "If the current buffer is 'init.org' the code-blocks are
-   tangled, and the tangled file is compiled."
-     (when (equal (buffer-file-name)
-                  (expand-file-name (concat user-emacs-directory "init.org")))
-       ;; Avoid running hooks when tangling.
-       (let ((prog-mode-hook nil))
-         (org-babel-tangle)
-         (byte-compile-file (concat user-emacs-directory "init.el")))))
+  heavily inspired by [[https://github.com/larstvei/dot-emacs][Lar's dot-emacs]].
 
-   (add-hook 'after-save-hook 'tangle-init)
-#+END_SRC
+** overview
 
-* Packages
+*** philosophy
+    the main of philosophy of this config is as follows, in order of importance:
+    1. readability
+       - without readability all is lost in an emacs config. everything will inevitably soon crumble
+         after losing the ability to easily understand what is happening in the configuration.
+    2. usability
+       - it should work, damn it. nothing weird, and err towards simplicity over complexity
+    3. encapsulation
+       - prevent a monolith configuration file by making *multiple* less monolithic configuration
+         files! Woo! Software!
 
-** the basics
-   always use =use-package= for loading up packages due to its lazy nature. this means emacs doesn't load something until it actually needs it, saving us a lot of time and some RAM by cutting boot times and pre-loading things when we might never use them.
+*** how this works
+    unlike Lar's configuration, my =init.el= will always be called. i like the idea of =init.el= always
+    remaining untouched pure. this also follows all three propositions of my philosophy for this
+    config file.
 
-   #+BEGIN_SRC emacs-lisp
-   (use-package ivy :ensure t
-   :diminish (ivy-mode . "")
-   :init (ivy-mode t))
-   #+END_SRC
+    in =init.el=, i set my package repositories and then bootstrap =use-package= and =org=, these are the
+    two undergirdings of this config set up and i want them working correctly and up to date always.
+
+    from there, the init file loads this file (=my-init.org=), extracts all code blocks by "tangling"
+    it, and then makes the byte compiled version of its =.el= equivalent.
+
+*** TODO meta (make it work for ../my-configs/my-init.org file location)
+    we want our changes in any =.org= config file to be reflected back into our actual =.el= files. The
+    hook below achieves this by re-compiling the byte file of any config =.org= file edited.
+
+    #+BEGIN_SRC emacs-lisp
+    (defun tangle-init ()
+      "If the current buffer is 'init.org' the code-blocks are
+    tangled, and the tangled file is compiled."
+      (when (equal (buffer-file-name)
+                   (expand-file-name (concat user-emacs-directory "init.org")))
+        ;; Avoid running hooks when tangling.
+        (let ((prog-mode-hook nil))
+          (org-babel-tangle)
+          (byte-compile-file (concat user-emacs-directory "init.el")))))
+
+    (add-hook 'after-save-hook 'tangle-init)
+    #+END_SRC
+
+**** =use-package=
+     always use =use-package= for loading up packages due to its lazy nature. this means emacs doesn't
+     load something until it actually needs it, saving us a lot of time and some RAM by cutting boot
+     times and pre-loading things when we might never use them.
+** TODO Packages
+
+*** the basics
+    core major/minor modes that i need for my emacs config. these are not particular to languages
+    and are more focused on navigation, utility, and look.
+
+    #+BEGIN_SRC emacs-lisp
+    (use-package ivy :ensure t
+    :diminish (ivy-mode . "")
+    :init (ivy-mode t))
+    #+END_SRC
 
 ** Can I load other org files from here?
    #+BEGIN_SRC emacs-lisp
