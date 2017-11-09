@@ -1,0 +1,33 @@
+#+TITLE: Emacs configuration file
+#+AUTHOR: elias garcia
+#+BABEL: :cache yes
+#+PROPERTY: header-args :tangle yes
+
+* my-init configurations
+
+** babel and tangling
+We want our changes in org to be reflected back into our actual =.el= files. The hook below achieves exactly this upon saving any changes into an =.org= file that emacs uses for configurations.
+#+BEGIN_SRC emacs-lisp
+   (defun tangle-init ()
+     "If the current buffer is 'init.org' the code-blocks are
+   tangled, and the tangled file is compiled."
+     (when (equal (buffer-file-name)
+                  (expand-file-name (concat user-emacs-directory "init.org")))
+       ;; Avoid running hooks when tangling.
+       (let ((prog-mode-hook nil))
+         (org-babel-tangle)
+         (byte-compile-file (concat user-emacs-directory "init.el")))))
+
+   (add-hook 'after-save-hook 'tangle-init)
+#+END_SRC
+
+* Packages
+
+** the basics
+   always use =use-package= for loading up packages due to its lazy nature. this means emacs doesn't load something until it actually needs it, saving us a lot of time and some RAM by cutting boot times and pre-loading things when we might never use them.
+
+   #+BEGIN_SRC emacs-lisp
+   (use-package ivy :ensure t
+   :diminish (ivy-mode . "")
+   :init (ivy-mode t))
+   #+END_SRC

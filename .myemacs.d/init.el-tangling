@@ -36,7 +36,12 @@
 (find-file  "/home/spook/.myemacs.d/my-configs/my-init.org")
 
 (org-babel-tangle)
+
 (load-file  "/home/spook/.myemacs.d/my-configs/my-init.el")
 
 ;; byte compilation
 (byte-compile-file "/home/spook/.myemacs.d/my-configs/my-init.el")
+
+
+(add-to-list 'load-path "~/.myemacs.d/my-configs")
+(require 'my-init)
