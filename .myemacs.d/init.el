@@ -30,9 +30,6 @@
   (package-refresh-contents) ; updage packages archive
   (package-install 'org))
 
-(require 'use-package)
-(require 'org)
-
 (org-babel-load-file "~/.myemacs.d/my-configs/my-init.org")
 
 ;; Other way of doing this that I'm abandoning but don't want to forget.
