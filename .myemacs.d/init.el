@@ -15,7 +15,7 @@
 ;; Note: Sometimes https gives problems. Unfortunately, switching to http is the solution here.
 (setq package-archives '(("org" . "http://orgmode.org/elpa/")
                          ("gnu" . "https://elpa.gnu.org/packages/")
-                         ("melpa" . "https://melpa/.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
                          ("marmalade" . "https://marmalade-repo.org/packages/")))
 ;; Load packages
 (package-initialize)
@@ -33,14 +33,16 @@
 (require 'use-package)
 (require 'org)
 
+(org-babel-load-file "~/.myemacs.d/my-configs/my-init.org")
+
+;; Other way of doing this that I'm abandoning but don't want to forget.
+;; It is possible to byte-compile your emacs configs which makes execution faster.
+;; How beneficial this is vs the compile time required is ???
 ;; find the config file and load it
-(find-file  "/home/spook/.myemacs.d/my-configs/my-init.org")
-
+;; (find-file  "/home/spook/.myemacs.d/my-configs/my-init.org")
 ;; extract all the code blocks from my-init.org
-(org-babel-tangle)
-
+;; (org-babel-tangle)
 ;; convert it into my-init.el
-(load-file  "/home/spook/.myemacs.d/my-configs/my-init.el")
-
+;; (load-file  "/home/spook/.myemacs.d/my-configs/my-init.el")
 ;; byte compilation
-(byte-compile-file "/home/spook/.myemacs.d/my-configs/my-init.el")
+;; (byte-compile-file "/home/spook/.myemacs.d/my-configs/my-init.el")

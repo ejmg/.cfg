@@ -33,11 +33,11 @@
     from there, the init file loads this file (=my-init.org=), extracts all code blocks by "tangling"
     it, and then makes the byte compiled version of its =.el= equivalent.
 
-*** TODO meta (make it work for ../my-configs/my-init.org file location)
+*** TODO Decide whether I will byte compile my emacs config
     we want our changes in any =.org= config file to be reflected back into our actual =.el= files. The
     hook below achieves this by re-compiling the byte file of any config =.org= file edited.
 
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no 
     (defun tangle-init ()
       "If the current buffer is 'init.org' the code-blocks are
     tangled, and the tangled file is compiled."
