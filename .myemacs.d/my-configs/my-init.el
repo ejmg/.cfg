@@ -1,18 +1,56 @@
-(defun tangle-init ()
-  "If the current buffer is 'init.org' the code-blocks are
-tangled, and the tangled file is compiled."
-  (when (equal (buffer-file-name)
-               (expand-file-name (concat user-emacs-directory "init.org")))
-    ;; Avoid running hooks when tangling.
-    (let ((prog-mode-hook nil))
-      (org-babel-tangle)
-      (byte-compile-file (concat user-emacs-directory "init.el")))))
+(let* ((package--builtins nil)
+       (packages
+        '(
+          ;; utilities
+          general which-key ivy swiper counsel fill-column-indicator volatile-highlights
+          golden-ratio undo-tree ace-window paredit projectile diminish rainbow-delimiters
+          bookmark+
 
-(add-hook 'after-save-hook 'tangle-init)
 
-(use-package ivy :ensure t
-:diminish (ivy-mode . "")
-:init (ivy-mode t))
+          ;; auto-complete
+          company flycheck hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
+          eldoc elisp-slime-nav company-math company-auctex company-jedi company-web-html
+          company-web-jade company-web-slim slime-company company-ycmd flycheck-rust
+
+
+          ;; git
+          git-gutter-fringe magit
+
+          ;; markdown
+          markdown-mode
+
+          ;; c/cpp
+          cc-mode clang-format cmake-mode
+
+          ;; rust
+          cargo company racer rust-mode
+
+          ;; haskell
+
+          ;; python
+
+          ;; js
+
+          ;; webprogramming
+          css-mode haml-mode sass-mode scss-mode slim-mode web-mode less-css-mode pug-mode emmet-mode
+
+          ;; ruby
+
+          ;; tex
+          auctex auctex-latexmk
+
+          )))
+  (let ((packages (remove-if 'package-installed-p packages)))
+    (when packages
+      ;; Install uninstalled packages
+      (package-refresh-contents)
+      (mapc 'package-install packages))))
+
+
+
+
+
+
 
 (find-file  "/home/spook/.myemacs.d/my-configs/test.org")
 
