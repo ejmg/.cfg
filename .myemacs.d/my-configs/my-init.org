@@ -78,12 +78,12 @@
                  ;; utilities
                  general which-key ivy swiper counsel fill-column-indicator volatile-highlights
                  golden-ratio undo-tree ace-window paredit projectile diminish rainbow-delimiters
-                 bookmark+ smartparens ggtags
+                 bookmark+ smartparens ggtags dired+
 
 
                  ;; auto-complete
                  company flycheck hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
-                 elisp-slime-nav company-math company-auctex company-anaconda
+                 elisp-slime-nav company-math company-auctex company-anaconda company-tern
                  slime-company company-ycmd flycheck-rust enh-ruby-mode
                  company-ghci company-ghc flycheck-haskell
 
@@ -113,6 +113,7 @@
                  anaconda-mode pyenv-mode ;eldoc 
 
                  ;; js
+                 js-doc js2-mode js2-refactor json-mode json-snatcher web-beautify coffee-mode
 
                  ;; webprogramming
                  haml-mode sass-mode scss-mode slim-mode web-mode less-css-mode pug-mode emmet-mode
@@ -212,6 +213,13 @@
                    '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
      #+END_SRC
 
+***** fill-column, spaces, and tabs
+      #+BEGIN_SRC emacs-lisp
+        ;; lisp and haskell got me used to working with 2 space indents, idk man
+        (setq-default fill-column 80)
+        (setq-default indent-tabs-mode nil)
+        (setq-default default-tab-width 2)
+      #+END_SRC
 ***** transparency
       #+BEGIN_SRC emacs-lisp
         ;; Set transparency of emacs
@@ -244,8 +252,39 @@
                                 "\\.mime-example" "\\.ido.last" "COMMIT_EDITMSG"
                                 ".gz"
                                 "~$" "/tmp/" "/ssh:" "/sudo:" "/scp:"))
+        (global-set-key "\C-x\ \C-r" 'recentf-open-files)
       #+END_SRC
+***** dired
+      #+BEGIN_SRC emacs-lisp
+        (defun my/dired-mode-hook ()
+          (my/turn-on-hl-line-mode)
+          (toggle-truncate-lines 1))
 
+        (use-package dired
+          :bind ("C-x C-j" . dired-jump)
+          :config
+          (progn
+            (use-package dired-x
+              :init (setq-default dired-omit-files-p t)
+              :config
+              (add-to-list 'dired-omit-extensions ".DS_Store"))
+            (customize-set-variable 'diredp-hide-details-initially-flag nil)
+            (use-package dired+)
+            (use-package dired-aux
+              :init (use-package dired-async))
+            (put 'dired-find-alternate-file 'disabled nil)
+            (setq ls-lisp-dirs-first t
+                  dired-recursive-copies 'always
+                  dired-recursive-deletes 'always
+                  dired-dwim-target t
+                  ;; -F marks links with @
+                  dired-ls-F-marks-symlinks t
+                  delete-by-moving-to-trash t
+                  ;; Auto refresh dired
+                  global-auto-revert-non-file-buffers t
+                  wdired-allow-to-change-permissions t)
+            (add-hook 'dired-mode-hook #'my/dired-mode-hook)))
+      #+END_SRC
 ***** spelling
 
       #+BEGIN_SRC emacs-lisp
@@ -255,32 +294,57 @@
                     "--lang=en_US"
                     "--ignore=3"))
       #+END_SRC
+***** whitespace
+      #+BEGIN_SRC emacs-lisp
+        ;; whitespace checker starts at 80
+        (setq whitespace-line-column 80)
 
-***** 
-*** global keybindings
+        ;; what whitespace looks for
+        (setq whitespace-style '(tabs newline space-mark
+                           tab-mark newline-mark
+                           face lines-tail))
 
-    #+BEGIN_SRC emacs-lisp
-    (global-set-key "\C-x\ \C-r" 'recentf-open-files)
-    #+END_SRC
+        ;; special visual market up for non-whitespace
+        (setq whitespace-display-mappings
+              ;; all numbers are Unicode codepoint in decimal. e.g. (insert-char 182 1)
+              ;; 32 SPACE, 183 MIDDLE DOT
+              '((space-mark nil)
+                ;; 10 LINE FEED
+                ;;(newline-mark 10 [172 10])
+                (newline-mark nil)
+                ;; 9 TAB, MIDDLE DOT
+                (tab-mark 9 [183 9] [92 9])))
 
-*** utilities
-
-**** pdfs
-
-*** org
-
-*** visual
+        ;; disabled for modes that it doesn't make sense
+        (setq whitespace-global-modes '(not org-mode
+                                           eshell-mode
+                                           shell-mode
+                                           web-mode
+                                           log4j-mode
+                                           "Web"
+                                           dired-mode
+                                           emacs-lisp-mode
+                                           clojure-mode
+                                           lisp-mode))
+      #+END_SRC
 
 ** TODO Languages
+*** haskell
 *** python
 *** cl
 *** emacs-lisp
+*** webprogramming
+*** js
 *** clojure
 *** latex-mode
 *** c/c++
-*** webprogramming
-*** js
-*** haskell
+** global keybindings
+   
+   not sure i will need this section depending on how organization works out
+
+   #+BEGIN_SRC emacs-lisp
+   
+   #+END_SRC
 ** Can I load other org files from here?
    #+BEGIN_SRC emacs-lisp
    (find-file  "/home/spook/.myemacs.d/my-configs/test.org")
