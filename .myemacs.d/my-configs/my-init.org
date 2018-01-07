@@ -17,10 +17,9 @@
   configurations for my emacs. these configs are opinionated and probably bad, use at your own 
   hazard.
 
-  heavily inspired by [[https://github.com/larstvei/dot-emacs][Lar's dot-emacs]].
+  heavily inspired by [[https://github.com/larstvei/dot-emacs][Lar's dot-emacs]] and [[https://writequit.org/org/][Lee's as well]].
 
 ** overview
-
 *** philosophy
     the main of philosophy of this config is as follows, in order of importance:
     1. readability
@@ -69,6 +68,8 @@
 ** TODO the basics
 *** defaults 
 **** packages
+     
+     the spice of emacs begins with packages:
 
      #+BEGIN_SRC emacs-lisp
        (let* ((package--builtins nil)
@@ -77,7 +78,7 @@
                  ;; utilities
                  general which-key ivy swiper counsel fill-column-indicator volatile-highlights
                  golden-ratio undo-tree ace-window paredit projectile diminish rainbow-delimiters
-                 bookmark+ smartparens
+                 bookmark+ smartparens ggtags
 
 
                  ;; auto-complete
@@ -90,7 +91,7 @@
                  git-gutter-fringe magit
 
                  ;; markdown
-                 markdown-mode toml-mode
+                 markdown-mode toml-mode yaml-mode
 
                  ;; c/cpp
                  cc-mode clang-format cmake-mode
@@ -99,13 +100,13 @@
                  cargo company racer rust-mode
 
                  ;; lisp
-                 slime
+                 slime racket-mode
 
                  ;; clojure
                  cider cider-eval-sexp-fu clj-refactor clojure-mode clojure-snippets
 
                  ;; haskell
-                 haskell-mode haskell-snippets hindent hlint-refactor
+                 haskell-mode haskell-snippets hindent hlint-refactor 
 
                  ;; python
                  anaconda-mode pyenv-mode eldoc 
@@ -139,23 +140,119 @@
      #+END_SRC
 
 **** general settings
+
+     things that don't seem to go anywhere because of their generality or edge-case nature:
+
+***** system defaults
      
      #+BEGIN_SRC emacs-lisp
-     
+       ;; no splash screen, sorry Stallman
+       (setq inhibit-splash-screen t)
+
+       ;; don't use the tool bar, thx
+       (tool-bar-mode -1)
+
+       ;; do like menu bar
+       (menu-bar-mode 1)
+
+       ;; UTF-8 is our friend in a world of shitty programming standards
+       (prefer-coding-system 'utf-8)
+       (set-default-coding-systems 'utf-8)
+       (set-terminal-coding-system 'utf-8)
+       (set-keyboard-coding-system 'utf-8)
+       (setq default-buffer-file-coding-system 'utf-8)
+
+       ;; speaking of text, unify emacs clipboard with linux
+       (setq x-select-enable-clipboard t)
+
+       ;; make sure it attempts utf-8 first when pasting text into emacs
+       (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+
+       ;; always tell me the column and row of where i am please, i am already lost enough as is.
+       (line-number-mode 1)
+       (column-number-mode 1)
+
+       ;; do you seriously think i'm good at typing
+       (setq read-file-name-completion-ignore-case t)
+
+       ;; life is too short for fully authenticating bad decisions
+       (defalias 'yes-or-no-p 'y-or-n-p)
+
+       ;; fix bad escape sequence weirdness
+       (setq system-uses-terminfo nil)
+
+       ;; stronk encryption good
+       (setq gnutls-min-prime-bits 4096)
+
+       ;; transparent background made possible with this
+       (set-background-color nil)
+
+       ;; don't let me be moronic and kill emacs w/o warning. GUI only.
+       (when (window-system)
+         (setq confirm-kill-emacs 'yes-or-no-p))
+
+       ;; move through lines based on visual appearance rather than literal. Very useful for long, single lines.
+       (setq line-move-visual t)
+
+
+       ;; differentiate buffers with identical names
+       (use-package uniquify
+         :config
+         (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
+
+       ;; use newer files rather than old compiled files, .elc
+       (setq load-prefer-newer t)
+
+       ;; if emacs crashes w/o warning, we want a valid list of recent files, don't we?
+       (run-at-time nil (* 5 60) 'recentf-save-list)
+
+       ;; finally, set emacs to display the path directory in the menu bar
+       ;; displays current working directory at all times in emacs
+       (setq frame-title-format
+             (list (format "%s %%S: %%j " (system-name))
+                   '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
      #+END_SRC
-*** navigation
-    core major/minor modes that i need for my emacs config. these are not particular to languages
-    and are more focused on navigation, utility, and look.
 
-    #+BEGIN_SRC emacs-lisp
+***** navigation and file history
 
+      #+BEGIN_SRC emacs-lisp
+        ;; C-c LEFT to undo window change, which i need often
+        (use-package winner
+          :init (winner-mode 1))
 
+        ;; re-opens file at last place edited
+        (use-package saveplace
+          :defer t
+          :init
+          (setq-default save-place t)
+          (setq save-place-file (expand-file-name ".places" user-emacs-directory)))
 
-    #+END_SRC
+        ;; enables recent-files to be re-opened
+        (recentf-mode 1)
+        (setq recentf-max-menu-items 50)
+
+        ;; do not need spam in recents list
+        (setq recentf-exclude '("/auto-install/" ".recentf" "/repos/" "/elpa/"
+                                "\\.mime-example" "\\.ido.last" "COMMIT_EDITMSG"
+                                ".gz"
+                                "~$" "/tmp/" "/ssh:" "/sudo:" "/scp:"))
+      #+END_SRC
+
+***** spelling
+
+      #+BEGIN_SRC emacs-lisp
+        ;; make ispell fast and make it only look at 3 char+ words
+        (setq ispell-extra-args
+              (list "--sug-mode=fast" ;; ultra|fast|normal|bad-spellers
+                    "--lang=en_US"
+                    "--ignore=3"))
+      #+END_SRC
+
+***** 
 *** global keybindings
 
     #+BEGIN_SRC emacs-lisp
-
+    (global-set-key "\C-x\ \C-r" 'recentf-open-files)
     #+END_SRC
 
 *** utilities
@@ -186,3 +283,4 @@
    ;; byte compilation
    (byte-compile-file "/home/spook/.myemacs.d/my-configs/test.el")
    #+END_SRC
+   
