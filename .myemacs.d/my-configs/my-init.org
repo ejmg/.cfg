@@ -83,9 +83,10 @@
 
                  ;; auto-complete
                  company flycheck hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
-                 elisp-slime-nav company-math company-auctex company-anaconda company-web-html
-                 company-web-jade company-web-slim slime-company company-ycmd flycheck-rust enh-ruby-mode
+                 elisp-slime-nav company-math company-auctex company-anaconda
+                 slime-company company-ycmd flycheck-rust enh-ruby-mode
                  company-ghci company-ghc flycheck-haskell
+
 
                  ;; git
                  git-gutter-fringe magit
@@ -94,7 +95,7 @@
                  markdown-mode toml-mode yaml-mode
 
                  ;; c/cpp
-                 cc-mode clang-format cmake-mode
+                 clang-format cmake-mode
 
                  ;; rust
                  cargo company racer rust-mode
@@ -109,12 +110,14 @@
                  haskell-mode haskell-snippets hindent hlint-refactor 
 
                  ;; python
-                 anaconda-mode pyenv-mode eldoc 
+                 anaconda-mode pyenv-mode ;eldoc 
 
                  ;; js
 
                  ;; webprogramming
-                 css-mode haml-mode sass-mode scss-mode slim-mode web-mode less-css-mode pug-mode emmet-mode
+                 haml-mode sass-mode scss-mode slim-mode web-mode less-css-mode pug-mode emmet-mode
+                 ;company-web-html company-web-jade company-web-slim                  
+                 ;css-mode
 
                  ;; ruby
                  bundler chruby rbenv rspec-mode rubocop ruby-tools rvm rake 
@@ -184,16 +187,12 @@
        ;; stronk encryption good
        (setq gnutls-min-prime-bits 4096)
 
-       ;; transparent background made possible with this
-       (set-background-color nil)
-
        ;; don't let me be moronic and kill emacs w/o warning. GUI only.
        (when (window-system)
          (setq confirm-kill-emacs 'yes-or-no-p))
 
        ;; move through lines based on visual appearance rather than literal. Very useful for long, single lines.
        (setq line-move-visual t)
-
 
        ;; differentiate buffers with identical names
        (use-package uniquify
@@ -213,6 +212,15 @@
                    '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
      #+END_SRC
 
+***** transparency
+      #+BEGIN_SRC emacs-lisp
+        ;; Set transparency of emacs
+        (defun transparency (value)
+          "Sets the transparency of the frame window. 0=transparent/100=opaque"
+          (interactive "nTransparency Value 0 - 100 opaque:")
+          (set-frame-parameter (selected-frame) 'alpha value))
+
+      #+END_SRC
 ***** navigation and file history
 
       #+BEGIN_SRC emacs-lisp
