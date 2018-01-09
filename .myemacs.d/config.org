@@ -77,7 +77,7 @@
                 ;; utilities
                 general which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile diminish rainbow-delimiters
-                bookmark+ smartparens ggtags dired+ flyspell
+                bookmark+ smartparens ggtags dired+
 
 
                 ;; auto-complete
@@ -96,7 +96,7 @@
                 clang-format cmake-mode
 
                 ;; rust
-                cargo company racer rust-mode
+                cargo racer rust-mode
 
                 ;; lisp
                 slime racket-mode
@@ -402,11 +402,25 @@
          (progn
            (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
            (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
-           (define-key undo-tree-map (kbd "C-M-/" 'undo-tree-redo))))
+           (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo))))
      #+END_SRC
 **** flycheck
      #+BEGIN_SRC emacs-lisp
-     
+       (defun my-flycheck-customize ()
+         (interactive)
+         (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
+         (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse))
+
+       (use-package flycheck
+         :defer t
+         :bind (("M-g M-n" . flycheck-next-error)
+                ("M-g M-p" . flycheck-previous-error)
+                ("M-g M-=" . flycheck-list-errors))
+         :init (add-hook 'prog-mode-hook 'flycheck-mode)
+         :diminish ""
+         :config
+         (use-package flycheck-tip
+           :config (add-hook 'flycheck-mode-hook 'my-flycheck-customize)))
      #+END_SRC
 ** TODO Languages
 *** General
@@ -462,6 +476,18 @@
     
     #+END_SRC
 *** emacs-lisp
+*** rust
+    #+BEGIN_SRC emacs-lisp
+      (use-package rust-mode
+        :defer t
+        :config
+        (defun my-rust-setup ()
+          (interactive)
+          (racer-mode)
+          (cargo-minor-mode)
+          (flycheck-rust-setup))
+        (add-hook 'rust-mode-hook 'my-rust-setup))
+    #+END_SRC
 *** webprogramming
 *** js
 *** clojure
