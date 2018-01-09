@@ -36,7 +36,7 @@
           haskell-mode haskell-snippets hindent hlint-refactor 
 
           ;; python
-          anaconda-mode pyenv-mode ;eldoc 
+          anaconda-mode pyenv-mode hy-mode;eldoc 
 
           ;; js
           js-doc js2-mode js2-refactor json-mode json-snatcher web-beautify coffee-mode
@@ -140,6 +140,10 @@
   "Sets the transparency of the frame window. 0=transparent/100=opaque"
   (interactive "nTransparency Value 0 - 100 opaque:")
   (set-frame-parameter (selected-frame) 'alpha value))
+
+;; for dark: seti; for light: gandalf
+;; when i feel like a hacker: cyberpunk or dark-mint
+(load-theme 'seti t)
 
 ;; C-c LEFT to undo window change, which i need often
 (use-package winner
@@ -249,14 +253,60 @@
                                    clojure-mode
                                    lisp-mode))
 
+(use-package company
+  :defer t
+  :bind ("C-." . company-complete)
+  :init (add-hook 'prog-mode-hook 'company-mode)
+  :config
+  (progn
+    (setq company-idle-delay 0.1
+          company-minimum-prefix-length 2
+          company-selection-wrap-around t
+          company-dabbrev-downcase nil
+          company-transformers '(company-sort-by-occurrence))
+    (bind-keys :map company-active-map
+               ("C-n" . company-select-next)
+               ("C-p" . company-select-previous)
+               ("C-d" . company-show-doc-buffer)
+               ("<tab>" . company-complete))))
+
+;; haskell
+
+
+;; python
+(eval-after-load "company"
+  '(add-to-list 'company-backends 'company-anaconda))
+
+;; (use-package haskell-mode
+;;   :defer t
+;;   :init
+;;   (progn
+;;     (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+;;     (add-hook 'haskell-mode-hook 'turn-on-haskell-indent))
+;;   :config
+;;   (setq haskell-process-type 'stack-ghci))
+
+
 (use-package haskell-mode
   :defer t
-  :init
-  (progn
-    (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-    (add-hook 'haskell-mode-hook 'turn-on-haskell-indent))
   :config
-  (setq haskell-process-type 'stack-ghci))
+  (defun my-haskell-setup()
+    (interactive)
+    (haskell-doc-mode)
+    (haskell-indent-mode)
+    (setq haskell-process-type 'stack-ghci))
+  (add-hook 'haskell-mode-hook 'my-haskell-setup))
+
+(use-package python
+  :defer t
+  :config
+  (defun my-python-setup ()
+    (interactive)
+    (anaconda-mode)
+    (anaconda-eldoc-mode)
+    (pyenv-mode)
+    (yapf-mode))
+  (add-hook 'python-mode-hook 'my-python-setup))
 
 
 

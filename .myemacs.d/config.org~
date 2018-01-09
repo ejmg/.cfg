@@ -1,14 +1,14 @@
 #+TITLE: Emacs configuration file
-#+AUTHOR: spook
+#+AUTHOR: elias garcia
 #+BABEL: :cache yes
 #+PROPERTY: header-args :tangle yes
 
 * TODO This entire setup
-  - [-] finish figuring out what packages i need, full-stop.
-    - [X] company and auto-complete for every lang
+  - [ ] finish figuring out what packages i need, full-stop.
+    - [ ] company and auto-complete for every lang
     - [ ] lang packages themselves
     - [ ] utilities such as pdf tools
-    - [X] visual packages like themes and fci
+    - [ ] visual packages like themes and fci
   - [ ] Set up each mode in its subsection with its proper configuration as required by each package!!!
     - [ ] remember to check the githubs of each package more or less
     - [ ] steal plenty from spacemacs configs
@@ -77,14 +77,15 @@
                 ;; utilities
                 general which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile diminish rainbow-delimiters
-                bookmark+ smartparens ggtags dired+ flyspell
+                bookmark+ smartparens ggtags dired+
 
 
                 ;; auto-complete
-                company flycheck flycheck-tip hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
+                company flycheck hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
                 elisp-slime-nav company-math company-auctex company-anaconda company-tern
                 slime-company company-ycmd flycheck-rust enh-ruby-mode
-                company-ghci flycheck-haskell
+                company-ghci company-ghc flycheck-haskell
+
 
                 ;; git
                 git-gutter-fringe magit
@@ -105,10 +106,10 @@
                 cider cider-eval-sexp-fu clj-refactor clojure-mode clojure-snippets
 
                 ;; haskell
-                haskell-mode haskell-snippets hindent hlint-refactor
+                haskell-mode haskell-snippets hindent hlint-refactor 
 
                 ;; python
-                anaconda-mode pyenv-mode hy-mode pytest
+                anaconda-mode pyenv-mode ;eldoc 
 
                 ;; js
                 js-doc js2-mode js2-refactor json-mode json-snatcher web-beautify coffee-mode
@@ -218,7 +219,7 @@
        (setq-default indent-tabs-mode nil)
        (setq-default default-tab-width 2)
      #+END_SRC
-**** theme, styling, and transparency
+**** transparency
      #+BEGIN_SRC emacs-lisp
        ;; Set transparency of emacs
        (defun transparency (value)
@@ -226,19 +227,8 @@
          (interactive "nTransparency Value 0 - 100 opaque:")
          (set-frame-parameter (selected-frame) 'alpha value))
 
-       ;; for dark: seti; for light: gandalf
-       ;; when i feel like a hacker: cyberpunk or dark-mint
-       (load-theme 'seti t)
-
-       ;; pretty symboles
-       (prettify-symbols-mode t)
-       (setq-default prettify-symbols-alist '(("lambda" . ?λ)
-                                              ("delta" . ?Δ)
-                                              ("gamma" . ?Γ)
-                                              ("phi" . ?φ)
-                                              ("psi" . ?ψ)))
      #+END_SRC
-**** window and file history
+****  window and file history
 
      #+BEGIN_SRC emacs-lisp
        ;; C-c LEFT to undo window change, which i need often
@@ -319,16 +309,11 @@
 **** spelling
 
      #+BEGIN_SRC emacs-lisp
-       (use-package flyspell
-         :init
-         (add-hook 'text-mode-hook 'turn-on-flyspell)
-         (add-hook 'prog-mode-hook 'flyspell-prog-mode))
-
-         ;; make ispell fast and make it only look at 3 char+ words
-         (setq ispell-extra-args
-               (list "--sug-mode=fast" ;; ultra|fast|normal|bad-spellers
-                     "--lang=en_US"
-                     "--ignore=3"))
+       ;; make ispell fast and make it only look at 3 char+ words
+       (setq ispell-extra-args
+             (list "--sug-mode=fast" ;; ultra|fast|normal|bad-spellers
+                   "--lang=en_US"
+                   "--ignore=3"))
      #+END_SRC
 **** whitespace
      #+BEGIN_SRC emacs-lisp
@@ -363,104 +348,24 @@
                                           clojure-mode
                                           lisp-mode))
      #+END_SRC
-*** completion
-    #+BEGIN_SRC emacs-lisp
-      (use-package company
-        :defer t
-        :diminish ""
-        :bind ("C-." . company-complete)
-        :init (add-hook 'prog-mode-hook 'company-mode)
-        :config
-        (progn
-          (setq company-idle-delay 0.1
-                company-minimum-prefix-length 2
-                company-selection-wrap-around t
-                company-dabbrev-downcase nil
-                company-transformers '(company-sort-by-occurrence))
-          (bind-keys :map company-active-map
-                     ("C-n" . company-select-next)
-                     ("C-p" . company-select-previous)
-                     ("C-d" . company-show-doc-buffer)
-                     ("<tab>" . company-complete))))
-
-      ;; haskell
-      (eval-after-load "company"
-        '(add-to-list 'company-backends 'company-ghci))
-
-      ;; python
-      (eval-after-load "company"
-        '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
-
-    #+END_SRC
-**** undo tree
-     #+BEGIN_SRC emacs-lisp
-       (use-package undo-tree
-         :init (global-undo-tree-mode t)
-         :defer t
-         :diminish ""
-         :config
-         (progn
-           (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
-           (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
-           (define-key undo-tree-map (kbd "C-M-/" 'undo-tree-redo))))
-     #+END_SRC
-**** flycheck
-     #+BEGIN_SRC emacs-lisp
-     
-     #+END_SRC
 ** TODO Languages
-*** General
-    #+BEGIN_SRC emacs-lisp
-      (defun my-add-watchwords ()
-        "Highlight FIXME, TODO, and NOCOMMIT in code"
-        (font-lock-add-keywords
-         nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
-                1 '((:foreground "#d7a3ad") (:weight bold)) t))))
-
-      (defun my-turn-on-hl-line-mode ()
-        "Turn on hl-line-mode"
-        (interactive)
-        (hl-line-mode 1))
-
-      (add-hook 'prog-mode-hook 'my-add-watchwords)
-      (add-hook 'prog-mode-hook 'my-turn-on-hl-line-mode)
-      (add-hook 'org-mode-hook 'my-turn-on-hl-line-mode)
-
-    #+END_SRC
 *** haskell
     #+BEGIN_SRC emacs-lisp
-
       (use-package haskell-mode
         :defer t
+        :init
+        (progn
+          (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+          (add-hook 'haskell-mode-hook 'turn-on-haskell-indent))
         :config
-        (defun my-haskell-setup()
-          (interactive)
-          (haskell-doc-mode)
-          (haskell-indent-mode)
-          (flycheck-haskell-setup)
-          ;;(hindent-mode) ;; must install with stack
-          (haskell-snippets-initialize)
-          (setq haskell-process-type 'stack-ghci))
-        (add-hook 'haskell-mode-hook 'my-haskell-setup))
+        (setq haskell-process-type 'stack-ghci))
+
     #+END_SRC
 *** python
     #+BEGIN_SRC emacs-lisp
-      (use-package python
-        :defer t
-        :config
-        (defun my-python-setup ()
-          (interactive)
-          (anaconda-mode)
-          (anaconda-eldoc-mode)
-          (pyenv-mode)
-          (pytest-mode)
-          (yapf-mode))
-        (add-hook 'python-mode-hook 'my-python-setup))
-    #+END_SRC
-*** common-lisp
-    #+BEGIN_SRC emacs-lisp
     
     #+END_SRC
+*** cl
 *** emacs-lisp
 *** webprogramming
 *** js

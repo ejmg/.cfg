@@ -30,7 +30,7 @@
   (package-refresh-contents) ; updage packages archive
   (package-install 'org))
 
-(org-babel-load-file "~/.myemacs.d/my-configs/my-init.org")
+(org-babel-load-file "~/.myemacs.d/config.org")
 
 ;; Other way of doing this that I'm abandoning but don't want to forget.
 ;; It is possible to byte-compile your emacs configs which makes execution faster.
