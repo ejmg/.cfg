@@ -131,7 +131,7 @@
                 seti-theme gandalf-theme cyberpunk-theme dark-mint-theme 
 
                 ;; other
-                writeroom-mode minimap gnuplot csv-mode mips-mode
+                writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line
 
                 )))
         (let ((packages (remove-if 'package-installed-p packages)))
@@ -151,8 +151,9 @@
       ;; no splash screen, sorry Stallman
       (setq inhibit-splash-screen t)
 
-      ;; don't use the tool bar, thx
+      ;; don't use the tool or scroll bar, thx
       (tool-bar-mode -1)
+      (scroll-bar-mode -1)
 
       ;; do like menu bar
       (menu-bar-mode 1)
@@ -166,6 +167,14 @@
 
       ;; speaking of text, unify emacs clipboard with linux
       (setq x-select-enable-clipboard t)
+
+      ;; global hl line mode
+      (global-hl-line-mode t)
+
+      ;; make our mode line prettier
+      (use-package smart-mode-line)
+      (setq sml/no-confirm-load-theme t)
+      (sml/setup)
 
       ;; make sure it attempts utf-8 first when pasting text into emacs
       (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
@@ -266,6 +275,7 @@
 **** Ivy, Swiper
      #+BEGIN_SRC emacs-lisp
        (ivy-mode 1)
+       (diminish 'ivy-mode)
        (setq ivy-use-virtual-buffers t)
        (setq enable-recursive-minibuffers t)
        (global-set-key "\C-s" 'swiper)
@@ -288,7 +298,6 @@
 **** dired
      #+BEGIN_SRC emacs-lisp
        (defun my/dired-mode-hook ()
-         (my/turn-on-hl-line-mode)
          (toggle-truncate-lines 1))
 
        (use-package dired
@@ -394,6 +403,7 @@
     #+END_SRC
 **** undo tree
      #+BEGIN_SRC emacs-lisp
+
        (use-package undo-tree
          :init (global-undo-tree-mode t)
          :defer t
@@ -406,6 +416,7 @@
      #+END_SRC
 **** flycheck
      #+BEGIN_SRC emacs-lisp
+
        (defun my-flycheck-customize ()
          (interactive)
          (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
@@ -425,20 +436,14 @@
 ** TODO Languages
 *** General
     #+BEGIN_SRC emacs-lisp
+
       (defun my-add-watchwords ()
         "Highlight FIXME, TODO, and NOCOMMIT in code"
         (font-lock-add-keywords
          nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
                 1 '((:foreground "#d7a3ad") (:weight bold)) t))))
 
-      (defun my-turn-on-hl-line-mode ()
-        "Turn on hl-line-mode"
-        (interactive)
-        (hl-line-mode 1))
-
       (add-hook 'prog-mode-hook 'my-add-watchwords)
-      (add-hook 'prog-mode-hook 'my-turn-on-hl-line-mode)
-      (add-hook 'org-mode-hook 'my-turn-on-hl-line-mode)
 
     #+END_SRC
 *** haskell
