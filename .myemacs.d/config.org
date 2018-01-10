@@ -77,14 +77,14 @@
                 ;; utilities
                 general which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile diminish rainbow-delimiters
-                bookmark+ smartparens ggtags dired+
+                bookmark+ smartparens ggtags dired+ expand-region
 
 
                 ;; auto-complete
                 company flycheck flycheck-tip hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
                 elisp-slime-nav company-math company-auctex company-anaconda company-tern
                 slime-company company-ycmd flycheck-rust enh-ruby-mode
-                company-ghci flycheck-haskell
+                company-ghci flycheck-haskell company-statistics
 
                 ;; git
                 git-gutter-fringe magit
@@ -115,20 +115,19 @@
 
                 ;; webprogramming
                 haml-mode sass-mode scss-mode slim-mode web-mode less-css-mode pug-mode emmet-mode
-                ;company-web-html company-web-jade company-web-slim                  
-                ;css-mode
+
 
                 ;; ruby
-                bundler chruby rbenv rspec-mode rubocop ruby-tools rvm rake 
+                bundler chruby rbenv rspec-mode rubocop ruby-tools rvm rake
 
                 ;; tex
                 auctex auctex-latexmk typo
 
-                ;; org 
+                ;; org
                 org-bullets org-pomodoro org-download htmlize
 
                 ;; themes
-                seti-theme gandalf-theme cyberpunk-theme dark-mint-theme 
+                seti-theme gandalf-theme cyberpunk-theme dark-mint-theme
 
                 ;; other
                 writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line
@@ -170,6 +169,9 @@
 
       ;; global hl line mode
       (global-hl-line-mode t)
+
+      ;; can't get flycheck mode to enable itself otherwise
+      (global-flycheck-mode)
 
       ;; make our mode line prettier
       (use-package smart-mode-line)
@@ -390,7 +392,8 @@
                      ("C-n" . company-select-next)
                      ("C-p" . company-select-previous)
                      ("C-d" . company-show-doc-buffer)
-                     ("<tab>" . company-complete))))
+                     ("<tab>" . company-complete)))
+        (add-hook 'after-init-hook 'company-statistics-mode))
 
       ;; haskell
       (eval-after-load "company"
@@ -401,6 +404,28 @@
         '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
 
     #+END_SRC
+**** expand region
+     #+BEGIN_SRC emacs-lisp
+       (use-package expand-region
+         :bind ("M-/" . er/expand-region))
+     #+END_SRC
+**** flycheck
+     #+BEGIN_SRC emacs-lisp
+       (defun my-flycheck-customize ()
+         (interactive)
+         (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
+         (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse))
+
+       (use-package flycheck
+         :defer t
+         :bind (("M-g M-n" . flycheck-next-error)
+                ("M-g M-p" . flycheck-previous-error)
+                ("M-g M-=" . flycheck-list-errors))
+         :diminish ""
+         :config
+         (use-package flycheck-tip
+           :config (add-hook 'flycheck-mode-hook 'my-flycheck-customize)))
+     #+END_SRC
 **** undo tree
      #+BEGIN_SRC emacs-lisp
 
@@ -413,25 +438,6 @@
            (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
            (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
            (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo))))
-     #+END_SRC
-**** flycheck
-     #+BEGIN_SRC emacs-lisp
-
-       (defun my-flycheck-customize ()
-         (interactive)
-         (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
-         (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse))
-
-       (use-package flycheck
-         :defer t
-         :bind (("M-g M-n" . flycheck-next-error)
-                ("M-g M-p" . flycheck-previous-error)
-                ("M-g M-=" . flycheck-list-errors))
-         :init (add-hook 'prog-mode-hook 'flycheck-mode)
-         :diminish ""
-         :config
-         (use-package flycheck-tip
-           :config (add-hook 'flycheck-mode-hook 'my-flycheck-customize)))
      #+END_SRC
 ** TODO Languages
 *** General
@@ -475,12 +481,69 @@
           (pytest-mode)
           (yapf-mode))
         (add-hook 'python-mode-hook 'my-python-setup))
+
     #+END_SRC
 *** common-lisp
     #+BEGIN_SRC emacs-lisp
-    
+      (defun activate-slime-helper ()
+        (when (file-exists-p "~/.quicklisp/slime-helper.el")
+          (load (expand-file-name "~/.quicklisp/slime-helper.el"))
+          (define-key slime-repl-mode-map (kbd "C-l")
+            'slime-repl-clear-buffer))
+        (remove-hook 'lisp-mode-hook #'activate-slime-helper))
+
+      (add-hook 'lisp-mode-hook #'activate-slime-helper)
+
+      (setq inferior-lisp-program "sbcl")
+
+      (setq lisp-loop-forms-indentation   6
+            lisp-simple-loop-indentation  2
+            lisp-loop-keyword-indentation 6)
     #+END_SRC
 *** emacs-lisp
+    #+BEGIN_SRC emacs-lisp
+      (defun my/turn-on-paredit-and-eldoc ()
+        (interactive)
+        (paredit-mode 1)
+        (eldoc-mode 1))
+
+      (add-hook 'emacs-lisp-mode-hook #'my/turn-on-paredit-and-eldoc)
+      (add-hook 'ielm-mode-hook #'my/turn-on-paredit-and-eldoc)
+
+      (use-package eldoc
+        :config
+        (progn
+          (use-package diminish
+            :init
+            (progn (diminish 'eldoc-mode "")))
+          (setq eldoc-idle-delay 0.3)
+          (set-face-attribute 'eldoc-highlight-function-argument nil
+                              :underline t :foreground "green"
+                              :weight 'bold)))
+
+      (defun ielm-other-window ()
+        "Run ielm on other window"
+        (interactive)
+        (switch-to-buffer-other-window
+         (get-buffer-create "*ielm*"))
+        (call-interactively 'ielm))
+
+      (define-key emacs-lisp-mode-map (kbd "C-c C-z") 'ielm-other-window)
+      (define-key lisp-interaction-mode-map (kbd "C-c C-z") 'ielm-other-window)
+
+      (bind-key "M-:" 'pp-eval-expression)
+
+      (defun sanityinc/eval-last-sexp-or-region (prefix)
+        "Eval region from BEG to END if active, otherwise the last sexp."
+        (interactive "P")
+        (if (and (mark) (use-region-p))
+            (eval-region (min (point) (mark)) (max (point) (mark)))
+          (pp-eval-last-sexp prefix)))
+
+      (bind-key "C-x C-e" 'sanityinc/eval-last-sexp-or-region emacs-lisp-mode-map)
+
+      (define-key lisp-mode-shared-map (kbd "RET") 'reindent-then-newline-and-indent)
+    #+END_SRC
 *** rust
     #+BEGIN_SRC emacs-lisp
       (use-package rust-mode
@@ -494,9 +557,25 @@
         (add-hook 'rust-mode-hook 'my-rust-setup))
     #+END_SRC
 *** webprogramming
+    #+BEGIN_SRC emacs-lisp
+      (use-package web-mode
+        :defer t
+        :config
+        (defun my-web-mode-setup ()
+          (interactive)
+          (emmet-mode)
+          (compan)
+          ()))
+    #+END_SRC
 *** js
 *** clojure
 *** latex-mode
+    #+BEGIN_SRC emacs-lisp
+      (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
+      (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
+      (use-package tex
+        :ensure auctex)
+    #+END_SRC
 *** c/c++
 ** global keybindings
    
