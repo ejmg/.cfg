@@ -130,7 +130,10 @@
                 seti-theme gandalf-theme cyberpunk-theme dark-mint-theme
 
                 ;; other
-                writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line
+                writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace
+
+                ;; google
+                google-this google-translate
 
                 )))
         (let ((packages (remove-if 'package-installed-p packages)))
