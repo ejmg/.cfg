@@ -77,7 +77,7 @@
                 ;; utilities
                 general which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile diminish rainbow-delimiters
-                bookmark+ smartparens ggtags dired+ expand-region
+                smartparens ggtags expand-region ;;bookmarks+ dired+ no longer on melpa 
 
 
                 ;; auto-complete
@@ -124,10 +124,10 @@
                 auctex auctex-latexmk typo
 
                 ;; org
-                org-bullets org-pomodoro org-download htmlize
+                org-bullets org-pomodoro org-download htmlize org-journal
 
                 ;; themes
-                seti-theme gandalf-theme cyberpunk-theme dark-mint-theme
+                seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme
 
                 ;; other
                 writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace
@@ -231,6 +231,7 @@
        (setq-default fill-column 80)
        (setq-default indent-tabs-mode nil)
        (setq-default default-tab-width 2)
+       (add-hook 'prog-mode-hook 'linum-mode)
      #+END_SRC
 **** theme, styling, and transparency
      #+BEGIN_SRC emacs-lisp
@@ -242,7 +243,7 @@
 
        ;; for dark: seti; for light: gandalf
        ;; when i feel like a hacker: cyberpunk or dark-mint
-       (load-theme 'seti t)
+       (load-theme 'dracula t)
 
        ;; pretty symboles
        (prettify-symbols-mode t)
@@ -314,7 +315,7 @@
              :config
              (add-to-list 'dired-omit-extensions ".DS_Store"))
            (customize-set-variable 'diredp-hide-details-initially-flag nil)
-           (use-package dired+)
+           ;; (use-package dired+) no longer available via melpa
            (use-package dired-aux
              :init (use-package dired-async))
            (put 'dired-find-alternate-file 'disabled nil)
@@ -440,8 +441,17 @@
          (progn
            (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
            (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
-           (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo))))
+           (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo)))
      #+END_SRC
+*** org
+    idk
+    #+BEGIN_SRC emacs-lisp
+      (defun generic-org-minor-modes ()
+        (interactive)
+        (org-bullets-mode 1))
+      (setq org-journal-dir "/home/spook/Documents/.journal/")
+      (add-hook 'org-mode-hook 'generic-org-minor-modes)
+    #+END_SRC
 ** TODO Languages
 *** General
     #+BEGIN_SRC emacs-lisp
@@ -482,6 +492,7 @@
           (anaconda-eldoc-mode)
           (pyenv-mode)
           (pytest-mode)
+          (semantic-mode 0)
           (yapf-mode))
         (add-hook 'python-mode-hook 'my-python-setup))
 
@@ -502,12 +513,23 @@
       (setq lisp-loop-forms-indentation   6
             lisp-simple-loop-indentation  2
             lisp-loop-keyword-indentation 6)
+
+      (defun my/helpful-lisp-modes ()
+        (interactive)
+        (paredit-mode 1)
+        (rainbow-delimiters-mode 2)
+        (show-paren-mode 1)
+        (eldoc-mode 1))
+
+      (add-hook 'lisp-mode-hook #'my/helpful-lisp-modes)
     #+END_SRC
 *** emacs-lisp
     #+BEGIN_SRC emacs-lisp
       (defun my/turn-on-paredit-and-eldoc ()
         (interactive)
         (paredit-mode 1)
+        (rainbow-delimiters-mode 1)
+        (show-paren-mode 1)
         (eldoc-mode 1))
 
       (add-hook 'emacs-lisp-mode-hook #'my/turn-on-paredit-and-eldoc)
@@ -588,7 +610,7 @@
    
    #+END_SRC
 ** Can I load other org files from here?
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (find-file  "/home/spook/.myemacs.d/my-configs/test.org")
 
    (org-babel-tangle)
