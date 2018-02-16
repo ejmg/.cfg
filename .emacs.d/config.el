@@ -1,3 +1,4 @@
+
 (let* ((package--builtins nil)
        (packages
         '(
@@ -370,7 +371,8 @@
     (anaconda-mode)
     (anaconda-eldoc-mode)
     (pyenv-mode)
-    (pytest-mode)
+    ;; (pytest-mode)
+    ;; (semantic-mode 0)
     (yapf-mode))
   (add-hook 'python-mode-hook 'my-python-setup))
 
@@ -392,7 +394,7 @@
 (defun my/helpful-lisp-modes ()
   (interactive)
   (paredit-mode 1)
-  (rainbow-delimiters 1)
+  (rainbow-delimiters-mode 2)
   (show-paren-mode 1)
   (eldoc-mode 1))
 
@@ -401,7 +403,7 @@
 (defun my/turn-on-paredit-and-eldoc ()
   (interactive)
   (paredit-mode 1)
-  (rainbow-delimiters 1)
+  (rainbow-delimiters-mode 1)
   (show-paren-mode 1)
   (eldoc-mode 1))
 
@@ -467,11 +469,3 @@
   :ensure auctex)
 
 
-
-(find-file  "/home/spook/.myemacs.d/my-configs/test.org")
-
-(org-babel-tangle)
-(load-file  "/home/spook/.myemacs.d/my-configs/test.el")
-
-;; byte compilation
-(byte-compile-file "/home/spook/.myemacs.d/my-configs/test.el")

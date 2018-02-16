@@ -40,7 +40,7 @@
 
 (require 'cl)
 
-(org-babel-load-file "~/.myemacs.d/config.org")
+(org-babel-load-file "~/.emacs.d/config.org")
 
 ;; Other way of doing this that I'm abandoning but don't want to forget.
 ;; It is possible to byte-compile your emacs configs which makes execution faster.

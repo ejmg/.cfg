@@ -108,7 +108,7 @@
                 haskell-mode haskell-snippets hindent hlint-refactor
 
                 ;; python
-                anaconda-mode pyenv-mode hy-mode pytest
+                anaconda-mode pyenv-mode hy-mode pytest py-yapf
 
                 ;; js
                 js-doc js2-mode js2-refactor json-mode json-snatcher web-beautify coffee-mode
@@ -482,7 +482,9 @@
         (add-hook 'haskell-mode-hook 'my-haskell-setup))
     #+END_SRC
 *** python
+
     #+BEGIN_SRC emacs-lisp
+
       (use-package python
         :defer t
         :config
@@ -491,9 +493,7 @@
           (anaconda-mode)
           (anaconda-eldoc-mode)
           (pyenv-mode)
-          (pytest-mode)
-          (semantic-mode 0)
-          (yapf-mode))
+          (py-yapf-enable-on-save)
         (add-hook 'python-mode-hook 'my-python-setup))
 
     #+END_SRC
