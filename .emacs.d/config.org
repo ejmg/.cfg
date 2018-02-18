@@ -65,7 +65,7 @@
      load something until it actually needs it, saving us a lot of time and some RAM by cutting boot
      times and pre-loading things when we might never use them.
 
-** TODO the basics
+** the basics
 *** packages
      
     the spice of emacs begins with packages:
@@ -87,7 +87,7 @@
                 company flycheck flycheck-tip hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
                 elisp-slime-nav company-math company-auctex company-anaconda company-tern
                 slime-company company-ycmd flycheck-rust enh-ruby-mode
-                company-ghci flycheck-haskell company-statistics
+                company-ghci flycheck-haskell company-statistics yasnippet-snippets
 
                 ;; git
                 git-gutter-fringe magit
@@ -235,19 +235,10 @@
 
 **** fill-column, spaces, and tabs
      #+BEGIN_SRC emacs-lisp
-              ;; lisp and haskell got me used to working with 2 space indents, idk man
-              (setq-default fill-column 80)
-              (setq-default indent-tabs-mode nil)
-              (setq-default default-tab-width 2)
-
-              (defun things-all-prog-modes-should-do-dot-jay-peg ()
-                (interactive)
-                (fci-mode)
-                (linum-mode)
-                (smartparens-mode)
-                (show-paren-mode))
-
-              (add-hook 'prog-mode-hook 'things-all-prog-modes-should-do-dot-jay-peg)
+       ;; lisp and haskell got me used to working with 2 space indents, idk man
+       (setq-default fill-column 80)
+       (setq-default indent-tabs-mode nil)
+       (setq-default default-tab-width 2)
 
      #+END_SRC
 **** theme, styling, and transparency
@@ -396,6 +387,7 @@
                                           lisp-mode))
      #+END_SRC
 *** completion
+
     #+BEGIN_SRC emacs-lisp
       (use-package company
         :defer t
@@ -460,8 +452,10 @@
            (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
            (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo)))
      #+END_SRC
-*** org
-    idk
+*** TODO org
+
+    settings for org mode
+
     #+BEGIN_SRC emacs-lisp
       (setq org-bullets-bullet-list (quote ("⦿" "▣" "●" "◼" "⁍" "►" "▷" "◆")))
 
@@ -473,7 +467,9 @@
     #+END_SRC
 ** keybindings
    
-   not sure i will need this section depending on how organization works out
+   Not sure I'm sold on the idea of setting my keybindings with my use-package
+   declarations so here's a section holding general keybindings until i decide
+   otherwise.
 
    #+BEGIN_SRC emacs-lisp
      ;; (global-set-key (kbd "C-~") 'ace-window)
@@ -483,8 +479,13 @@
      (bind-key (kbd "M-/") 'hippie-expand)
 
    #+END_SRC
-** TODO Languages
+*** TODO General-mode and leader keybinding setup
+** Languages
 *** General
+
+    configurations that apply generally to prog-modes and that aren't already
+    handled in other categories.
+
     #+BEGIN_SRC emacs-lisp
 
       (defun my-add-watchwords ()
@@ -495,8 +496,21 @@
 
       (add-hook 'prog-mode-hook 'my-add-watchwords)
 
+
+      (defun things-all-prog-modes-should-do-dot-jay-peg ()
+        "Name specifies function: things all prog modes should have."
+        (interactive)
+        (fci-mode)
+        (linum-mode)
+        (smartparens-mode)
+        (yas-reload-all)
+        (yas-minor-mode-on)
+        (show-paren-mode))
+
+      (add-hook 'prog-mode-hook 'things-all-prog-modes-should-do-dot-jay-peg)
     #+END_SRC
-*** haskell
+*** Haskell
+
     #+BEGIN_SRC emacs-lisp
 
       (use-package haskell-mode
@@ -527,6 +541,11 @@
              (get-buffer-process (current-buffer))
              nil "_"))))
 
+      (with-eval-after-load 'python
+        (add-hook
+         'python-mode-hook (lambda ()
+                             (setq python-shell-interpreter "python3"))))
+
       (use-package python
         :defer t
         :config
@@ -535,8 +554,9 @@
           (anaconda-mode)
           (anaconda-eldoc-mode)
           (pyenv-mode)
-          (py-yapf-enable-on-save)
-        (add-hook 'python-mode-hook 'my-python-setup))
+          (py-yapf-enable-on-save))
+          (add-hook 'python-mode-hook 'my-python-setup))
+
 
     #+END_SRC
 *** common-lisp
@@ -620,29 +640,35 @@
           (flycheck-rust-setup))
         (add-hook 'rust-mode-hook 'my-rust-setup))
     #+END_SRC
-*** webprogramming
+*** TODO webprogramming
     #+BEGIN_SRC emacs-lisp
-      (use-package web-mode
-        :defer t
-        :config
-        (defun my-web-mode-setup ()
-          (interactive)
-          (emmet-mode)
-          (compan)
-          ()))
+      ;; (use-package web-mode
+      ;;   :defer t
+      ;;   :config
+      ;;   (defun my-web-mode-setup ()
+      ;;     (interactive)
+      ;;     (emmet-mode)
+      ;;     (compan)
+      ;;     ()))
     #+END_SRC
-*** js
-*** clojure
-*** latex-mode
+*** TODO js
+*** TODO clojure
+*** TODO latex-mode
     #+BEGIN_SRC emacs-lisp
       (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
       (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
       (use-package tex
         :ensure auctex)
     #+END_SRC
-*** c/c++
+*** TODO c/c++
 ** bug fixes
+   
+   it's not good code if it doesn't have bugs in it.
+
    #+BEGIN_SRC emacs-lisp
+
+     ;; fci mode has this unfortunate compatibility issue with the company-mode
+     ;; completion menu, this is a workaround for it by the company-mode maintainer
      (defvar-local company-fci-mode-on-p nil)
 
      (defun company-turn-off-fci (&rest ignore)
