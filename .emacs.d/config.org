@@ -46,16 +46,16 @@
     we want our changes in any =.org= config file to be reflected back into our actual =.el= files. The
     hook below achieves this by re-compiling the byte file of any config =.org= file edited.
 
-    #+BEGIN_SRC emacs-lisp :tangle no 
+    #+BEGIN_SRC emacs-lisp :tangle no
     (defun tangle-init ()
-      "If the current buffer is 'init.org' the code-blocks are
+      "If the current buffer is 'config.org' the code-blocks are
     tangled, and the tangled file is compiled."
       (when (equal (buffer-file-name)
-                   (expand-file-name (concat user-emacs-directory "init.org")))
+                   (expand-file-name (concat user-emacs-directory "config.org")))
         ;; Avoid running hooks when tangling.
         (let ((prog-mode-hook nil))
           (org-babel-tangle)
-          (byte-compile-file (concat user-emacs-directory "init.el")))))
+          (byte-compile-file (concat user-emacs-directory "config.el")))))
 
     (add-hook 'after-save-hook 'tangle-init)
     #+END_SRC
@@ -75,9 +75,12 @@
              (packages
               '(
                 ;; utilities
-                general which-key ivy swiper counsel fill-column-indicator volatile-highlights
+                which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile diminish rainbow-delimiters
-                smartparens ggtags expand-region ;;bookmarks+ dired+ no longer on melpa 
+                smartparens ggtags expand-region;;bookmarks+ dired+ no longer on melpa 
+
+                ;; TODO actually config this up so I have a more spacemacs-like navigation experience
+                general
 
 
                 ;; auto-complete
@@ -142,7 +145,6 @@
             (package-refresh-contents)
             (mapc 'package-install packages))))
     #+END_SRC
-    
 *** general settings
 
     things that don't seem to go anywhere because of their generality or edge-case nature:
@@ -176,6 +178,10 @@
       ;; can't get flycheck mode to enable itself otherwise
       (global-flycheck-mode)
 
+      ;; guide key so i know what keybindings i have available to me
+      (which-key-mode)
+      (which-key-setup-minibuffer)
+
       ;; make our mode line prettier
       (use-package smart-mode-line)
       (setq sml/no-confirm-load-theme t)
@@ -184,7 +190,8 @@
       ;; make sure it attempts utf-8 first when pasting text into emacs
       (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 
-      ;; always tell me the column and row of where i am please, i am already lost enough as is.
+      ;; always tell me the column and row of where i am please, i am already lost
+      ;; enough as is.
       (line-number-mode 1)
       (column-number-mode 1)
 
@@ -204,7 +211,8 @@
       (when (window-system)
         (setq confirm-kill-emacs 'yes-or-no-p))
 
-      ;; move through lines based on visual appearance rather than literal. Very useful for long, single lines.
+      ;; move through lines based on visual appearance rather than literal. Very
+      ;; useful for long, single lines.
       (setq line-move-visual t)
 
       ;; differentiate buffers with identical names
@@ -227,11 +235,20 @@
 
 **** fill-column, spaces, and tabs
      #+BEGIN_SRC emacs-lisp
-       ;; lisp and haskell got me used to working with 2 space indents, idk man
-       (setq-default fill-column 80)
-       (setq-default indent-tabs-mode nil)
-       (setq-default default-tab-width 2)
-       (add-hook 'prog-mode-hook 'linum-mode)
+              ;; lisp and haskell got me used to working with 2 space indents, idk man
+              (setq-default fill-column 80)
+              (setq-default indent-tabs-mode nil)
+              (setq-default default-tab-width 2)
+
+              (defun things-all-prog-modes-should-do-dot-jay-peg ()
+                (interactive)
+                (fci-mode)
+                (linum-mode)
+                (smartparens-mode)
+                (show-paren-mode))
+
+              (add-hook 'prog-mode-hook 'things-all-prog-modes-should-do-dot-jay-peg)
+
      #+END_SRC
 **** theme, styling, and transparency
      #+BEGIN_SRC emacs-lisp
@@ -446,12 +463,26 @@
 *** org
     idk
     #+BEGIN_SRC emacs-lisp
+      (setq org-bullets-bullet-list (quote ("⦿" "▣" "●" "◼" "⁍" "►" "▷" "◆")))
+
       (defun generic-org-minor-modes ()
         (interactive)
         (org-bullets-mode 1))
       (setq org-journal-dir "/home/spook/Documents/.journal/")
       (add-hook 'org-mode-hook 'generic-org-minor-modes)
     #+END_SRC
+** keybindings
+   
+   not sure i will need this section depending on how organization works out
+
+   #+BEGIN_SRC emacs-lisp
+     ;; (global-set-key (kbd "C-~") 'ace-window)
+
+     (bind-key (kbd "C-~") 'ace-window)
+
+     (bind-key (kbd "M-/") 'hippie-expand)
+
+   #+END_SRC
 ** TODO Languages
 *** General
     #+BEGIN_SRC emacs-lisp
@@ -484,6 +515,17 @@
 *** python
 
     #+BEGIN_SRC emacs-lisp
+
+      ;; bug fix for readline error
+      (with-eval-after-load 'python
+        (defun python-shell-completion-native-try ()
+          "Return non-nil if can trigger native completion."
+          (let ((python-shell-completion-native-enable t)
+                (python-shell-completion-native-output-timeout
+                 python-shell-completion-native-try-output-timeout))
+            (python-shell-completion-native-get-completions
+             (get-buffer-process (current-buffer))
+             nil "_"))))
 
       (use-package python
         :defer t
@@ -518,7 +560,6 @@
         (interactive)
         (paredit-mode 1)
         (rainbow-delimiters-mode 2)
-        (show-paren-mode 1)
         (eldoc-mode 1))
 
       (add-hook 'lisp-mode-hook #'my/helpful-lisp-modes)
@@ -528,9 +569,7 @@
       (defun my/turn-on-paredit-and-eldoc ()
         (interactive)
         (paredit-mode 1)
-        (rainbow-delimiters-mode 1)
-        (show-paren-mode 1)
-        (eldoc-mode 1))
+        (eldoc-mode))
 
       (add-hook 'emacs-lisp-mode-hook #'my/turn-on-paredit-and-eldoc)
       (add-hook 'ielm-mode-hook #'my/turn-on-paredit-and-eldoc)
@@ -602,21 +641,19 @@
         :ensure auctex)
     #+END_SRC
 *** c/c++
-** global keybindings
-   
-   not sure i will need this section depending on how organization works out
-
+** bug fixes
    #+BEGIN_SRC emacs-lisp
-   
-   #+END_SRC
-** Can I load other org files from here?
-   #+BEGIN_SRC emacs-lisp :tangle no
-   (find-file  "/home/spook/.myemacs.d/my-configs/test.org")
+     (defvar-local company-fci-mode-on-p nil)
 
-   (org-babel-tangle)
-   (load-file  "/home/spook/.myemacs.d/my-configs/test.el")
+     (defun company-turn-off-fci (&rest ignore)
+       (when (boundp 'fci-mode)
+         (setq company-fci-mode-on-p fci-mode)
+         (when fci-mode (fci-mode -1))))
 
-   ;; byte compilation
-   (byte-compile-file "/home/spook/.myemacs.d/my-configs/test.el")
+     (defun company-maybe-turn-on-fci (&rest ignore)
+       (when company-fci-mode-on-p (fci-mode 1)))
+
+     (add-hook 'company-completion-started-hook 'company-turn-off-fci)
+     (add-hook 'company-completion-finished-hook 'company-maybe-turn-on-fci)
+     (add-hook 'company-completion-cancelled-hook 'company-maybe-turn-on-fci)
    #+END_SRC
-   
