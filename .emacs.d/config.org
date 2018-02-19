@@ -3,15 +3,12 @@
 #+BABEL: :cache yes
 #+PROPERTY: header-args :tangle yes
 
-* TODO This entire setup
+* TODO
   - [-] finish figuring out what packages i need, full-stop.
     - [X] company and auto-complete for every lang
     - [ ] lang packages themselves
     - [ ] utilities such as pdf tools
     - [X] visual packages like themes and fci
-  - [ ] Set up each mode in its subsection with its proper configuration as required by each package!!!
-    - [ ] remember to check the githubs of each package more or less
-    - [ ] steal plenty from spacemacs configs
 
 * my-init
   configurations for my emacs. these configs are opinionated and probably bad, use at your own 
@@ -344,14 +341,15 @@
      #+BEGIN_SRC emacs-lisp
        (use-package flyspell
          :init
-         (add-hook 'text-mode-hook 'turn-on-flyspell)
-         (add-hook 'prog-mode-hook 'flyspell-prog-mode))
+         (add-hook 'text-mode-hook 'turn-on-flyspell))
+         ;; flyspell currently messes with company mode so we will suffer for now.
+         ;; (add-hook 'prog-mode-hook 'flyspell-prog-mode)
 
          ;; make ispell fast and make it only look at 3 char+ words
-         (setq ispell-extra-args
-               (list "--sug-mode=fast" ;; ultra|fast|normal|bad-spellers
-                     "--lang=en_US"
-                     "--ignore=3"))
+       (setq ispell-extra-args
+             (list "--sug-mode=fast" ;; ultra|fast|normal|bad-spellers
+                   "--lang=en_US"
+                   "--ignore=3"))
      #+END_SRC
 **** whitespace
      #+BEGIN_SRC emacs-lisp
@@ -457,14 +455,21 @@
     settings for org mode
 
     #+BEGIN_SRC emacs-lisp
+
       (setq org-bullets-bullet-list (quote ("⦿" "▣" "●" "◼" "⁍" "►" "▷" "◆")))
+
+
+      ;; find time and motivation to encrypt my journals lmao
+      ;; (setq org-journal-enable-encryption t)
 
       (defun generic-org-minor-modes ()
         (interactive)
         (org-bullets-mode 1))
-      (setq org-journal-dir "/home/spook/Documents/.journal/")
+      (setq org-journal-dir "/home/spook/org/journal/")
       (add-hook 'org-mode-hook 'generic-org-minor-modes)
+
     #+END_SRC
+
 ** keybindings
    
    Not sure I'm sold on the idea of setting my keybindings with my use-package
@@ -472,7 +477,6 @@
    otherwise.
 
    #+BEGIN_SRC emacs-lisp
-     ;; (global-set-key (kbd "C-~") 'ace-window)
 
      (bind-key (kbd "C-~") 'ace-window)
 
@@ -496,6 +500,7 @@
 
       (add-hook 'prog-mode-hook 'my-add-watchwords)
 
+      (use-package yasnippet)
 
       (defun things-all-prog-modes-should-do-dot-jay-peg ()
         "Name specifies function: things all prog modes should have."
