@@ -554,6 +554,10 @@
       (use-package python
         :defer t
         :config
+        (setq-default py-indent-tabs-mode nil)
+        (setq python-indent 4)
+        (setq python-indent-offset 4)
+        (setq python-guess-indent nil)
         (defun my-python-setup ()
           (interactive)
           (anaconda-mode)
