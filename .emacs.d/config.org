@@ -470,6 +470,40 @@
 
     #+END_SRC
 
+*** erc
+
+    #+BEGIN_SRC emacs-lisp
+
+       ;; Load authentication info from an external source.  Put sensitive
+      ;; passwords and the like in here.
+
+      (use-package erc)
+
+      (load "~/.emacs.d/.erc-auth")
+
+      ;; This causes ERC to connect to the Freenode network upon hitting
+      ;; C-c e f.  Replace MYNICK with your IRC nick.
+      (defun login-erc ()
+        "Log in to irc using ssl."
+        (interactive)
+        (erc-tls :server "irc.freenode.net"
+                 :port "6697"
+                 :nick "[spook]"))
+
+      (global-set-key "\C-cef" #'login-erc)
+
+
+
+      ;; Rename server buffers to reflect the current network name instead
+      ;; of SERVER:PORT (e.g., "freenode" instead of "irc.freenode.net:6667").
+      ;; This is useful when using a bouncer like ZNC where you have multiple
+      ;; connections to the same server.
+      (setq erc-rename-buffers t)
+
+      ;; Interpret mIRC-style color commands in IRC chats
+      (setq erc-interpret-mirc-color t)
+    #+END_SRC
+
 ** keybindings
    
    Not sure I'm sold on the idea of setting my keybindings with my use-package
