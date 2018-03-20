@@ -74,7 +74,7 @@
                 ;; utilities
                 which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile diminish rainbow-delimiters
-                smartparens ggtags expand-region;;bookmarks+ dired+ no longer on melpa 
+                smartparens ggtags expand-region ag;;bookmarks+ dired+ no longer on melpa 
 
                 ;; TODO actually config this up so I have a more spacemacs-like navigation experience
                 general
@@ -102,7 +102,7 @@
                 slime racket-mode
 
                 ;; clojure
-                cider cider-eval-sexp-fu clj-refactor clojure-mode clojure-snippets
+                cider cider-eval-sexp-fu clj-refactor clojure-mode clojure-snippets clojure-mode-extra-font-locking
 
                 ;; haskell
                 haskell-mode haskell-snippets hindent hlint-refactor
@@ -130,7 +130,7 @@
                 seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme
 
                 ;; other
-                writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace
+                writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace anki-editor
 
                 ;; google
                 google-this google-translate
@@ -384,9 +384,45 @@
                                           clojure-mode
                                           lisp-mode))
      #+END_SRC
+**** backup files
+
+     #+BEGIN_SRC emacs-lisp
+       (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+         backup-by-copying t    ; Don't delink hardlinks
+         version-control t      ; Use version numbers on backups
+         delete-old-versions t  ; Automatically delete excess backups
+         kept-new-versions 20   ; how many of the newest versions to keep
+         kept-old-versions 5    ; and how many of the old
+         )
+     #+END_SRC
+**** kill/copy line
+     #+BEGIN_SRC emacs-lisp
+       (defun slick-cut (beg end)
+         (interactive
+          (if mark-active
+              (list (region-beginning) (region-end))
+            (list (line-beginning-position) (line-beginning-position 2)))))
+
+       (advice-add 'kill-region :before #'slick-cut)
+
+       (defun slick-copy (beg end)
+         (interactive
+          (if mark-active
+              (list (region-beginning) (region-end))
+            (message "Copied line")
+            (list (line-beginning-position) (line-beginning-position 2)))))
+
+       (advice-add 'kill-ring-save :before #'slick-copy)
+     #+END_SRC
 *** completion
 
     #+BEGIN_SRC emacs-lisp
+
+      (use-package yasnippet)
+      (yas-global-mode 1)
+
+
+
       (use-package company
         :defer t
         :diminish ""
@@ -413,6 +449,23 @@
       ;; python
       (eval-after-load "company"
         '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
+
+      ;; Add yasnippet support for all company backends
+      ;; https://github.com/syl20bnr/spacemacs/pull/179
+      (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
+
+      (defun company-mode/backend-with-yas (backend)
+        (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+            backend
+      (append (if (consp backend) backend (list backend))
+              '(:with company-yasnippet))))
+      (eval-after-load "company"
+        '(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
+
+      ;;(eval-after-load "company"
+      ;;'(add-to-list 'company-backends 'company-yasnippet))
+
+
 
     #+END_SRC
 **** expand region
@@ -457,15 +510,15 @@
     #+BEGIN_SRC emacs-lisp
 
       (setq org-bullets-bullet-list (quote ("⦿" "▣" "●" "◼" "⁍" "►" "▷" "◆")))
-
-
+      ;; (setq org-hide-emphasis-markers t)
+      (setq org-journal-dir "/home/spook/org/journal/")
       ;; find time and motivation to encrypt my journals lmao
       ;; (setq org-journal-enable-encryption t)
 
       (defun generic-org-minor-modes ()
         (interactive)
-        (org-bullets-mode 1))
-      (setq org-journal-dir "/home/spook/org/journal/")
+        (org-bullets-mode 1)
+        (auto-fill-mode 1))
       (add-hook 'org-mode-hook 'generic-org-minor-modes)
 
     #+END_SRC
@@ -534,16 +587,14 @@
 
       (add-hook 'prog-mode-hook 'my-add-watchwords)
 
-      (use-package yasnippet)
-
       (defun things-all-prog-modes-should-do-dot-jay-peg ()
         "Name specifies function: things all prog modes should have."
         (interactive)
         (fci-mode)
         (linum-mode)
         (smartparens-mode)
-        (yas-reload-all)
-        (yas-minor-mode-on)
+        ;;(yas-reload-all)
+        ;;(yas-minor-mode-on)
         (show-paren-mode))
 
       (add-hook 'prog-mode-hook 'things-all-prog-modes-should-do-dot-jay-peg)
@@ -585,15 +636,33 @@
          'python-mode-hook (lambda ()
                              (setq python-shell-interpreter "python3"))))
 
+      ;; allows triple quote strings to automatically be paired by electrip-pair
+      (defun python-electric-pair-string-delimiter ()
+        (when (and electric-pair-mode
+                   (memq last-command-event '(?\" ?\'))
+                   (let ((count 0))
+                     (while (eq (char-before (- (point) count)) last-command-event)
+                       (setq count (1+ count)))
+                     (= count 3)))
+          (save-excursion (insert (make-string 3 last-command-event)))))
+
+      (add-hook 'python-mode-hook
+                (lambda ()
+                  (add-hook 'post-self-insert-hook
+                            #'python-electric-pair-string-delimiter 'append t)))
+
+
       (use-package python
         :defer t
         :config
         (setq-default py-indent-tabs-mode nil)
+        (setq-default flycheck-python-flake8-executable "flake8")
         (setq python-indent 4)
         (setq python-indent-offset 4)
         (setq python-guess-indent nil)
         (defun my-python-setup ()
           (interactive)
+          (electric-pair-mode)
           (anaconda-mode)
           (anaconda-eldoc-mode)
           (pyenv-mode)
@@ -696,12 +765,106 @@
     #+END_SRC
 *** TODO js
 *** TODO clojure
+    #+BEGIN_SRC emacs-lisp
+      ;; FROM BRAVECLOJURE
+
+      ;;;;
+      ;; Clojure
+      ;;;;
+
+      ;; Enable paredit for Clojure
+      (add-hook 'clojure-mode-hook 'enable-paredit-mode)
+
+      ;; This is useful for working with camel-case tokens, like names of
+      ;; Java classes (e.g. JavaClassName)
+      (add-hook 'clojure-mode-hook 'subword-mode)
+
+      ;; A little more syntax highlighting
+      (require 'clojure-mode-extra-font-locking)
+
+      ;; syntax hilighting for midje
+      (add-hook 'clojure-mode-hook
+                (lambda ()
+                  (setq inferior-lisp-program "lein repl")
+                  (font-lock-add-keywords
+                   nil
+                   '(("(\\(facts?\\)"
+                      (1 font-lock-keyword-face))
+                     ("(\\(background?\\)"
+                      (1 font-lock-keyword-face))))
+                  (define-clojure-indent (fact 1))
+                  (define-clojure-indent (facts 1))))
+
+      ;;;;
+      ;; Cider
+      ;;;;
+
+      ;; provides minibuffer documentation for the code you're typing into the repl
+      (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+
+      ;; go right to the REPL buffer when it's finished connecting
+      (setq cider-repl-pop-to-buffer-on-connect t)
+
+      ;; When there's a cider error, show its buffer and switch to it
+      (setq cider-show-error-buffer t)
+      (setq cider-auto-select-error-buffer t)
+
+      ;; Where to store the cider history.
+      (setq cider-repl-history-file "~/.emacs.d/cider-history")
+
+      ;; Wrap when navigating history.
+      (setq cider-repl-wrap-history t)
+
+      ;; enable paredit in your REPL
+      (add-hook 'cider-repl-mode-hook 'paredit-mode)
+
+      ;; Use clojure mode for other extensions
+      (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
+      (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
+      (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
+      (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
+
+
+      ;; key bindings
+      ;; these help me out with the way I usually develop web apps
+      (defun cider-start-http-server ()
+        (interactive)
+        (cider-load-current-buffer)
+        (let ((ns (cider-current-ns)))
+          (cider-repl-set-ns ns)
+          (cider-interactive-eval (format "(println '(def server (%s/start))) (println 'server)" ns))
+          (cider-interactive-eval (format "(def server (%s/start)) (println server)" ns))))
+
+
+      (defun cider-refresh ()
+        (interactive)
+        (cider-interactive-eval (format "(user/reset)")))
+
+      (defun cider-user-ns ()
+        (interactive)
+        (cider-repl-set-ns "user"))
+
+      (eval-after-load 'cider
+        '(progn
+           (define-key clojure-mode-map (kbd "C-c C-v") 'cider-start-http-server)
+           (define-key clojure-mode-map (kbd "C-M-r") 'cider-refresh)
+           (define-key clojure-mode-map (kbd "C-c u") 'cider-user-ns)
+           (define-key cider-mode-map (kbd "C-c u") 'cider-user-ns)))
+    #+END_SRC
 *** TODO latex-mode
     #+BEGIN_SRC emacs-lisp
       (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
       (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
       (use-package tex
         :ensure auctex)
+
+      (defun generic-tex-minor-modes ()
+        (interactive)
+        (company-mode 1)
+        (auto-fill-mode 1))
+
+      (add-hook 'tex-mode-hook 'generic-tex-minor-modes)
+
     #+END_SRC
 *** TODO c/c++
 ** bug fixes
