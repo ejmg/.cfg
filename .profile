@@ -47,3 +47,4 @@ export RUST_SRC_PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/l
 
 export PATH="$HOME/.stack/programs/x86_64-linux/ghc-8.2.1/bin:$PATH"
 
+eval "$(pyenv init -)"

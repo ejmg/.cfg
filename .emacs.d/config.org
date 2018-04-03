@@ -202,7 +202,11 @@
       (setq system-uses-terminfo nil)
 
       ;; stronk encryption good
-      (setq gnutls-min-prime-bits 4096)
+      ;;------------------------
+      ;; TODO figure out how to make this compatible with erc-tls because
+      ;; 4096 encryption makes any connection impossible because freenode uses
+      ;; sub-4096 encryption
+      ;; (setq gnutls-min-prime-bits 4096)
 
       ;; don't let me be moronic and kill emacs w/o warning. GUI only.
       (when (window-system)
@@ -233,7 +237,7 @@
 **** fill-column, spaces, and tabs
      #+BEGIN_SRC emacs-lisp
        ;; lisp and haskell got me used to working with 2 space indents, idk man
-       (setq-default fill-column 80)
+       (setq-default fill-column 79)
        (setq-default indent-tabs-mode nil)
        (setq-default default-tab-width 2)
 
@@ -512,6 +516,7 @@
       (setq org-bullets-bullet-list (quote ("⦿" "▣" "●" "◼" "⁍" "►" "▷" "◆")))
       ;; (setq org-hide-emphasis-markers t)
       (setq org-journal-dir "/home/spook/org/journal/")
+      (setq org-journal-enable-encryption t)
       ;; find time and motivation to encrypt my journals lmao
       ;; (setq org-journal-enable-encryption t)
 
@@ -520,6 +525,10 @@
         (org-bullets-mode 1)
         (auto-fill-mode 1))
       (add-hook 'org-mode-hook 'generic-org-minor-modes)
+
+      ;; (setq epa-pinentry-mode 'loopback)
+      ;; (pinentry-start)
+
 
     #+END_SRC
 
@@ -536,14 +545,23 @@
 
       ;; This causes ERC to connect to the Freenode network upon hitting
       ;; C-c e f.  Replace MYNICK with your IRC nick.
-      (defun login-erc ()
+
+      ;; TODO: FIGURE OUT SASL SUPPORT so I can use VPN + IRC
+      (defun login-erc-tls ()
         "Log in to irc using ssl."
         (interactive)
         (erc-tls :server "irc.freenode.net"
                  :port "6697"
                  :nick "[spook]"))
 
-      (global-set-key "\C-cef" #'login-erc)
+      (global-set-key "\C-cef" #'login-erc-tls)
+
+      (defun login-erc ()
+        "login to irc w/o ssl"
+        (interactive)
+        (erc :server "irc.freenode.net"
+             :port "6667"
+             :nick "[spook]"))
 
 
 
@@ -565,10 +583,29 @@
 
    #+BEGIN_SRC emacs-lisp
 
+     (use-package general)
+
      (bind-key (kbd "C-~") 'ace-window)
 
      (bind-key (kbd "M-/") 'hippie-expand)
 
+     (general-define-key
+      :prefix "C-c m"
+      "s" 'magit-status
+      "p" 'magit-pull-popup
+      "c" 'magit-checkout
+      "b" 'magit-branch-popup)
+
+     (general-define-key
+      :prefix "C-c e"
+      "t" 'login-erc-tls
+      "l" 'login-erc)
+
+     (which-key-add-key-based-replacements
+       "C-c m" "magit"
+       "C-c !" "flycheck"
+       "C-c &" "yas"
+       "C-c e" "erc")
    #+END_SRC
 *** TODO General-mode and leader keybinding setup
 ** Languages
