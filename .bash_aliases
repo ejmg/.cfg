@@ -8,4 +8,4 @@ alias focus-timer-30="./projects/etcetera/scripts/timer.py 10 30 & disown"
 alias emax="emacsclient -t" # -t is no-window
 alias su-emax="sudo emacsclient -t"
 alias emcl="nohup emacsclient -c > ~/nohup.out &"  # starts new gui frame & detatches from parent process (the terminal) & throws stdout/err to nohup.out
-alias tomaty='\tomaty & disown'
+alias tomaty='/home/spook/.pyenv/versions/toma/bin/tomaty & disown'

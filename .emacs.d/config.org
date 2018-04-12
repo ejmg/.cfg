@@ -9,6 +9,7 @@
     - [ ] lang packages themselves
     - [ ] utilities such as pdf tools
     - [X] visual packages like themes and fci
+    - [ ] clean up hooks using use-package's very sane implementation, via =:hook=
 
 * my-init
   configurations for my emacs. these configs are opinionated and probably bad, use at your own 
@@ -110,13 +111,15 @@
                 ;; python
                 anaconda-mode pyenv-mode hy-mode pytest py-yapf
 
+                ;; TODO: actually set these up
                 ;; js
                 js-doc js2-mode js2-refactor json-mode json-snatcher web-beautify coffee-mode
 
+                ;; TODO: actually set these up to be used.
                 ;; webprogramming
                 haml-mode sass-mode scss-mode slim-mode web-mode less-css-mode pug-mode emmet-mode
 
-
+                ;; TODO: SETUP 
                 ;; ruby
                 bundler chruby rbenv rspec-mode rubocop ruby-tools rvm rake
 
@@ -444,7 +447,7 @@
                      ("C-p" . company-select-previous)
                      ("C-d" . company-show-doc-buffer)
                      ("<tab>" . company-complete)))
-        (add-hook 'after-init-hook 'company-statistics-mode))
+        (add-hook 'company-mode-hook 'company-statistics-mode))
 
       ;; haskell
       (eval-after-load "company"
@@ -453,6 +456,10 @@
       ;; python
       (eval-after-load "company"
         '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
+
+      (eval-after-load "company"
+        '(add-to-list 'company-backends 'company-css-html-tags))
+
 
       ;; Add yasnippet support for all company backends
       ;; https://github.com/syl20bnr/spacemacs/pull/179
@@ -468,8 +475,6 @@
 
       ;;(eval-after-load "company"
       ;;'(add-to-list 'company-backends 'company-yasnippet))
-
-
 
     #+END_SRC
 **** expand region
@@ -517,6 +522,9 @@
       ;; (setq org-hide-emphasis-markers t)
       (setq org-journal-dir "/home/spook/org/journal/")
       (setq org-journal-enable-encryption t)
+
+      ;; stops org-journal from opening previous day's entry
+      (setq org-journal-carryover-items nil)
       ;; find time and motivation to encrypt my journals lmao
       ;; (setq org-journal-enable-encryption t)
 
@@ -585,7 +593,7 @@
 
      (use-package general)
 
-     (bind-key (kbd "C-~") 'ace-window)
+
 
      (bind-key (kbd "M-/") 'hippie-expand)
 
@@ -606,6 +614,12 @@
        "C-c !" "flycheck"
        "C-c &" "yas"
        "C-c e" "erc")
+
+     (general-define-key
+      "C-~" 'ace-swap-window)
+      
+     (general-define-key
+     "C-S-<iso-lefttab>" 'ace-window)
    #+END_SRC
 *** TODO General-mode and leader keybinding setup
 ** Languages
@@ -791,14 +805,15 @@
     #+END_SRC
 *** TODO webprogramming
     #+BEGIN_SRC emacs-lisp
-      ;; (use-package web-mode
-      ;;   :defer t
-      ;;   :config
-      ;;   (defun my-web-mode-setup ()
-      ;;     (interactive)
-      ;;     (emmet-mode)
-      ;;     (compan)
-      ;;     ()))
+      (use-package web-mode
+        :defer t
+        :mode ("\\.html\\'" "\\.css\\'" "\\.sass\\'")
+        :config
+        (defun my-web-mode-setup ()
+          (interactive)
+          (company-mode)
+          (emmet-mode))
+        (add-hook 'web-mode-hook 'my-web-mode-setup))
     #+END_SRC
 *** TODO js
 *** TODO clojure
