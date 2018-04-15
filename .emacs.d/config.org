@@ -74,7 +74,7 @@
               '(
                 ;; utilities
                 which-key ivy swiper counsel fill-column-indicator volatile-highlights
-                golden-ratio undo-tree ace-window paredit projectile diminish rainbow-delimiters
+                golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
                 smartparens ggtags expand-region ag;;bookmarks+ dired+ no longer on melpa 
 
                 ;; TODO actually config this up so I have a more spacemacs-like navigation experience
@@ -84,7 +84,7 @@
                 ;; auto-complete
                 company flycheck flycheck-tip hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
                 elisp-slime-nav company-math company-auctex company-anaconda company-tern
-                slime-company company-ycmd flycheck-rust enh-ruby-mode
+                slime-company company-ycmd flycheck-rust enh-ruby-mode company-web
                 company-ghci flycheck-haskell company-statistics yasnippet-snippets
 
                 ;; git
@@ -289,6 +289,27 @@
                                ".gz"
                                "~$" "/tmp/" "/ssh:" "/sudo:" "/scp:"))
        (global-set-key "\C-x\ \C-r" 'recentf-open-files)
+
+       ;;(desktop-save-mode 1)
+     #+END_SRC
+**** projectile
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package projectile
+         :init
+         (projectile-mode))
+
+       (use-package counsel-projectile
+         :hook projectile-mode)
+
+       (defun projectile-pyenv-mode-set ()
+         "Set pyenv version matching project name."
+         (let ((project (projectile-project-name)))
+           (if (member project (pyenv-mode-versions))
+               (pyenv-mode-set project)
+             (pyenv-mode-unset))))
+
+       (add-hook 'projectile-after-switch-project-hook 'projectile-pyenv-mode-set)
      #+END_SRC
 **** Ivy, Swiper
      #+BEGIN_SRC emacs-lisp
@@ -449,6 +470,8 @@
                      ("<tab>" . company-complete)))
         (add-hook 'company-mode-hook 'company-statistics-mode))
 
+      (use-package company-web)
+
       ;; haskell
       (eval-after-load "company"
         '(add-to-list 'company-backends 'company-ghci))
@@ -457,8 +480,8 @@
       (eval-after-load "company"
         '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
 
-      (eval-after-load "company"
-        '(add-to-list 'company-backends 'company-css-html-tags))
+      ;; (eval-after-load "company"
+      ;;   '(add-to-list 'company-backends company-web-html))
 
 
       ;; Add yasnippet support for all company backends
@@ -593,7 +616,7 @@
 
      (use-package general)
 
-
+     (global-unset-key (kbd "C-z"))
 
      (bind-key (kbd "M-/") 'hippie-expand)
 
@@ -619,7 +642,7 @@
       "C-~" 'ace-swap-window)
       
      (general-define-key
-     "C-S-<iso-lefttab>" 'ace-window)
+     "C-z" 'ace-window)
    #+END_SRC
 *** TODO General-mode and leader keybinding setup
 ** Languages
@@ -812,8 +835,15 @@
         (defun my-web-mode-setup ()
           (interactive)
           (company-mode)
+          (electric-pair-mode)
+          (linum-mode 1)
+          ;; (web-mode-enable-current-column-highlight t)
           (emmet-mode))
         (add-hook 'web-mode-hook 'my-web-mode-setup))
+
+      (setq web-mode-engines-alist
+            '(("django" . "\\.html\\'")
+              ("jinja" . "\\.djhtml\\'")))
     #+END_SRC
 *** TODO js
 *** TODO clojure
