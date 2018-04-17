@@ -9,3 +9,4 @@ alias emax="emacsclient -t" # -t is no-window
 alias su-emax="sudo emacsclient -t"
 alias emcl="nohup emacsclient -c > ~/nohup.out &"  # starts new gui frame & detatches from parent process (the terminal) & throws stdout/err to nohup.out
 alias tomaty='/home/spook/.pyenv/versions/toma/bin/tomaty & disown'
+alias getTheBLOCK="sudo cp /etc/hosts.tw-fb /etc/hosts"

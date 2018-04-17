@@ -12,34 +12,60 @@
     - [ ] clean up hooks using use-package's very sane implementation, via =:hook=
 
 * my-init
-  configurations for my emacs. these configs are opinionated and probably bad, use at your own 
-  hazard.
+  configurations for my emacs. these configs are opinionated and by no
+  guarantee "good." that said, i decided to return to vanilla emacs because it
+  ensures i can debug issues and problems when they occur, something i lost in
+  the midst of spacemac’s complexity. ergo, the return of my =.emacs= file.
 
-  heavily inspired by [[https://github.com/larstvei/dot-emacs][Lar's dot-emacs]] and [[https://writequit.org/org/][Lee's as well]].
+  heavily inspired by [[https://github.com/larstvei/dot-emacs][Lar's]] and [[https://writequit.org/org/][Lee's]] dot-emacs files. I have learned a lot
+  about what and what not to do from them.
 
 ** overview
 *** philosophy
-    the main of philosophy of this config is as follows, in order of importance:
+    the main of philosophy of this config is as follows, in order of
+    importance:
+
     1. readability
-       - without readability all is lost in an emacs config. everything will inevitably soon crumble
-         after losing the ability to easily understand what is happening in the configuration.
+       - without readability all is lost in an emacs config. everything will
+         inevitably soon crumble after losing the ability to easily understand
+         what is happening in the configuration.
+
     2. usability
-       - it should work, damn it. nothing weird, and err towards simplicity over complexity
-    3. encapsulation
-       - prevent a monolith configuration file by making *multiple* less monolithic configuration
-         files! Woo! Software!
+       - it should work, damn it. nothing weird, and err towards simplicity
+         over complexity
+
+    3. modularity
+       - avoid global configurations where uncalled for, e.g. less =(global-<MODE>)=
+
+       - configuration functions are good, let’s use more of them!
 
 *** how this works
-    unlike Lar's configuration, my =init.el= will always be called. i like the idea of =init.el= always
-    remaining untouched pure. this also follows all three propositions of my philosophy for this
-    config file.
+    unlike Lar's configuration, my =init.el= will always be called. i like the
+    idea of =init.el= always remaining untouched and pure.
 
-    in =init.el=, i set my package repositories and then bootstrap =use-package= and =org=, these are the
-    two undergirdings of this config set up and i want them working correctly and up to date always.
+    in =init.el=, i set my package repositories and then bootstrap
+    =use-package= and =org=, these are the two pillars of my config and i
+    want to guarantee they are working and up to date.
 
-    from there, the init file loads this file (=my-init.org=), extracts all code blocks by "tangling"
-    it, and then makes the byte compiled version of its =.el= equivalent.
+    from there, the init file loads this file (=my-init.org=), extracts all
+    code blocks by "tangling" it, and produces the =.el= equivalent used by
+    emacs.
 
+**** use-package notes
+***** =:init= vs =:config=
+
+      - =:init= is executed upon the eval of a =(use-package ...)= declaration
+        containing them, i.e. immediately when *this* file is evaluated by
+        emacs, *always*.
+        - not affected by whether the package is lazy loaded or not.
+
+      - =:config= is executed *when* and only *if* the given package in a
+        use-package declaration is evaluated. This is because of the lazy
+        nature of package configurations.
+
+      - Thus, you will typically want to use =:config= for settings specific
+        the mode being loaded, e.g. =(setq some-mode-color ’red)=
+      
 *** TODO Decide whether I will byte compile my emacs config
     we want our changes in any =.org= config file to be reflected back into our actual =.el= files. The
     hook below achieves this by re-compiling the byte file of any config =.org= file edited.
@@ -178,10 +204,6 @@
       ;; can't get flycheck mode to enable itself otherwise
       (global-flycheck-mode)
 
-      ;; guide key so i know what keybindings i have available to me
-      (which-key-mode)
-      (which-key-setup-minibuffer)
-
       ;; make our mode line prettier
       (use-package smart-mode-line)
       (setq sml/no-confirm-load-theme t)
@@ -237,6 +259,32 @@
                   '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
     #+END_SRC
 
+**** which-key and general.el
+     Which-key is a very nice minor-mode that essentially gives a preview of
+     all possible key completions available based on the current key stroke,
+     saving you the hassle of having to memorize *every* key binding, and thus
+     protecting you from going full emacs hermit.
+
+     
+     general defines "leader" keys/keystrokes, which allows you to setup mappings
+     predicated off of a set of leader keys. For example, I set "C-c m" to be
+     the leader keystroke for all of my magit commands I typically use.
+
+     key bindings are left to the actual key binding section
+     
+     #+BEGIN_SRC emacs-lisp
+       (use-package general)
+
+       (use-package which-key
+         :init
+         (which-key-mode)
+         :config
+         ;; already by default, but explicitly setting for popup to be in a bottom
+         ;; frame.
+         (which-key-setup-side-window-bottom)
+         ;; ensures popup cannot take up more than .15 of emacs window
+         (setq which-key-side-window-max-height .10))
+     #+END_SRC
 **** fill-column, spaces, and tabs
      #+BEGIN_SRC emacs-lisp
        ;; lisp and haskell got me used to working with 2 space indents, idk man
@@ -613,9 +661,6 @@
    otherwise.
 
    #+BEGIN_SRC emacs-lisp
-
-     (use-package general)
-
      (global-unset-key (kbd "C-z"))
 
      (bind-key (kbd "M-/") 'hippie-expand)
@@ -632,17 +677,28 @@
       "t" 'login-erc-tls
       "l" 'login-erc)
 
+     (general-define-key
+      "C-~" 'ace-swap-window)
+
+     (general-define-key
+     "C-z" 'ace-window)
+
+     (general-define-key
+      :keymaps 'org-mode-map
+      :prefix "C-c a"
+      "n" 'anki-editor-insert-note
+      "d" 'anki-editor-insert-deck
+      "s" 'anki-editor-submit)
+
      (which-key-add-key-based-replacements
        "C-c m" "magit"
        "C-c !" "flycheck"
        "C-c &" "yas"
        "C-c e" "erc")
 
-     (general-define-key
-      "C-~" 'ace-swap-window)
-      
-     (general-define-key
-     "C-z" 'ace-window)
+     (which-key-add-major-mode-key-based-replacements 'org-mode
+       "C-c a" "anki")
+
    #+END_SRC
 *** TODO General-mode and leader keybinding setup
 ** Languages
