@@ -150,7 +150,7 @@
                 bundler chruby rbenv rspec-mode rubocop ruby-tools rvm rake
 
                 ;; tex
-                auctex auctex-latexmk typo
+                auctex auctex-latexmk typo cdlatex
 
                 ;; org
                 org-bullets org-pomodoro org-download htmlize org-journal
@@ -159,7 +159,7 @@
                 seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme
 
                 ;; other
-                writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace anki-editor
+                writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace anki-editor emojify
 
                 ;; google
                 google-this google-translate
@@ -602,12 +602,23 @@
       (defun generic-org-minor-modes ()
         (interactive)
         (org-bullets-mode 1)
+        (org-cdlatex-mode 1)
         (auto-fill-mode 1))
       (add-hook 'org-mode-hook 'generic-org-minor-modes)
 
       ;; (setq epa-pinentry-mode 'loopback)
       ;; (pinentry-start)
 
+
+      ;; enable org to evaluate the following PL code blocks with C-c C-c
+      (org-babel-do-load-languages
+       'org-babel-load-languages '((C . t)
+                                   (python . t)
+                                   (shell . t)
+                                   (haskell . t)
+                                   (emacs-lisp . t)
+                                   (clojure . t)
+                                   (js . t)))
 
     #+END_SRC
 
@@ -681,7 +692,10 @@
       "C-~" 'ace-swap-window)
 
      (general-define-key
-     "C-z" 'ace-window)
+      "C-z" 'other-window)
+
+     (general-define-key
+     "C-S-z" 'ace-window)
 
      (general-define-key
       :keymaps 'org-mode-map
@@ -938,7 +952,8 @@
       ;;;;
 
       ;; provides minibuffer documentation for the code you're typing into the repl
-      (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+      (add-hook 'cider-mode-hook 'eldoc-mode)
+
 
       ;; go right to the REPL buffer when it's finished connecting
       (setq cider-repl-pop-to-buffer-on-connect t)
