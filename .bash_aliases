@@ -10,3 +10,4 @@ alias su-emax="sudo emacsclient -t"
 alias emcl="nohup emacsclient -c > ~/nohup.out &"  # starts new gui frame & detatches from parent process (the terminal) & throws stdout/err to nohup.out
 alias tomaty='/home/spook/.pyenv/versions/toma/bin/tomaty & disown'
 alias getTheBLOCK="sudo cp /etc/hosts.tw-fb /etc/hosts"
+alias gogh-term-change='wget -O gogh https://git.io/vQgMr && chmod +x gogh && ./gogh && rm gogh'

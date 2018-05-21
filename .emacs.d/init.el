@@ -70,3 +70,4 @@
 (provide 'init)
 
 ;;; init ends here
+(put 'narrow-to-region 'disabled nil)

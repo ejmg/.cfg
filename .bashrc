@@ -134,3 +134,7 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
 eval `keychain --eval id_rsa`
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"
+export GEM_HOME=$HOME/gems
+export PATH=$HOME/gems/bin:$PATH
