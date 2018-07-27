@@ -11,3 +11,5 @@ alias emcl="nohup emacsclient -c > ~/nohup.out &"  # starts new gui frame & deta
 alias tomaty='/home/spook/.pyenv/versions/toma/bin/tomaty & disown'
 alias getTheBLOCK="sudo cp /etc/hosts.tw-fb /etc/hosts"
 alias gogh-term-change='wget -O gogh https://git.io/vQgMr && chmod +x gogh && ./gogh && rm gogh'
+alias signal-desktop='nohup signal-desktop --disable=gpu &'
+alias slack='nohup slack --disable-gpu &'
