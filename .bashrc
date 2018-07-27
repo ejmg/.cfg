@@ -126,15 +126,37 @@ if ! shopt -oq posix; then
   fi
 fi
 
-export ALTERNATE_EDITOR=""
-export EDITOR="emacsclient -t"                  # $EDITOR should open in terminal
-export VISUAL="emacsclient -c -a emacs"         # $VISUAL opens in GUI with non-daemon as alternate
+## PATH VARIABLE CONFIGURATIONS
+## -----------------------------
+##
+## Summary:
+## Ideally, these would be in .profile according to most resources I have read.
+## Unfortunately, for reasons I do not understand, e.g. haven't put time
+## into reading more about, they do not work unless in `.bashrc`
+##
+## Future work: Seeing if things like setting up `.bash_profile` makes a
+## difference for arch/ubuntu systems. Until then.... here they are.
+## ----------------------------
 
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+# PYTHON (PYENV) CONFIGURATIONS
 
-eval `keychain --eval id_rsa`
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
+# Ensures proper init since .profile config shits itself half the time
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
+
+# RUBY (RBENV) CONFIGURATION
+
 export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
-export GEM_HOME=$HOME/gems
-export PATH=$HOME/gems/bin:$PATH
+
+# KEYCHAIN CONFIG
+
+# ALWAYS keep at bottom of .bashrc
+# this ensures everything evals/loads correctly and that if I C-c out of
+# the prompt for my ssh key, everything else I want working in my shell
+# session actually works. Otherwise, anything that comes after this will be
+# skipped.
+eval `keychain --eval id_rsa`

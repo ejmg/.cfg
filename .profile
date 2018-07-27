@@ -16,11 +16,21 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 fi
 
-# PYTHON CONFIGURATIONS
 
-export PATH="/home/spook/.pyenv/bin:$PATH"
-export WORKON_HOME="/home/spook/.pyenv/"
+## PATHS
+############################################
 
+# RUST
+export PATH="$HOME/.cargo/bin:$PATH"
+export RUST_SRC_PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src"
+
+# HASKELL, STACK
+# export PATH="$HOME/.stack/programs/x86_64-linux/ghc-8.2.1/bin:$PATH"
+# stack told me to add this after installing, not sure if actually needed
+# export PATH="$PATH:$HOME/.local/bin"
+
+# Games? 
+# export PATH="/usr/games:$
 
 # android
 
@@ -28,23 +38,17 @@ export ANDROID_HOME=/home/spook/Android/Sdk
 export PATH=$PATH:/home/spook/Android/Sdk/tools
 export PATH=$PATH:/home/spook/Android/Sdk/platform-tools
 
-# ruby
+# export SDKMAN_DIR="/home/spook/.sdkman"
+# [[ -s "/home/spook/.sdkman/bin/sdkman-init.sh" ]] && source "/home/spook/.sdkman/bin/sdkman-init.sh"
 
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
-
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+# Ruby
+export PATH="$HOME/.rbenv/bin:$PATH"
+export GEM_HOME=$HOME/gems
+export PATH=$HOME/gems/bin:$PATH
 
 # set PATH so it includes user's private bin directories
 export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/home/spook/.sdkman"
-[[ -s "/home/spook/.sdkman/bin/sdkman-init.sh" ]] && source "/home/spook/.sdkman/bin/sdkman-init.sh"
-export PATH="/usr/games:$PATH"
-
-export PATH="$HOME/.cargo/bin:$PATH"
-export RUST_SRC_PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src"
-
-export PATH="$HOME/.stack/programs/x86_64-linux/ghc-8.2.1/bin:$PATH"
-
 eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+eval "$(rbenv init -)"
