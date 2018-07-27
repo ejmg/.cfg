@@ -101,7 +101,8 @@
                 ;; utilities
                 which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
-                smartparens ggtags expand-region ag;;bookmarks+ dired+ no longer on melpa 
+                smartparens ggtags expand-region ag neotree keychain-environment workgroups
+                ;;bookmarks+ dired+ no longer on melpa 
 
                 ;; TODO actually config this up so I have a more spacemacs-like navigation experience
                 general
@@ -180,6 +181,10 @@
     #+BEGIN_SRC emacs-lisp
       ;; no splash screen, sorry Stallman
       (setq inhibit-splash-screen t)
+
+      ;; ensure things like gpg and ssh agent are handled automatically
+      (keychain-refresh-environment)
+      
 
       ;; don't use the tool or scroll bar, thx
       (tool-bar-mode -1)
@@ -316,29 +321,36 @@
 **** window and file history
 
      #+BEGIN_SRC emacs-lisp
-       ;; C-c LEFT to undo window change, which i need often
-       (use-package winner
-         :init (winner-mode 1))
+              ;; C-c LEFT to undo window change, which i need often
+              (use-package winner
+                :init (winner-mode 1))
 
-       ;; re-opens file at last place edited
-       (use-package saveplace
-         :defer t
-         :init
-         (setq-default save-place t)
-         (setq save-place-file (expand-file-name ".places" user-emacs-directory)))
+              (use-package workgroups
+                :config
+                (workgroups-mode 1)
+                (setq wg-prefix-key (kbd "C-c w"))
+                (wg-load "~/.emacs.d/saved-workgroups")
+                (setq wg-switch-on-load nil))
 
-       ;; enables recent-files to be re-opened
-       (recentf-mode 1)
-       (setq recentf-max-menu-items 50)
+              ;; re-opens file at last place edited
+              (use-package saveplace
+                :defer t
+                :init
+                (setq-default save-place t)
+                (setq save-place-file (expand-file-name ".places" user-emacs-directory)))
 
-       ;; do not need spam in recents list
-       (setq recentf-exclude '("/auto-install/" ".recentf" "/repos/" "/elpa/"
-                               "\\.mime-example" "\\.ido.last" "COMMIT_EDITMSG"
-                               ".gz"
-                               "~$" "/tmp/" "/ssh:" "/sudo:" "/scp:"))
-       (global-set-key "\C-x\ \C-r" 'recentf-open-files)
+              ;; enables recent-files to be re-opened
+              (recentf-mode 1)
+              (setq recentf-max-menu-items 50)
 
-       ;;(desktop-save-mode 1)
+              ;; do not need spam in recents list
+              (setq recentf-exclude '("/auto-install/" ".recentf" "/repos/" "/elpa/"
+                                      "\\.mime-example" "\\.ido.last" "COMMIT_EDITMSG"
+                                      ".gz"
+                                      "~$" "/tmp/" "/ssh:" "/sudo:" "/scp:"))
+              (global-set-key "\C-x\ \C-r" 'recentf-open-files)
+
+              ;;(desktop-save-mode 1)
      #+END_SRC
 **** projectile
 
@@ -614,7 +626,7 @@
       (org-babel-do-load-languages
        'org-babel-load-languages '((C . t)
                                    (python . t)
-                                   (sh . t)
+                                   (shell . t)
                                    (haskell . t)
                                    (emacs-lisp . t)
                                    (clojure . t)
@@ -684,6 +696,16 @@
       "b" 'magit-branch-popup)
 
      (general-define-key
+      :prefix "C-c w"
+      "c" 'wg-create-workgroup
+      "v" 'wg-switch-to-workgroup
+      "w" 'wg-toggle-morph
+      "r" 'wg-revert-workgroup
+      "u" 'wg-update-workgroup
+      "s" 'wg-save
+      "l" 'wg-load)
+
+     (general-define-key
       :prefix "C-c e"
       "t" 'login-erc-tls
       "l" 'login-erc)
@@ -708,7 +730,8 @@
        "C-c m" "magit"
        "C-c !" "flycheck"
        "C-c &" "yas"
-       "C-c e" "erc")
+       "C-c e" "erc"
+       "C-c w" "wg")
 
      (which-key-add-major-mode-key-based-replacements 'org-mode
        "C-c a" "anki")
