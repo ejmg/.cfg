@@ -157,7 +157,7 @@
                 org-bullets org-pomodoro org-download htmlize org-journal
 
                 ;; themes
-                seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme
+                challenger-deep-theme exotica-theme seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme
 
                 ;; other
                 writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace anki-editor emojify
@@ -308,7 +308,7 @@
 
        ;; for dark: seti; for light: gandalf
        ;; when i feel like a hacker: cyberpunk or dark-mint
-       (load-theme 'dracula t)
+       (load-theme 'challenger-deep t)
 
        ;; pretty symboles
        (prettify-symbols-mode t)
@@ -329,7 +329,8 @@
        (workgroups-mode 1)
        (setq wg-prefix-key (kbd "C-c w"))
        (setq wg-switch-on-load nil)
-       (setq wg-file "~/.workgroups")
+       (wg-file "~/.workgroups")
+
 
 
        ;; re-opens file at last place edited
