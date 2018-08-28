@@ -101,7 +101,8 @@
                 ;; utilities
                 which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
-                smartparens ggtags expand-region ag neotree keychain-environment workgroups
+                smartparens ggtags expand-region ag neotree keychain-environment workgroups multiple-cursors
+                dimmer
                 ;;bookmarks+ dired+ no longer on melpa 
 
                 ;; TODO actually config this up so I have a more spacemacs-like navigation experience
@@ -317,6 +318,9 @@
                                               ("gamma" . ?Γ)
                                               ("phi" . ?φ)
                                               ("psi" . ?ψ)))
+       ;; dims the buffers that are not active
+       (use-package dimmer)
+       (dimmer-mode)
      #+END_SRC
 **** window and file history
 
@@ -439,6 +443,14 @@
              (list "--sug-mode=fast" ;; ultra|fast|normal|bad-spellers
                    "--lang=en_US"
                    "--ignore=3"))
+     #+END_SRC
+**** multiple cursors
+     this is a dope package that makes multi-line editing a breeze. to be
+     mastered later but for future ref, =mc/edit-lines=,
+     =mc/edit-ends-of-lines=, =mc/edit-beginnings-of-lines= are commands i'll
+     probably use the most.
+     #+BEGIN_SRC emacs-lisp
+       (use-package multiple-cursors)
      #+END_SRC
 **** whitespace
      #+BEGIN_SRC emacs-lisp
@@ -645,6 +657,7 @@
       (use-package erc)
 
       (load "~/.emacs.d/.erc-auth")
+      (erc-services-mode 1)
 
       ;; This causes ERC to connect to the Freenode network upon hitting
       ;; C-c e f.  Replace MYNICK with your IRC nick.
@@ -664,7 +677,8 @@
         (interactive)
         (erc :server "irc.freenode.net"
              :port "6667"
-             :nick "[spook]"))
+             :nick "[spook]")
+        :password spook-password)
 
 
 
@@ -707,6 +721,16 @@
       "l" 'wg-load)
 
      (general-define-key
+      :prefix "C-c s-c"
+      "c" 'mc/edit-lines
+      ">" 'mc/mark-next-like-this
+      "<" 'mc/mark-previous-like-this
+      "e" 'mc/edit-ends-of-lines
+      "b" 'mc/edit-beginnings-of-lines
+      "a" 'mc/mark-all-like-this
+      "r" 'mc/mark-all-in-region)
+
+     (general-define-key
       :prefix "C-c e"
       "t" 'login-erc-tls
       "l" 'login-erc)
@@ -732,7 +756,8 @@
        "C-c !" "flycheck"
        "C-c &" "yas"
        "C-c e" "erc"
-       "C-c w" "wg")
+       "C-c w" "wg"
+       "s-c" "multi")
 
      (which-key-add-major-mode-key-based-replacements 'org-mode
        "C-c a" "anki")
@@ -929,7 +954,8 @@
         (defun my-web-mode-setup ()
           (interactive)
           (company-mode)
-          (electric-pair-mode)
+          (smartparens-mode 0)
+          (electric-pair-mode 0)
           (linum-mode 1)
           ;; (web-mode-enable-current-column-highlight t)
           (emmet-mode))
