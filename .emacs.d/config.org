@@ -1094,6 +1094,7 @@
           (interactive)
           (racer-mode)
           (cargo-minor-mode)
+          (setq cargo-process--command-flags "--color never")
           (flycheck-rust-setup))
         (add-hook 'rust-mode-hook 'my-rust-setup))
     #+END_SRC
