@@ -180,6 +180,8 @@
      - fira code, etc, do not work with ligatures. i don't know how people get
        it to work. :(
        #+BEGIN_SRC emacs-lisp
+         (add-to-list 'default-frame-alist
+                       '(font . "Fira Code-10"))
          ;;; Fira code
          ;; This works when using emacs --daemon + emacsclient
          (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
