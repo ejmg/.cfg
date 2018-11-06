@@ -771,7 +771,7 @@
       ;; other symbols that might be of use idk:
       ;; ● ◼ ⁍ ◙ ◯ □ ◎ ◪ ▆ ▅ █ ⨀ ⨁ ⨂ ✱ ⏣ ⋙ ⃟ 
       ;; ✲ ✺ ✹ ✸ ✽ ✻ ✿ ➤ ➡ ➔ ✪ ✜ ✚ ✙ ▢ ⧐ ▷ ◆
-      (setq org-bullets-bullet-list (quote ("⬤" "⬛" "⦿" "▣" "►" "●" "◼" "➤")))
+      (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤")))
       ;; (setq org-hide-emphasis-markers t)
       (setq org-journal-dir "/home/spook/org/journal/")
       (setq org-journal-enable-encryption t)
@@ -785,6 +785,7 @@
         (interactive)
         (org-bullets-mode 1)
         (org-cdlatex-mode 1)
+        (emojify-mode 1)
         (auto-fill-mode 1))
       (add-hook 'org-mode-hook 'generic-org-minor-modes)
 
