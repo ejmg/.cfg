@@ -181,7 +181,7 @@
        it to work. :(
        #+BEGIN_SRC emacs-lisp
          (add-to-list 'default-frame-alist
-                       '(font . "Fira Code-10"))
+                       '(font . "Fira Code-12"))
          ;;; Fira code
          ;; This works when using emacs --daemon + emacsclient
          (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
@@ -768,7 +768,10 @@
 
     #+BEGIN_SRC emacs-lisp
 
-      (setq org-bullets-bullet-list (quote ("⦿" "▣" "●" "◼" "⁍" "►" "▷" "◆")))
+      ;; other symbols that might be of use idk:
+      ;; ● ◼ ⁍ ◙ ◯ □ ◎ ◪ ▆ ▅ █ ⨀ ⨁ ⨂ ✱ ⏣ ⋙ ⃟ 
+      ;; ✲ ✺ ✹ ✸ ✽ ✻ ✿ ➤ ➡ ➔ ✪ ✜ ✚ ✙ ▢ ⧐ ▷ ◆
+      (setq org-bullets-bullet-list (quote ("⬤" "⬛" "⦿" "▣" "►" "●" "◼" "➤")))
       ;; (setq org-hide-emphasis-markers t)
       (setq org-journal-dir "/home/spook/org/journal/")
       (setq org-journal-enable-encryption t)
@@ -939,6 +942,7 @@
         (interactive)
         (fci-mode)
         (linum-mode)
+        (emojify-mode)
         (smartparens-mode)
         ;;(yas-reload-all)
         ;;(yas-minor-mode-on)
@@ -1097,6 +1101,7 @@
           (racer-mode)
           (cargo-minor-mode)
           (setq cargo-process--command-flags "--color never")
+          (set-fill-column 100)
           (flycheck-rust-setup))
         (add-hook 'rust-mode-hook 'my-rust-setup))
     #+END_SRC
