@@ -321,9 +321,13 @@
       ;; no splash screen, sorry Stallman
       (setq inhibit-splash-screen t)
 
+      ;; disables annoying noise, "bell", triggered with actions such as hitting
+      ;; the end of a buffer.
+      (setq visible-bell t)
+
       ;; ensure things like gpg and ssh agent are handled automatically
       (keychain-refresh-environment)
-      
+
 
       ;; don't use the tool or scroll bar, thx
       (tool-bar-mode -1)
@@ -445,10 +449,12 @@
          (interactive "nTransparency Value 0 - 100 opaque:")
          (set-frame-parameter (selected-frame) 'alpha value))
 
+       ;; i have one them i play with that isn't on melpa
+       (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
        ;; for dark: seti; for light: gandalf
        ;; when i feel like a hacker: cyberpunk or dark-mint
        ;; 'challenger-deep
-       (load-theme 'gandalf t)
+       (load-theme 'tron t)
 
        ;; pretty symbols
        (prettify-symbols-mode t)
@@ -778,9 +784,7 @@
 
       ;; stops org-journal from opening previous day's entry
       (setq org-journal-carryover-items nil)
-      ;; find time and motivation to encrypt my journals lmao
-      ;; (setq org-journal-enable-encryption t)
-
+      ;;(emojify-mode 1)
       (defun generic-org-minor-modes ()
         (interactive)
         (org-bullets-mode 1)
