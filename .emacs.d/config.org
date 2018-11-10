@@ -113,7 +113,7 @@
                 company flycheck flycheck-tip hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
                 elisp-slime-nav company-math company-auctex company-anaconda company-tern
                 slime-company company-ycmd flycheck-rust enh-ruby-mode company-web
-                company-ghci flycheck-haskell company-statistics yasnippet-snippets
+                company-ghci flycheck-haskell company-statistics yasnippet-snippets lsp-mode lsp-ui company-lsp lsp-rust
 
                 ;; git
                 git-gutter-fringe magit
@@ -679,6 +679,8 @@
 
     #+BEGIN_SRC emacs-lisp
 
+      (use-package lsp-mode)
+
       (use-package yasnippet)
       (yas-global-mode 1)
 
@@ -712,6 +714,10 @@
       ;; python
       (eval-after-load "company"
         '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
+
+      ;; rust
+      (eval-after-load "company"
+        '(add-to-list 'company-backends 'company-lsp))
 
       ;; (eval-after-load "company"
       ;;   '(add-to-list 'company-backends company-web-html))
@@ -784,6 +790,8 @@
 
       ;; stops org-journal from opening previous day's entry
       (setq org-journal-carryover-items nil)
+
+      (setq org-agenda-files '("/home/spook/org/"))
       ;;(emojify-mode 1)
       (defun generic-org-minor-modes ()
         (interactive)
@@ -1098,17 +1106,30 @@
     #+END_SRC
 *** rust
     #+BEGIN_SRC emacs-lisp
+      (use-package lsp-rust)
+      (use-package lsp-ui)
+
       (use-package rust-mode
         :defer t
         :config
         (defun my-rust-setup ()
           (interactive)
-          (racer-mode)
+          ;; (racer-mode)
+          (lsp-rust-enable)
+          (lsp-ui-mode)
           (cargo-minor-mode)
           (setq cargo-process--command-flags "--color never")
           (set-fill-column 100)
-          (flycheck-rust-setup))
+          ;; (flycheck-rust-setup)
+          (flycheck-mode)
+          )
         (add-hook 'rust-mode-hook 'my-rust-setup))
+
+
+        (with-eval-after-load 'lsp-mode
+          (setq lsp-rust-rls-command '("rustup" "run" "stable" "rls")))
+        ;; (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+        ;; (add-hook 'rust-mode-hook 'lsp-mode)
     #+END_SRC
 *** TODO webprogramming
     #+BEGIN_SRC emacs-lisp
