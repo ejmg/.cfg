@@ -102,7 +102,7 @@
                 which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
                 smartparens ggtags expand-region ag neotree keychain-environment workgroups multiple-cursors
-                dimmer pdf-tools
+                dimmer pdf-tools smooth-scrolling
                 ;;bookmarks+ dired+ no longer on melpa 
 
                 ;; TODO actually config this up so I have a more spacemacs-like navigation experience
@@ -333,6 +333,10 @@
       (tool-bar-mode -1)
       (scroll-bar-mode -1)
 
+      ;; scrolling speed is bad, make it nicer
+      (smooth-scrolling-mode 1)
+      (setq mouse-wheel-progressive-speed nil)
+
       ;; do like menu bar
       (menu-bar-mode 1)
 
@@ -454,7 +458,7 @@
        ;; for dark: seti; for light: gandalf
        ;; when i feel like a hacker: cyberpunk or dark-mint
        ;; 'challenger-deep
-       (load-theme 'tron t)
+       (load-theme 'gandalf t)
 
        ;; pretty symbols
        (prettify-symbols-mode t)
