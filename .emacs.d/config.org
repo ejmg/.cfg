@@ -677,7 +677,9 @@
        (pdf-tools), which gives way better resolution, performance, and also
        even annotation logic!
        #+BEGIN_SRC emacs-lisp
-          (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
+          ;; throws error about not being a thing
+          ;; (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
+          (pdf-loader-install)
        #+END_SRC
 *** completion
 
