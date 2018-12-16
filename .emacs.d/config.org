@@ -102,7 +102,7 @@
                 which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
                 smartparens ggtags expand-region ag neotree keychain-environment workgroups multiple-cursors
-                dimmer pdf-tools smooth-scrolling
+                dimmer pdf-tools smooth-scrolling exec-path-from-shell
                 ;;bookmarks+ dired+ no longer on melpa 
 
                 ;; TODO actually config this up so I have a more spacemacs-like navigation experience
@@ -137,7 +137,7 @@
                 haskell-mode haskell-snippets hindent hlint-refactor
 
                 ;; python
-                anaconda-mode pyenv-mode hy-mode pytest py-yapf
+                anaconda-mode pyenv-mode hy-mode pytest py-yapf ;; python-pytest
 
                 ;; TODO: actually set these up
                 ;; js
@@ -318,6 +318,11 @@
 **** system defaults
      
     #+BEGIN_SRC emacs-lisp
+      ;; need this for things like pyenv to work with emacs daemon.
+      ;; this is a recent development and apparently has something to do with the fact
+      ;; i am using the daemon as a systemd unit. that shouldn't be a problem. to checkout later.
+      (exec-path-from-shell-initialize)
+
       ;; no splash screen, sorry Stallman
       (setq inhibit-splash-screen t)
 
@@ -458,7 +463,7 @@
        ;; for dark: seti; for light: gandalf
        ;; when i feel like a hacker: cyberpunk or dark-mint
        ;; 'challenger-deep
-       (load-theme 'gandalf t)
+       (load-theme 'tron t)
 
        ;; pretty symbols
        (prettify-symbols-mode t)
@@ -1027,9 +1032,9 @@
         :config
         (setq-default py-indent-tabs-mode nil)
         (setq-default flycheck-python-flake8-executable "flake8")
-        (setq python-indent 4)
         (setq python-indent-offset 4)
-        (setq python-guess-indent nil)
+        (setq python-indent-guess-indent-offset nil)
+        (setq pytest-cmd-flags "-x -s --color=yes")
         (defun my-python-setup ()
           (interactive)
           (electric-pair-mode)
