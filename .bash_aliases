@@ -8,3 +8,16 @@ alias emclox="emacsclient -t"
 alias signal-desktop='nohup signal-desktop --disable=gpu &'
 alias slack='nohup slack --disable-gpu &'
 alias toma='nohup /home/spook/.pyenv/versions/toma/bin/tomaty &'
+alias ghci='stack exec -- ghci'
+
+# Sends a popup via KDE Plasma's notification lib.
+# @param The message for the dialogue popup.
+kmsg() {
+    kdialog --passivepopup "$1";
+}
+
+# Makes directory and automatically changes to it.
+# @param The directory to create and change to
+mcdir() {
+    mkdir "$1" && cd "$1";
+}
