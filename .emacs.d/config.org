@@ -529,14 +529,21 @@
        (use-package counsel-projectile
          :hook projectile-mode)
 
-       (defun projectile-pyenv-mode-set ()
-         "Set pyenv version matching project name."
-         (let ((project (projectile-project-name)))
-           (if (member project (pyenv-mode-versions))
-               (pyenv-mode-set project)
-             (pyenv-mode-unset))))
 
-       (add-hook 'projectile-after-switch-project-hook 'projectile-pyenv-mode-set)
+       ;; This defun assumes I am always switching python projects and that I
+       ;; name my pyenvs after specific projects. It causes a lot of unecessary
+       ;; error messages in my buffer for reasons listed above. Tweak or get rid of.
+
+
+       ;; (defun projectile-pyenv-mode-set ()
+       ;;   "Set pyenv version matching project name."
+       ;;   (let ((project (projectile-project-name)))
+       ;;     (if (member project (pyenv-mode-versions))
+       ;;         (pyenv-mode-set project)
+       ;;       (pyenv-mode-unset))))
+
+       ;; (add-hook 'projectile-after-switch-project-hook 'projectile-pyenv-mode-set)
+
      #+END_SRC
 **** Ivy, Swiper
      #+BEGIN_SRC emacs-lisp
@@ -986,6 +993,7 @@
           (haskell-doc-mode)
           (haskell-indent-mode)
           (flycheck-haskell-setup)
+          (interactive-haskell-mode)
           ;;(hindent-mode) ;; must install with stack
           (haskell-snippets-initialize)
           (setq haskell-process-type 'stack-ghci))
