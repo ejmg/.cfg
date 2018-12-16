@@ -8,7 +8,8 @@ alias emclox="emacsclient -t"
 alias signal-desktop='nohup signal-desktop --disable=gpu &'
 alias slack='nohup slack --disable-gpu &'
 alias toma='nohup /home/spook/.pyenv/versions/toma/bin/tomaty &'
-alias ghci='stack exec -- ghci'
+alias gghci='stack exec ghci' # global ghci
+alias ghci='stack ghci' # local, but defaults to global if no local proj.
 
 # Sends a popup via KDE Plasma's notification lib.
 # @param The message for the dialogue popup.
