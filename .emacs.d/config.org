@@ -314,6 +314,13 @@
 
          (add-hook 'prog-mode-hook
                    #'add-fira-code-symbol-keywords)
+                   
+         ;; figure out why i need to manually call
+         ;; M-x interactive-haskell-mode while in a buffer
+         ;; that is already in interactive-haskell-mode
+         ;; for these fonts to render.
+         (add-hook 'interactive-haskell-mode-hook
+                   #'add-fira-code-symbol-keywords)
        #+END_SRC
 **** system defaults
      
@@ -444,7 +451,6 @@
      #+END_SRC
 **** fill-column, spaces, and tabs
      #+BEGIN_SRC emacs-lisp
-       ;; lisp and haskell got me used to working with 2 space indents, idk man
        (setq-default fill-column 79)
        (setq-default indent-tabs-mode nil)
        (setq-default default-tab-width 2)
@@ -809,7 +815,6 @@
       ;; stops org-journal from opening previous day's entry
       (setq org-journal-carryover-items nil)
 
-      (setq org-agenda-files '("/home/spook/org/"))
       ;;(emojify-mode 1)
       (defun generic-org-minor-modes ()
         (interactive)
@@ -835,6 +840,59 @@
 
     #+END_SRC
 
+
+
+**** Stopping invisible edits
+     It is really really hard sometimes to know what, and if, I've edited my
+     org files when my carat is hidden. This stops that.
+
+     #+BEGIN_SRC emacs-lisp
+       (setq org-catch-invisible-edits 'error)
+     #+END_SRC
+
+**** GDT Methodology
+     I use org mode to store a lot of random tidbits of information. Too much
+     information, actually. TODO's with vacuous deadlines, TODOs that should
+     actually be done tomorrow, things I'll realistically never get around to
+     in my mortal lifetime, and various bits of information inbetween.
+
+     As a result, I try to follow the Getting Things Done methodology. While I
+     don't really believe in silver bullets for organization, the skeleton of
+     this system tends to work well for me. I've taken inspiration from [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][Petton]]
+     and [[http://doc.norang.ca/org-mode.html][Hansen]].
+***** Keybindings
+      I have =C-c c= for =org-capture=, which allows me to file any random
+      thing that comes across my mind or desk.
+      #+BEGIN_SRC emacs-lisp
+        (global-set-key (kbd "C-c c") 'org-capture)
+      #+END_SRC
+
+      I don't need to edit what agenda files I will be using on the fly, so
+      disabling =C-c [= and =C-c ]= saves me grief.
+      #+BEGIN_SRC emacs-lisp
+        ;; Disable keys in org-mode
+        ;;    C-c [ 
+        ;;    C-c ]
+        (add-hook 'org-mode-hook
+                  '(lambda ()
+                     ;; Undefine C-c [ and C-c ] since this breaks my
+                     ;; org-agenda files when directories are include It
+                     ;; expands the files in the directories individually
+                     (org-defkey org-mode-map "\C-c[" 'undefined)
+                     (org-defkey org-mode-map "\C-c]" 'undefined))
+                  'append)
+      #+END_SRC
+
+      #+BEGIN_SRC emacs-lisp 
+      
+      #+END_SRC
+***** Org Agenda
+      Here are the files I will be using to sort and organize my tasks:
+      #+BEGIN_SRC emacs-lisp
+        (setq org-agenda-files '("~/org/thoughts.org"
+                                 "~/org/inbox.org"
+                                 "~/org/tasks.org"))
+      #+END_SRC
 *** erc
 
     #+BEGIN_SRC emacs-lisp
@@ -993,6 +1051,8 @@
           (haskell-doc-mode)
           (haskell-indent-mode)
           (flycheck-haskell-setup)
+          (electric-indent-mode 0) ;; currently causes a 'cl--assertion-failed: assertion failed (<= start end)'
+          (setq haskell-indent-offset 2)
           (interactive-haskell-mode)
           ;;(hindent-mode) ;; must install with stack
           (haskell-snippets-initialize)
