@@ -803,7 +803,6 @@
     settings for org mode
 
     #+BEGIN_SRC emacs-lisp
-
       ;; other symbols that might be of use idk:
       ;; ● ◼ ⁍ ◙ ◯ □ ◎ ◪ ▆ ▅ █ ⨀ ⨁ ⨂ ✱ ⏣ ⋙ ⃟ 
       ;; ✲ ✺ ✹ ✸ ✽ ✻ ✿ ➤ ➡ ➔ ✪ ✜ ✚ ✙ ▢ ⧐ ▷ ◆
@@ -840,8 +839,6 @@
 
     #+END_SRC
 
-
-
 **** Stopping invisible edits
      It is really really hard sometimes to know what, and if, I've edited my
      org files when my carat is hidden. This stops that.
@@ -860,6 +857,7 @@
      don't really believe in silver bullets for organization, the skeleton of
      this system tends to work well for me. I've taken inspiration from [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][Petton]]
      and [[http://doc.norang.ca/org-mode.html][Hansen]].
+
 ***** Keybindings
       I have =C-c c= for =org-capture=, which allows me to file any random
       thing that comes across my mind or desk.
@@ -869,7 +867,8 @@
 
       I don't need to edit what agenda files I will be using on the fly, so
       disabling =C-c [= and =C-c ]= saves me grief.
-      #+BEGIN_SRC emacs-lisp
+      
+      #+begin_SRC emacs-lisp
         ;; Disable keys in org-mode
         ;;    C-c [ 
         ;;    C-c ]
@@ -893,6 +892,54 @@
                                  "~/org/inbox.org"
                                  "~/org/tasks.org"))
       #+END_SRC
+
+***** Org TODOs
+      
+      Here are the states that a TODO can have in my org config:
+
+      #+BEGIN_SRC emacs-lisp
+        (setq org-todo-keywords
+              (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+                      (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+
+      #+END_SRC
+
+      I slightly tweak the default color settings for the faces of these
+      states:
+
+      #+BEGIN_SRC emacs-lisp
+        (setq org-todo-keyword-faces
+              (quote (("TODO" :foreground "red" :weight bold)
+                      ("NEXT" :foreground "blue" :weight bold)
+                      ("DONE" :foreground "forest green" :weight bold)
+                      ("WAITING" :foreground "orange" :weight bold)
+                      ("HOLD" :foreground "magenta" :weight bold)
+                      ("CANCELLED" :foreground "forest green" :weight bold)
+                      ("MEETING" :foreground "red" :weight bold)
+                      ("PHONE" :foreground "red" :weight bold))))
+      #+END_SRC
+
+      Lets me use fast selection to swap through states of my TODOs:
+      
+      #+BEGIN_SRC emacs-lisp
+        (setq org-use-fast-todo-selection t)
+      #+END_SRC
+
+      Disable ability to change these states via =S-left= and =S-right=:
+      
+      #+BEGIN_SRC emacs-lisp
+        (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+      #+END_SRC
+
+***** Capture Templates
+      
+      We'll file every captured moment into my inbox:
+
+      #+BEGIN_SRC emacs-lisp
+        (setq org-default-notes-file "~/git/org/refile.org")
+      #+END_SRC
+
+***** 
 *** erc
 
     #+BEGIN_SRC emacs-lisp
