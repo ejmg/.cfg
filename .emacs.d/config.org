@@ -497,11 +497,12 @@
        (use-package winner
          :init (winner-mode 1))
 
-       (use-package workgroups)
-       (workgroups-mode 1)
-       (setq wg-prefix-key (kbd "C-c w"))
-       (setq wg-switch-on-load nil)
-       (wg-file "~/.workgroups")
+       ;; TODO figure out if i want to figure out wg.
+       ;; (use-package workgroups)
+       ;; (workgroups-mode 1)
+       ;; (setq wg-prefix-key (kbd "C-c w"))
+       ;; (setq wg-switch-on-load nil)
+       ;; (wg-file "~/.workgroups")
 
 
 
@@ -861,6 +862,7 @@
 ***** Keybindings
       I have =C-c c= for =org-capture=, which allows me to file any random
       thing that comes across my mind or desk.
+
       #+BEGIN_SRC emacs-lisp
         (global-set-key (kbd "C-c c") 'org-capture)
       #+END_SRC
@@ -869,22 +871,31 @@
       disabling =C-c [= and =C-c ]= saves me grief.
       
       #+begin_SRC emacs-lisp
+        ;; TODO
+        ;; decide how to go about unbinding w/o making my kbd's break like this does.
+
         ;; Disable keys in org-mode
         ;;    C-c [ 
         ;;    C-c ]
-        (add-hook 'org-mode-hook
-                  '(lambda ()
-                     ;; Undefine C-c [ and C-c ] since this breaks my
-                     ;; org-agenda files when directories are include It
-                     ;; expands the files in the directories individually
-                     (org-defkey org-mode-map "\C-c[" 'undefined)
-                     (org-defkey org-mode-map "\C-c]" 'undefined))
-                  'append)
+        ;; (add-hook 'org-mode-hook
+        ;;           '(lambda ()
+        ;;              ;; Undefine C-c [ and C-c ] since this breaks my
+        ;;              ;; org-agenda files when directories are include It
+        ;;              ;; expands the files in the directories individually
+        ;;              (org-defkey org-mode-map "\C-c[" 'undefined)
+        ;;              (org-defkey org-mode-map "\C-c]" 'undefined))
+        ;;           'append)
       #+END_SRC
 
+      Finally, I need to be able to access my agenda view quickly. This setting
+      is currently made with my lenovo x1 carbon in mind. It has a function
+      key, "Favorite", that is not recognized by xorg. I remapped it to the
+      key =prog2= which is an alias for =XF86Launch2=.
+
       #+BEGIN_SRC emacs-lisp 
-      
+        (global-set-key (kbd "<XF86Launch2>") 'org-agenda)
       #+END_SRC
+
 ***** Org Agenda
       Here are the files I will be using to sort and organize my tasks:
       #+BEGIN_SRC emacs-lisp
@@ -939,7 +950,60 @@
         (setq org-default-notes-file "~/git/org/refile.org")
       #+END_SRC
 
-***** 
+      List of templates to choose from when capturing a moment via =C-c c=:
+
+      #+BEGIN_SRC emacs-lisp
+        ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
+        (setq org-capture-templates
+              (quote (("t" "todo" entry (file "~/org/inbox.org")
+                       "* TODO %?\n%U\n%a\n")
+                      ("r" "respond" entry (file "~/org/inbox.org")
+                       "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n")
+                      ("n" "note" entry (file "~/org/inbox.org")
+                       "* %? :NOTE:\n%U\n%a\n")
+                      ;; ("j" "Journal" entry (file+datetree "~/git/org/diary.org")
+                      ;;  "* %?\n%U\n" :clock-in t :clock-resume t)
+                      ;; ("w" "org-protocol" entry (file "~/org/inbox.org")
+                      ;;  "* TODO Review %c\n%U\n" :immediate-finish t)
+                      ("m" "Meeting" entry (file "~/org/inbox.org")
+                       "* MEETING with %? :MEETING:\n%U")
+                      ("p" "Phone call" entry (file "~/org/inbox.org")
+                       "* PHONE %? :PHONE:\n%U")
+                      ;; ("h" "Habit" entry (file "~/org/inbox.org")
+                      ;;  "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
+                      )))
+      #+END_SRC
+      
+      My refile targets for moments. Ideally, I should actively be refiling
+      things from my inbox to where they belong. If they are something I will
+      be working on, big or small, they go to tasks. If it's just an
+      idea/something I won't be touching for sometime, then thoughts. Etc.
+
+      #+BEGIN_SRC emacs-lisp
+        ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+        (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                         (org-agenda-files :maxlevel . 9))))
+
+        ; Allow refile to create parent tasks with confirmation
+        (setq org-refile-allow-creating-parent-nodes (quote confirm))
+      #+END_SRC
+
+      We don't want to include DONE tasks as refile targets because that will
+      make our lists *huge*.
+      
+      #+BEGIN_SRC emacs-lisp
+        ;;;; Refile settings
+        ; Exclude DONE state tasks from refile targets
+        (defun bh/verify-refile-target ()
+          "Exclude todo keywords with a done state from refile targets"
+          (not (member (nth 2 (org-heading-components)) org-done-keywords)))
+
+        (setq org-refile-target-verify-function 'bh/verify-refile-target)
+      #+END_SRC
+      
+***** Agenda
+
+      This is what I see when I run
 *** erc
 
     #+BEGIN_SRC emacs-lisp
@@ -1003,15 +1067,17 @@
       "c" 'magit-checkout
       "b" 'magit-branch-popup)
 
-     (general-define-key
-      :prefix "C-c w"
-      "c" 'wg-create-workgroup
-      "v" 'wg-switch-to-workgroup
-      "w" 'wg-toggle-morph
-      "r" 'wg-revert-workgroup
-      "u" 'wg-update-workgroup
-      "s" 'wg-save
-      "l" 'wg-load)
+     ;; Don't really use wg's that much.
+     ;; wasted keybindings till I find the need.
+     ;; (general-define-key
+     ;;  :prefix "C-c w"
+     ;;  "c" 'wg-create-workgroup
+     ;;  "v" 'wg-switch-to-workgroup
+     ;;  "w" 'wg-toggle-morph
+     ;;  "r" 'wg-revert-workgroup
+     ;;  "u" 'wg-update-workgroup
+     ;;  "s" 'wg-save
+     ;;  "l" 'wg-load)
 
      (general-define-key
       :prefix "C-c s-c"
@@ -1037,23 +1103,29 @@
      (general-define-key
      "C-S-z" 'ace-window)
 
-     (general-define-key
-      :keymaps 'org-mode-map
-      :prefix "C-c a"
-      "n" 'anki-editor-insert-note
-      "d" 'anki-editor-insert-deck
-      "s" 'anki-editor-submit)
+     ;; setting [ as a leader key breaks emacs for some reason.
+     ;; Error trace: `(error "Key sequence C-c [ n starts with non-prefix key C-c [")`
+     ;;
+     ;; Disabled for now given I want to use C-c a for agenda???
+     ;; IDK.
+     ;; (general-define-key
+     ;;  :keymaps 'org-mode-map
+     ;;  :prefix "C-c ["
+     ;;  "n" 'anki-editor-insert-note
+     ;;  "d" 'anki-editor-insert-deck
+     ;;  "s" 'anki-editor-submit)
 
      (which-key-add-key-based-replacements
        "C-c m" "magit"
        "C-c !" "flycheck"
        "C-c &" "yas"
        "C-c e" "erc"
-       "C-c w" "wg"
+       ;; "C-c w" "wg"
        "s-c" "multi")
 
-     (which-key-add-major-mode-key-based-replacements 'org-mode
-       "C-c a" "anki")
+     ;; not sure if need?
+     ;; (which-key-add-major-mode-key-based-replacements 'org-mode
+     ;;   "C-c [" "anki")
 
    #+END_SRC
 *** TODO General-mode and leader keybinding setup
