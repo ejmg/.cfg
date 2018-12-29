@@ -184,9 +184,36 @@
                        '(font . "Fira Code-12"))
          ;;; Fira code
          ;; This works when using emacs --daemon + emacsclient
-         (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
+         ;; (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
+
+         ;; TODO: Clearly still broken. Terminal emacs still has buggy ligatures.
+         ;; IDEA: Rather than use (when), which only executes on non-nil, change to an if-else
+         ;; statement. This (might?) allow me to unset the font if a prior GUI instance changed it to using the Fira ligatures.
+         ;; I think this is the next logical step in terms of debugging it.
+
+         ;; my attempt at fixing ligature conflict between terminal fonts & emacs
+         (add-hook 'after-make-frame-functions
+                   (lambda (frame)
+                     (when (display-graphic-p)
+                       ;; he sets the font over the range of hex code Xe100 to Xe16f
+                       ;; Following the TODO above, maybe the solution is to have an else
+                       ;; clause that simply re-sets set-fontset-font to a normal font,
+                       ;; maybe `Fira Code-12`?
+                       ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Modifying-Fontsets.html
+                       (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))))
+
          ;; This works when using emacs without server/client
-         (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+         ;; (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+
+         ;; my attempt at fixing ligature conflict between terminal fonts & emacs
+         ;; In theory, this should catch the exception noted above by the original
+         ;; author for these font hooks. This only runs when starting emacs and checks
+         ;; for both daemon and non-daemon processes...I think.
+         (add-hook 'after-init-hook
+                   (lambda ()
+                     (when (display-graphic-p)
+                       (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))))
+
          ;; I haven't found one statement that makes both of the above situations work, so I use both for now
 
          (defconst fira-code-font-lock-keywords-alist
@@ -206,7 +233,7 @@
                      ("\\(\\\\\\\\\\)"              #Xe106)
                      ("\\(\\\\\\\\\\\\\\)"          #Xe107)
                      ("\\({-\\)"                    #Xe108)
-                     ("\\(\\[\\]\\)"                #Xe109)
+                     ;;("\\(\\[\\]\\)"                #Xe109) ;; p sure this is the annoying square ligature
                      ("\\(::\\)"                    #Xe10a)
                      ("\\(:::\\)"                   #Xe10b)
                      ("[^=]\\(:=\\)"                #Xe10c)
@@ -310,11 +337,28 @@
                      ("[^\\*/<>]\\(\\*\\)[^\\*/<>]" #Xe16f))))
 
          (defun add-fira-code-symbol-keywords ()
+           ;; TODO THIS MIGHT ACTUALLY BE THE ANSWER, IGNORE PREVIOUS TODO's(?):
+           ;; https://stackoverflow.com/questions/18152681/syntax-for-adding-removing-font-lock-keywords-in-emacs
+           ;; https://www.emacswiki.org/emacs/AddKeywords
            (font-lock-add-keywords nil fira-code-font-lock-keywords-alist))
+
 
          (add-hook 'prog-mode-hook
                    #'add-fira-code-symbol-keywords)
-                   
+
+         ;; Old TODO before ^^^ occurred to me:
+         ;; Maybe set a hook that unsets the #'add-fira-code-symbol-keywords function
+         ;; Still could work as a solution but idk in context of above.
+         ;; (defun fira-set-if-display-p ()
+         ;;   (when (display-graphic-p)
+         ;;     #'add-fira-code-symbol-keywords)
+         ;;   )
+
+         ;; (add-hook 'prog-mode-hook (lambda ()
+         ;;                             (when (display-graphic-p)
+         ;;                               ()))
+         ;;           )
+
          ;; figure out why i need to manually call
          ;; M-x interactive-haskell-mode while in a buffer
          ;; that is already in interactive-haskell-mode
