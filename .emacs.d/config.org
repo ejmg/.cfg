@@ -1087,7 +1087,7 @@
      ;;  "l" 'wg-load)
 
      (general-define-key
-      :prefix "C-c s-c"
+      :prefix "C-c s-m"
       "c" 'mc/edit-lines
       ">" 'mc/mark-next-like-this
       "<" 'mc/mark-previous-like-this
@@ -1115,12 +1115,12 @@
      ;;
      ;; Disabled for now given I want to use C-c a for agenda???
      ;; IDK.
-     ;; (general-define-key
-     ;;  :keymaps 'org-mode-map
-     ;;  :prefix "C-c ["
-     ;;  "n" 'anki-editor-insert-note
-     ;;  "d" 'anki-editor-insert-deck
-     ;;  "s" 'anki-editor-submit)
+     (general-define-key
+      :keymaps 'org-mode-map
+      :prefix "C-c s-a"
+      "n" 'anki-editor-insert-note
+      "r" 'anki-editor-retry-failure-notes
+      "s" 'anki-editor-push-notes)
 
      (which-key-add-key-based-replacements
        "C-c m" "magit"
