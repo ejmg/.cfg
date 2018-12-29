@@ -1175,12 +1175,13 @@
         (defun my-haskell-setup()
           (interactive)
           (haskell-doc-mode)
-          (haskell-indent-mode)
+          ;; (haskell-indent-mode)
+          ;; (haskell-indent-offset 2)
           (flycheck-haskell-setup)
           (electric-indent-mode 0) ;; currently causes a 'cl--assertion-failed: assertion failed (<= start end)'
-          (setq haskell-indent-offset 2)
+          ;; (setq haskell-indent-offset 2)
           (interactive-haskell-mode)
-          ;;(hindent-mode) ;; must install with stack
+          (hindent-mode) ;; must install with stack
           (haskell-snippets-initialize)
           (setq haskell-process-type 'stack-ghci))
         (add-hook 'haskell-mode-hook 'my-haskell-setup))
