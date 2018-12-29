@@ -947,7 +947,7 @@
       We'll file every captured moment into my inbox:
 
       #+BEGIN_SRC emacs-lisp
-        (setq org-default-notes-file "~/git/org/refile.org")
+        (setq org-default-notes-file "~/git/org/inbox.org")
       #+END_SRC
 
       List of templates to choose from when capturing a moment via =C-c c=:
@@ -981,8 +981,9 @@
 
       #+BEGIN_SRC emacs-lisp
         ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-        (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                         (org-agenda-files :maxlevel . 9))))
+        (setq org-refile-targets '(("~/org/thoughts.org" :maxlevel . 9)
+                                   ("~/org/tasks.org" :maxlevel . 9)
+                                   ("~/org/later.org" :maxlevel . 9)))
 
         ; Allow refile to create parent tasks with confirmation
         (setq org-refile-allow-creating-parent-nodes (quote confirm))
@@ -1004,6 +1005,12 @@
 ***** Agenda
 
       This is what I see when I run
+***** clock
+      This changes the modeline time string for a clocked task from total time
+      of the time clocked + current session to only the current session.
+      #+BEGIN_SRC emacs-lisp
+        (setq org-clock-mode-line-total 'current)
+      #+END_SRC
 *** erc
 
     #+BEGIN_SRC emacs-lisp
