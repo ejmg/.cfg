@@ -616,7 +616,7 @@
        (global-set-key (kbd "C-c j") 'counsel-git-grep)
        (global-set-key (kbd "C-c k") 'counsel-ag)
        (global-set-key (kbd "C-x l") 'counsel-locate)
-       (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+       ;; (global-set-key (kbd "C-S-o") 'counsel-rhythmbox) ;; don't use rhythm box lol
        (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
      #+END_SRC
 **** dired
@@ -808,6 +808,22 @@
       ;;'(add-to-list 'company-backends 'company-yasnippet))
 
     #+END_SRC
+
+**** ignore buffers with bad completion candidates
+     I use dabbrev mode as a completion candidate with company mode. This means
+     it will look at other buffers for strings to complete from when it can't
+     find anything from an intelligent completion engine/source. However, if
+     you are reading a PDF (or tex log file, etc), you can get literal escape
+     sequences as completion candidates. It also adds a good amount of lag due
+     to the sheer number being looked at as potential completion candidates.
+
+     This should stop it. 
+
+     #+BEGIN_SRC emacs-lisp
+       (setq company-files-exclusions
+             (append '(".pdf" ".fbd_latexmk" ".aux" ".log" ".bbl" ".bcf" ".gz" ".blg" ".fls")
+                     company-files-exclusions))
+     #+END_SRC
 **** expand region
      #+BEGIN_SRC emacs-lisp
        (use-package expand-region
