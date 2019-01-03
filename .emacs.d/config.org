@@ -817,12 +817,11 @@
      sequences as completion candidates. It also adds a good amount of lag due
      to the sheer number being looked at as potential completion candidates.
 
-     This should stop it. 
+     This should stop it... I think.
 
      #+BEGIN_SRC emacs-lisp
-       (setq company-files-exclusions
-             (append '(".pdf" ".fbd_latexmk" ".aux" ".log" ".bbl" ".bcf" ".gz" ".blg" ".fls")
-                     company-files-exclusions))
+       (setq company-files-exclusions '(".pdf" ".fbd_latexmk" ".aux" ".log" ".bbl"
+                                       ".bcf" ".gz" ".blg" ".fls"))
      #+END_SRC
 **** expand region
      #+BEGIN_SRC emacs-lisp
