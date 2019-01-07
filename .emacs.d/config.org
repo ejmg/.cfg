@@ -184,7 +184,7 @@
                        '(font . "Fira Code-12"))
          ;;; Fira code
          ;; This works when using emacs --daemon + emacsclient
-         ;; (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
+         (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
 
          ;; TODO: Clearly still broken. Terminal emacs still has buggy ligatures.
          ;; IDEA: Rather than use (when), which only executes on non-nil, change to an if-else
@@ -192,27 +192,27 @@
          ;; I think this is the next logical step in terms of debugging it.
 
          ;; my attempt at fixing ligature conflict between terminal fonts & emacs
-         (add-hook 'after-make-frame-functions
-                   (lambda (frame)
-                     (when (display-graphic-p)
-                       ;; he sets the font over the range of hex code Xe100 to Xe16f
-                       ;; Following the TODO above, maybe the solution is to have an else
-                       ;; clause that simply re-sets set-fontset-font to a normal font,
-                       ;; maybe `Fira Code-12`?
-                       ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Modifying-Fontsets.html
-                       (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))))
+         ;; (add-hook 'after-make-frame-functions
+         ;;           (lambda (frame)
+         ;;             (when (display-graphic-p)
+         ;;               ;; he sets the font over the range of hex code Xe100 to Xe16f
+         ;;               ;; Following the TODO above, maybe the solution is to have an else
+         ;;               ;; clause that simply re-sets set-fontset-font to a normal font,
+         ;;               ;; maybe `Fira Code-12`?
+         ;;               ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Modifying-Fontsets.html
+         ;;               (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))))
 
          ;; This works when using emacs without server/client
-         ;; (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+         (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
 
          ;; my attempt at fixing ligature conflict between terminal fonts & emacs
          ;; In theory, this should catch the exception noted above by the original
          ;; author for these font hooks. This only runs when starting emacs and checks
          ;; for both daemon and non-daemon processes...I think.
-         (add-hook 'after-init-hook
-                   (lambda ()
-                     (when (display-graphic-p)
-                       (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))))
+         ;; (add-hook 'after-init-hook
+         ;;           (lambda ()
+         ;;             (when (display-graphic-p)
+         ;;               (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))))
 
          ;; I haven't found one statement that makes both of the above situations work, so I use both for now
 
