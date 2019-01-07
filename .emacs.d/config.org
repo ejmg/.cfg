@@ -823,6 +823,18 @@
        (setq company-files-exclusions '(".pdf" ".fbd_latexmk" ".aux" ".log" ".bbl"
                                        ".bcf" ".gz" ".blg" ".fls"))
      #+END_SRC
+
+     This function sets =company-dabbrev-ignore-buffers= to anything matching a
+     .pdf file.
+
+     #+BEGIN_SRC emacs-lisp
+       (defun company-dabbrev-ignore-pdfs (buffer)
+         "ignore all pdf buffers"
+         (string-match-p "\\.pdf"
+                      (buffer-name buffer)))
+       (setq company-dabbrev-ignore-buffers 'company-dabbrev-ignore-pdfs)
+     #+END_SRC
+
 **** expand region
      #+BEGIN_SRC emacs-lisp
        (use-package expand-region
@@ -857,7 +869,8 @@
            (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
            (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
            (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo)))
-     #+END_SRC
+     #+END_SRC     
+
 *** TODO org
 
     settings for org mode
@@ -1710,6 +1723,29 @@
           (setq haskell-process-type 'stack-ghci))
         (add-hook 'haskell-mode-hook 'my-haskell-setup))
     #+END_SRC
+**** Interactive Haskell Mode
+***** Fix for irrelevant error message.
+      Seems that haskell-mode generally suffers from a plethora of bugs due
+      lagging support/impl features for newer features of GHC. It appears this
+      is one such bug. [[https://github.com/haskell/haskell-mode/issues/1553][Github Issue]].
+
+      The solution is just adding some extra flags to be passed on to ghci,
+      etc. From the commentary, the solution might be *incompatible with older
+      versions of GHC (< 8.2)*. [[https://github.com/haskell/haskell-mode/issues/1553#issuecomment-358373643][Solution]]:
+      #+BEGIN_SRC emacs-lisp
+        (setq haskell-process-args-ghci
+              '("-ferror-spans" "-fshow-loaded-modules"))
+
+        (setq haskell-process-args-cabal-repl
+              '("--ghc-options=-ferror-spans -fshow-loaded-modules"))
+
+        (setq haskell-process-args-stack-ghci
+              '("--ghci-options=-ferror-spans -fshow-loaded-modules"
+                "--no-build" "--no-load"))
+
+        (setq haskell-process-args-cabal-new-repl
+              '("--ghc-options=-ferror-spans -fshow-loaded-modules"))
+      #+END_SRC
 *** python
 
     #+BEGIN_SRC emacs-lisp
