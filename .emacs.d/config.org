@@ -199,6 +199,15 @@
             (cons s (append prefix suffix (list (decode-char 'ucs code))))))
             list)))
 
+       ;; TODO: disable "x" ligature without messing up the list order
+       ;; of characters which are mapped to character codes, e.g.
+       ;; taking "x" out of this list as it stands results in the
+       ;; ligatures after it being offset by (-1), with : rendering as
+       ;; the x product operator. and so forth.
+
+       ;; Horrible hack that I'm not proud of in use: add rare ascii characters before
+       ;; 'x', won't render it unless I for some reason ever start using really weird
+       ;; variable names...
        (defconst fira-code-mode--ligatures
          '("www" "**" "***" "**/" "*>" "*/" "\\\\" "\\\\\\"
            "{-" "[]" "::" ":::" ":=" "!!" "!=" "!==" "-}"
@@ -212,7 +221,7 @@
            "<$" "<$>" "<!--" "<-" "<--" "<->" "<+" "<+>" "<="
            "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<" "<~"
            "<~~" "</" "</>" "~@" "~-" "~=" "~>" "~~" "~~>" "%%"
-           "x" ":" "+" "+" "*"))
+           "¤¶x" ":" "+" "+" "*"))
 
        (defvar fira-code-mode--old-prettify-alist)
 
@@ -246,14 +255,57 @@
      And to make sure the font is used in any programming mode:
      
      #+BEGIN_SRC emacs-lisp
-       (add-to-list 'default-frame-alist '(font . "FiraCode"))
        (fira-code-mode--setup)
-       (add-hook 'prog-mode-hook 'fira-code-mode)
+       (fira-code-mode)
+       (add-hook 'prog-mode 'fira-code-mode)
      #+END_SRC
 
-       #+BEGIN_SRC emacs-lisp
-       
-       #+END_SRC
+     A key part of how my emacs setup properly uses Fira Code fonts with the
+     current community derived hack + as a daemon server is to set my
+     .Xresources file with the default font to be used by emacs. The daemon
+     respects this setting where it typically ignores most other font config
+     options. This is because Xorg itself tells emacs what fonts to use.
+
+     #+BEGIN_SRC conf :tangle no
+       Emacs.font: Fira Code-12
+     #+END_SRC
+
+     Then, once set, run the following in terminal and restart the emacs daemon
+     for the font configs to take hold:
+
+     #+BEGIN_SRC sh :tangle no
+       xrdb -merge .Xresources # preserves previous .Xresources file configs.
+     #+END_SRC
+
+     If I were to switch back to a non-daemon emacs setup, I might want this
+     setting. As it stands, however, they are not used:
+
+     #+BEGIN_SRC emacs-lisp :tangle no
+       (add-to-list 'default-frame-alist '(font . "Fira Code-12"))
+       ;; this is the font "code" used by emacs to describe/select fira code
+       ;; from its font selection menu. Might be useful info.
+       ;; -CTDB-Fira Code-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1
+     #+END_SRC
+     
+     My attempt at fixing the conflict between the hack to get Fira Code fonts
+     to work with emacs GUI and when running emacs in a terminal that already
+     provides Fira Code fonts. *Do not work at all currently. Breaks emacs.*
+
+     #+BEGIN_SRC emacs-lisp :tangle no
+       (defun ejmg/check-if-term-init ()
+         (if (display-graphic-p)
+             (fira-code-mode--enable)
+           (fira-code-mode--disable)))
+
+       (defun ejmg/check-if-term-mk-frame ()
+         (if (display-graphic-p)
+             (fira-code-mode--enable)
+           (fira-code-mode--disable)))
+
+
+       ;; (add-hook 'after-make-frame-functions 'ejmg/check-if-term-mk-frame)
+       ;; (add-hook 'after-init-hook 'ejmg/check-if-term-init)
+     #+END_SRC
 
        Old solution, set to not tangle:
 
@@ -597,16 +649,17 @@
        (prettify-symbols-mode t)
        (setq-default prettify-symbols-alist '(("lambda" . ?λ)
                                               (".\\" . ?λ)
-                                              ("->" . ?⟶)
-                                              ("=/=" . ?≠)
-                                              ("===" . ?≡)
-                                              ("!=" . ?≠)
-                                              ("<=" . ?≤)
+                                              ;;("->" . ?⟶)
+                                              ;;("=/=" . ?≠)
+                                              ;;("===" . ?≡)
+                                              ;;("!=" . ?≠)
+                                              ;;("<=" . ?≤)
                                               (">=" . ?≥)
                                               ("delta" . ?Δ)
                                               ("gamma" . ?Γ)
                                               ("phi" . ?φ)
                                               ("psi" . ?ψ)
+                                              ;; ("x" . x)
                                               ))
        ;; dims the buffers that are not active
        (use-package dimmer)
