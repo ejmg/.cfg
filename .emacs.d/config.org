@@ -177,9 +177,87 @@
 
     things that don't seem to go anywhere because of their generality or edge-case nature:
 **** FONTS
-     - fira code, etc, do not work with ligatures. i don't know how people get
-       it to work. :(
+     
+     Here is the solution that is considered the most "preferred" by the Fira
+     Fonts community, [[https://github.com/tonsky/FiraCode/wiki/Emacs-instructions#using-prettify-symbols][link]]:
+     
+     #+BEGIN_SRC emacs-lisp
+       (defun fira-code-mode--make-alist (list)
+         "Generate prettify-symbols alist from LIST."
+         (let ((idx -1))
+           (mapcar
+            (lambda (s)
+              (setq idx (1+ idx))
+              (let* ((code (+ #Xe100 idx))
+                 (width (string-width s))
+                 (prefix ())
+                 (suffix '(?\s (Br . Br)))
+                 (n 1))
+            (while (< n width)
+              (setq prefix (append prefix '(?\s (Br . Bl))))
+              (setq n (1+ n)))
+            (cons s (append prefix suffix (list (decode-char 'ucs code))))))
+            list)))
+
+       (defconst fira-code-mode--ligatures
+         '("www" "**" "***" "**/" "*>" "*/" "\\\\" "\\\\\\"
+           "{-" "[]" "::" ":::" ":=" "!!" "!=" "!==" "-}"
+           "--" "---" "-->" "->" "->>" "-<" "-<<" "-~"
+           "#{" "#[" "##" "###" "####" "#(" "#?" "#_" "#_("
+           ".-" ".=" ".." "..<" "..." "?=" "??" ";;" "/*"
+           "/**" "/=" "/==" "/>" "//" "///" "&&" "||" "||="
+           "|=" "|>" "^=" "$>" "++" "+++" "+>" "=:=" "=="
+           "===" "==>" "=>" "=>>" "<=" "=<<" "=/=" ">-" ">="
+           ">=>" ">>" ">>-" ">>=" ">>>" "<*" "<*>" "<|" "<|>"
+           "<$" "<$>" "<!--" "<-" "<--" "<->" "<+" "<+>" "<="
+           "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<" "<~"
+           "<~~" "</" "</>" "~@" "~-" "~=" "~>" "~~" "~~>" "%%"
+           "x" ":" "+" "+" "*"))
+
+       (defvar fira-code-mode--old-prettify-alist)
+
+       (defun fira-code-mode--enable ()
+         "Enable Fira Code ligatures in current buffer."
+         (setq-local fira-code-mode--old-prettify-alist prettify-symbols-alist)
+         (setq-local prettify-symbols-alist (append (fira-code-mode--make-alist fira-code-mode--ligatures) fira-code-mode--old-prettify-alist))
+         (prettify-symbols-mode t))
+
+       (defun fira-code-mode--disable ()
+         "Disable Fira Code ligatures in current buffer."
+         (setq-local prettify-symbols-alist fira-code-mode--old-prettify-alist)
+         (prettify-symbols-mode -1))
+
+       (define-minor-mode fira-code-mode
+         "Fira Code ligatures minor mode"
+         :lighter " Fira Code"
+         (setq-local prettify-symbols-unprettify-at-point 'right-edge)
+         (if fira-code-mode
+             (fira-code-mode--enable)
+           (fira-code-mode--disable)))
+
+       (defun fira-code-mode--setup ()
+         "Setup Fira Code Symbols"
+         (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))
+
+       (provide 'fira-code-mode)
+     #+END_SRC
+
+
+     And to make sure the font is used in any programming mode:
+     
+     #+BEGIN_SRC emacs-lisp
+       (add-to-list 'default-frame-alist '(font . "FiraCode"))
+       (fira-code-mode--setup)
+       (add-hook 'prog-mode-hook 'fira-code-mode)
+     #+END_SRC
+
        #+BEGIN_SRC emacs-lisp
+       
+       #+END_SRC
+
+       Old solution, set to not tangle:
+
+       #+BEGIN_SRC emacs-lisp :tangle no
          (add-to-list 'default-frame-alist
                        '(font . "Fira Code-12"))
          ;;; Fira code
@@ -399,9 +477,9 @@
       ;; UTF-8 is our friend in a world of shitty programming standards
       (set-language-environment "UTF-8")
       (prefer-coding-system 'utf-8)
-      ;;(set-default-coding-systems 'utf-8)
-      ;;(set-terminal-coding-system 'utf-8)
-      ;;(set-keyboard-coding-system 'utf-8)
+      (set-default-coding-systems 'utf-8)
+      (set-terminal-coding-system 'utf-8)
+      (set-keyboard-coding-system 'utf-8)
       ;;(setq default-buffer-file-coding-system 'utf-8)
 
       ;; speaking of text, unify emacs clipboard with linux
