@@ -519,12 +519,12 @@
       (tool-bar-mode -1)
       (scroll-bar-mode -1)
 
+      ;; sometimes I do like the menu bar, but not currently
+      (menu-bar-mode -1)
+
       ;; scrolling speed is bad, make it nicer
       (smooth-scrolling-mode 1)
       (setq mouse-wheel-progressive-speed nil)
-
-      ;; do like menu bar
-      (menu-bar-mode 1)
 
       ;; UTF-8 is our friend in a world of shitty programming standards
       (set-language-environment "UTF-8")
@@ -870,11 +870,28 @@
      - basic settings for how i want my pdf's handled. I use pdf-view
        (pdf-tools), which gives way better resolution, performance, and also
        even annotation logic!
+
+       This makes sure it sets up as expected. It should run once and then
+       never be an issue again.
        #+BEGIN_SRC emacs-lisp
-          ;; throws error about not being a thing
-          ;; (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
-          (pdf-loader-install)
+         (use-package pdf-tools)
+
+         ;; throws error about not being a thing
+         ;; (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
+         (pdf-loader-install)
        #+END_SRC
+***** Searching PDFs.
+      So searching a PDF with =swiper=, which is my default search fn bound to
+      =C-s=, leads to a lot of bad behavior, i.e. it literally searches the PDF
+      binary. Not only does this not do what anyone would normally expect... it
+      can severely slow down emacs on larger PDFs (learned that one the hard
+      way, lol).
+
+      Luckily, there is a keybinding that fixes that:
+      #+BEGIN_SRC emacs-lisp
+        (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+      #+END_SRC
+      
 *** completion
 
     #+BEGIN_SRC emacs-lisp
@@ -1851,8 +1868,11 @@
           (interactive-haskell-mode)
           (hindent-mode) ;; must install with stack
           (haskell-snippets-initialize)
-          (setq haskell-process-type 'stack-ghci))
-        (add-hook 'haskell-mode-hook 'my-haskell-setup))
+          ;; Warning, not picked up by non-daemon emacs for some reason?
+          ;; Is configured as 'auto' for some reason.
+          (setq haskell-process-type 'stack-ghci)
+          ;; (setq haskell-compile-cabal-build-command "stack build --fast")
+        (add-hook 'haskell-mode-hook 'my-haskell-setup)))
     #+END_SRC
 **** Interactive Haskell Mode
 ***** Fix for irrelevant error message.
