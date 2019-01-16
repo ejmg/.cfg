@@ -1853,7 +1853,6 @@
 *** Haskell
 
     #+BEGIN_SRC emacs-lisp
-
       (use-package haskell-mode
         :defer t
         :config
@@ -1870,9 +1869,10 @@
           (haskell-snippets-initialize)
           ;; Warning, not picked up by non-daemon emacs for some reason?
           ;; Is configured as 'auto' for some reason.
-          (setq haskell-process-type 'stack-ghci)
-          ;; (setq haskell-compile-cabal-build-command "stack build --fast")
-        (add-hook 'haskell-mode-hook 'my-haskell-setup)))
+          ;; (setq haskell-compile-cabal-build-command "stack build --fast")    
+          (setq haskell-process-type 'stack-ghci)))
+      (add-hook 'haskell-mode-hook 'my-haskell-setup)
+
     #+END_SRC
 **** Interactive Haskell Mode
 ***** Fix for irrelevant error message.
