@@ -649,10 +649,12 @@
 
        ;; i have one them i play with that isn't on melpa
        (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-       ;; for dark: seti; for light: gandalf
+       (use-package kaolin-themes)
+       ;; for dark: seti, kaolin-aurora; 
+       ;; for light: gandalf, kaolin-valley-light
        ;; when i feel like a hacker: cyberpunk or dark-mint
        ;; 'challenger-deep
-       (load-theme 'tron t)
+       (load-theme 'kaolin-aurora t)
 
        ;; pretty symbols
        (prettify-symbols-mode t)
