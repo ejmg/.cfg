@@ -1016,7 +1016,7 @@
 
      #+BEGIN_SRC emacs-lisp
        (setq company-files-exclusions '(".pdf" ".fbd_latexmk" ".aux" ".log" ".bbl"
-                                       ".bcf" ".gz" ".blg" ".fls"))
+                                       ".bcf" ".gz" ".blg" ".fls" ".doc" ".docx" ".ppt" ".pptx" ".odt"))
      #+END_SRC
 
      This function sets =company-dabbrev-ignore-buffers= to anything matching a
@@ -1025,7 +1025,7 @@
      #+BEGIN_SRC emacs-lisp
        (defun company-dabbrev-ignore-pdfs (buffer)
          "ignore all pdf buffers"
-         (string-match-p "\\.pdf"
+         (string-match-p "\\.pdf\\|\\.doc\\|\\.docx\\|\\.ppt\\|\\.pptx\\|\\.odt"
                       (buffer-name buffer)))
        (setq company-dabbrev-ignore-buffers 'company-dabbrev-ignore-pdfs)
      #+END_SRC
@@ -2195,11 +2195,12 @@
     #+END_SRC
 *** TODO latex-mode
     #+BEGIN_SRC emacs-lisp
-      (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
-      (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
+      ;; (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
+      ;; (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
+      ;;(use-package auctex)
       (use-package tex
-        :ensure auctex)
-
+         :ensure auctex)
+      ;; (use-package auctex)
       (defun generic-tex-minor-modes ()
         (interactive)
         (company-mode 1)
