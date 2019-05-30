@@ -52,3 +52,6 @@ export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 eval "$(rbenv init -)"
+
+# opam configuration
+test -r /home/spook/.opam/opam-init/init.sh && . /home/spook/.opam/opam-init/init.sh > /dev/null 2> /dev/null || true
