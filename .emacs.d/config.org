@@ -102,8 +102,9 @@
                 which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
                 smartparens ggtags expand-region ag neotree keychain-environment workgroups multiple-cursors
-                dimmer pdf-tools smooth-scrolling exec-path-from-shell
-                ;;bookmarks+ dired+ no longer on melpa 
+                dimmer pdf-tools smooth-scrolling exec-path-from-shell unfill xterm-color
+                pandoc-mode lorem-ipsum
+                ;;bookmarks+ dired+ no longer on melpa, need to config from emacs wiki or their mirror on github
 
                 ;; TODO actually config this up so I have a more spacemacs-like navigation experience
                 general
@@ -113,7 +114,7 @@
                 company flycheck flycheck-tip hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
                 elisp-slime-nav company-math company-auctex company-anaconda company-tern
                 slime-company company-ycmd flycheck-rust enh-ruby-mode company-web
-                company-ghci flycheck-haskell company-statistics yasnippet-snippets lsp-mode lsp-ui company-lsp lsp-rust
+                company-ghci flycheck-haskell company-statistics yasnippet-snippets lsp-mode lsp-ui company-lsp
 
                 ;; git
                 git-gutter-fringe magit
@@ -141,7 +142,7 @@
 
                 ;; TODO: actually set these up
                 ;; js
-                js-doc js2-mode js2-refactor json-mode json-snatcher web-beautify coffee-mode
+                js-doc js2-mode js2-refactor json-mode json-snatcher web-beautify coffee-mode vue-mode
 
                 ;; TODO: actually set these up to be used.
                 ;; webprogramming
@@ -155,13 +156,14 @@
                 auctex auctex-latexmk typo cdlatex
 
                 ;; org
-                org-bullets org-pomodoro org-download htmlize org-journal
+                org-bullets org-pomodoro org-download htmlize org-journal secretaria
 
                 ;; themes
                 challenger-deep-theme exotica-theme seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme material-theme
+                kaolin-themes
 
                 ;; other
-                writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace anki-editor emojify
+                writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace anki-editor emojify wolfram
 
                 ;; google
                 google-this google-translate
