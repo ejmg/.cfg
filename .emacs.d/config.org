@@ -212,7 +212,7 @@
        ;; variable names...
        (defconst fira-code-mode--ligatures
          '("www" "**" "***" "**/" "*>" "*/" "\\\\" "\\\\\\"
-           "{-" "[]" "::" ":::" ":=" "!!" "!=" "!==" "-}"
+           "{-" "¤¶[]" "::" ":::" ":=" "!!" "!=" "!==" "-}"
            "--" "---" "-->" "->" "->>" "-<" "-<<" "-~"
            "#{" "#[" "##" "###" "####" "#(" "#?" "#_" "#_("
            ".-" ".=" ".." "..<" "..." "?=" "??" ";;" "/*"
@@ -279,11 +279,11 @@
        xrdb -merge .Xresources # preserves previous .Xresources file configs.
      #+END_SRC
 
-     If I were to switch back to a non-daemon emacs setup, I might want this
-     setting. As it stands, however, they are not used:
+     TODO ATTEMPTED FIX ONCE AGAIN. This is in my resources file, too.
 
-     #+BEGIN_SRC emacs-lisp :tangle no
-       (add-to-list 'default-frame-alist '(font . "Fira Code-12"))
+     #+BEGIN_SRC emacs-lisp
+       ;; (add-to-list 'default-frame-alist '(font . "Fira Code-12"))
+       (add-to-list 'default-frame-alist '(font . "-CTDB-Fira Code-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"))
        ;; this is the font "code" used by emacs to describe/select fira code
        ;; from its font selection menu. Might be useful info.
        ;; -CTDB-Fira Code-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1
