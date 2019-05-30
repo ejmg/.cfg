@@ -1082,12 +1082,14 @@
       ;; stops org-journal from opening previous day's entry
       (setq org-journal-carryover-items nil)
 
-      ;;(emojify-mode 1)
       (defun generic-org-minor-modes ()
         (interactive)
         (org-bullets-mode 1)
         (org-cdlatex-mode 1)
-        (emojify-mode 1)
+        ;; I am pretty sure this adds a delay to loading any org file
+        ;; and some generally laggy behavior for some certain actions
+        ;; so goodbye for now.
+        ;;(emojify-mode 1)
         (auto-fill-mode 1))
       (add-hook 'org-mode-hook 'generic-org-minor-modes)
 
@@ -1106,6 +1108,23 @@
                                    (js . t)))
 
     #+END_SRC
+**** beginning of line behavior
+     =C-a= will behave identical to =M-m= by default, meaning instead of going
+     to the start of a heading, you will go to the first asterisk in a
+     heading. This setting changes that behavior to cycle between the first
+     character of a heading to the literal start of a line in a
+     header. Additionally, it changes =C-e= to respect tags as well and cycles
+     in a similar manner.
+
+     #+BEGIN_SRC emacs-lisp
+       (setq org-special-ctrl-a/e t)
+     #+END_SRC
+**** internal links
+     This makes linking to other headlines in files more
+     straightforward.
+     #+BEGIN_SRC emacs-lisp
+       (setq org-link-search-must-match-exact-headline nil)
+     #+END_SRC
 **** Stopping invisible edits
      It is really really hard sometimes to know what, and if, I've edited my
      org files when my carat is hidden. This stops that.
@@ -1170,6 +1189,7 @@
       Here are the files I will be using to sort and organize my tasks:
       #+BEGIN_SRC emacs-lisp
         (setq org-agenda-files '("~/org/thoughts.org"
+                                 "~/org/cmr.org"
                                  "~/org/inbox.org"
                                  "~/org/tasks.org"))
       #+END_SRC
@@ -1253,7 +1273,9 @@
         ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
         (setq org-refile-targets '(("~/org/thoughts.org" :maxlevel . 9)
                                    ("~/org/tasks.org" :maxlevel . 9)
-                                   ("~/org/later.org" :maxlevel . 9)))
+                                   ("~/org/later.org" :maxlevel . 9)
+                                   ("~/org/reference.org" :maxlevel . 9)
+                                   ("~/org/cmr.org" :maxlevel . 9)))
 
         ; Allow refile to create parent tasks with confirmation
         (setq org-refile-allow-creating-parent-nodes (quote confirm))
@@ -1616,10 +1638,10 @@
               next-headline)))
       #+END_SRC
 ***** TODO clock
-      This changes the modeline time string for a clocked task from total time
-      of the time clocked + current session to only the current session.
+      Sometimes I like having the total time shown be only for the current
+      session of a task. When I want that, set this to ='current=.
       #+BEGIN_SRC emacs-lisp
-        (setq org-clock-mode-line-total 'current)
+        (setq org-clock-mode-line-total 'auto)
       #+END_SRC
 
       #+BEGIN_SRC emacs-lisp
@@ -1743,6 +1765,60 @@
 
         (add-hook 'org-clock-out-hook 'bh/clock-out-maybe 'append)
       #+END_SRC
+***** Displaying the clock
+      I want to be able to see my clocked time in as many places as
+      possible. This makes sure I see it both in the mode-line and the frame
+      title. I have it this way because if the frame/window is small enough,
+      the clock in the mode-line will be cut off, with emacs preferring to
+      display major-mode and minor-mode information instead. Until I fix that
+      behavior, this provides a good compromise:
+      
+      #+BEGIN_SRC emacs-lisp
+        (setq org-clock-clocked-in-display 'both)
+      #+END_SRC
+***** reminders of tasks
+      Secretaria is a minor mode that will remind you of things currently
+      scheduled for the day in addition to the task you are supposed to be
+      working on.
+      #+BEGIN_SRC emacs-lisp
+        (use-package secretaria
+          :config
+          ;; use this for getting a reminder every 30 minutes of those tasks scheduled
+          ;; for today and which have no time of day defined.
+          (add-hook 'after-init-hook #'secretaria-unknown-time-always-remind-me))
+      #+END_SRC
+**** archiving tasks
+     Settings
+     #+BEGIN_SRC emacs-lisp
+       (setq org-archive-mark-done nil)
+       (setq org-archive-location "%s_archive::* Archived Tasks")
+     #+END_SRC
+
+     Function behavior
+     #+BEGIN_SRC emacs-lisp
+       (defun bh/skip-non-archivable-tasks ()
+         "Skip trees that are not available for archiving"
+         (save-restriction
+           (widen)
+           ;; Consider only tasks with done todo headings as archivable candidates
+           (let ((next-headline (save-excursion (or (outline-next-heading) (point-max))))
+                 (subtree-end (save-excursion (org-end-of-subtree t))))
+             (if (member (org-get-todo-state) org-todo-keywords-1)
+                 (if (member (org-get-todo-state) org-done-keywords)
+                     (let* ((daynr (string-to-number (format-time-string "%d" (current-time))))
+                            (a-month-ago (* 60 60 24 (+ daynr 1)))
+                            (last-month (format-time-string "%Y-%m-" (time-subtract (current-time) (seconds-to-time a-month-ago))))
+                            (this-month (format-time-string "%Y-%m-" (current-time)))
+                            (subtree-is-current (save-excursion
+                                                  (forward-line 1)
+                                                  (and (< (point) subtree-end)
+                                                       (re-search-forward (concat last-month "\\|" this-month) subtree-end t)))))
+                       (if subtree-is-current
+                           subtree-end ; Has a date in this month or last month, skip it
+                         nil))  ; available to archive
+                   (or subtree-end (point-max)))
+               next-headline))))
+     #+END_SRC
 *** erc
 
     #+BEGIN_SRC emacs-lisp
