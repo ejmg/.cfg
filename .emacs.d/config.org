@@ -937,7 +937,13 @@
 
     #+BEGIN_SRC emacs-lisp
 
-      (use-package lsp-mode)
+      (use-package lsp-mode
+        :ensure t
+        :commands lsp
+        :config (require 'lsp-clients))
+
+      (use-package lsp-ui :commands lsp-ui-mode)
+      (use-package company-lsp :commands company-lsp)
 
       (use-package yasnippet)
       (yas-global-mode 1)
@@ -2064,30 +2070,19 @@
     #+END_SRC
 *** rust
     #+BEGIN_SRC emacs-lisp
-      (use-package lsp-rust)
-      (use-package lsp-ui)
-
       (use-package rust-mode
         :defer t
         :config
         (defun my-rust-setup ()
           (interactive)
           ;; (racer-mode)
-          (lsp-rust-enable)
-          (lsp-ui-mode)
+          (lsp)
           (cargo-minor-mode)
-          (setq cargo-process--command-flags "--color never")
+          (cargo-process--command-flags "--color never")
           (set-fill-column 100)
-          ;; (flycheck-rust-setup)
-          (flycheck-mode)
+          (flycheck-rust-setup)
           )
         (add-hook 'rust-mode-hook 'my-rust-setup))
-
-
-        (with-eval-after-load 'lsp-mode
-          (setq lsp-rust-rls-command '("rustup" "run" "stable" "rls")))
-        ;; (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-        ;; (add-hook 'rust-mode-hook 'lsp-mode)
     #+END_SRC
 *** TODO webprogramming
     #+BEGIN_SRC emacs-lisp
