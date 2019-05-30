@@ -2293,6 +2293,14 @@
 
     #+END_SRC
 *** TODO c/c++
+**** basic autocomplete
+     Following Tuh-Do's tutorial/guide for C++ with emacs:
+     #+BEGIN_SRC emacs-lisp
+       (use-package company-c-headers)
+       (add-to-list 'company-backends 'company-c-headers)
+       (add-to-list 'company-c-headers-path-system "/usr/include/c++/8.2.1/")
+
+     #+END_SRC
 ** bug fixes
    
    it's not good code if it doesn't have bugs in it.
