@@ -2170,17 +2170,24 @@
           (interactive)
           (company-mode)
           (smartparens-mode 0)
-          (electric-pair-mode 0)
+          (electric-pair-mode 1)
           (linum-mode 1)
           ;; (web-mode-enable-current-column-highlight t)
           (emmet-mode))
         (add-hook 'web-mode-hook 'my-web-mode-setup))
 
-      (setq web-mode-engines-alist
-            '(("django" . "\\.html\\'")
-              ("jinja" . "\\.djhtml\\'")))
+      ;; (setq web-mode-engines-alist
+      ;;       '(("django" . "\\.html\\'")
+      ;;         ("jinja" . "\\.djhtml\\'")))
     #+END_SRC
 *** TODO js
+    Disable ugly af vue background:
+    #+BEGIN_SRC emacs-lisp
+      (use-package vue-mode)
+      (add-hook 'mmm-mode-hook
+                (lambda ()
+                  (set-face-background 'mmm-default-submode-face nil)))
+    #+END_SRC
 *** TODO clojure
     #+BEGIN_SRC emacs-lisp
       ;; FROM BRAVECLOJURE
