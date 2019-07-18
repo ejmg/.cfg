@@ -100,7 +100,7 @@
               '(
                 ;; utilities
                 which-key ivy swiper counsel fill-column-indicator volatile-highlights
-                golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
+                golden-ratio ace-window paredit projectile counsel-projectile diminish rainbow-delimiters undo-tree
                 smartparens ggtags expand-region ag neotree keychain-environment workgroups multiple-cursors
                 dimmer smooth-scrolling exec-path-from-shell unfill xterm-color
                 pandoc-mode lorem-ipsum
@@ -156,7 +156,7 @@
                 auctex auctex-latexmk typo cdlatex
 
                 ;; org
-                org-bullets org-pomodoro org-download htmlize org-journal secretaria
+                org-bullets org-pomodoro org-download htmlize org-journal secretaria org-download
 
                 ;; themes
                 challenger-deep-theme exotica-theme seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme material-theme
@@ -801,10 +801,11 @@
          ;; (add-hook 'prog-mode-hook 'flyspell-prog-mode)
 
          ;; make ispell fast and make it only look at 3 char+ words
-       (setq ispell-extra-args
-             (list "--sug-mode=fast" ;; ultra|fast|normal|bad-spellers
-                   "--lang=en_US"
-                   "--ignore=3"))
+       (setq ispell-program-name "/usr/local/bin/aspell")
+       ;;(setq ispell-extra-args
+       ;;      (list "--sug-mode=fast" ;; ultra|fast|normal|bad-spellers
+       ;;            "--lang=en_US"
+       ;;            "--ignore=3"))
      #+END_SRC
 **** multiple cursors
      this is a dope package that makes multi-line editing a breeze. to be
@@ -939,8 +940,7 @@
 
       (use-package lsp-mode
         :ensure t
-        :commands lsp
-        :config (require 'lsp-clients))
+        :commands lsp)
 
       (use-package lsp-ui :commands lsp-ui-mode)
       (use-package company-lsp :commands company-lsp)
@@ -1055,15 +1055,16 @@
 **** undo tree
      #+BEGIN_SRC emacs-lisp
 
+       ;; elpa isn't working, so i can't dl anything from it lol
        (use-package undo-tree
-         :init (global-undo-tree-mode t)
-         :defer t
-         :diminish ""
-         :config
-         (progn
-           (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
-           (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
-           (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo)))
+	 :init (global-undo-tree-mode t)
+	 :defer t
+	 :diminish ""
+	 :config
+	 (progn
+	   (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
+	   (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
+	   (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo)))
      #+END_SRC     
 
 *** TODO org
@@ -1076,8 +1077,9 @@
       ;; ✲ ✺ ✹ ✸ ✽ ✻ ✿ ➤ ➡ ➔ ✪ ✜ ✚ ✙ ▢ ⧐ ▷ ◆
       (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤")))
       ;; (setq org-hide-emphasis-markers t)
-      (setq org-journal-dir "/home/spook/org/journal/")
-      (setq org-journal-enable-encryption t)
+      ;; (setq org-journal-dir "/home/spook/org/journal/")
+      (setq org-journal-dir "/Users/eg046613/org/journal")
+      ;; (Setq org-journal-enable-encryption t)
 
       ;; stops org-journal from opening previous day's entry
       (setq org-journal-carryover-items nil)
@@ -1819,6 +1821,11 @@
                    (or subtree-end (point-max)))
                next-headline))))
      #+END_SRC
+**** org download
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-download)
+       (setq org-image-actual-width 600)
+     #+END_SRC
 *** erc
 
     #+BEGIN_SRC emacs-lisp
@@ -2154,7 +2161,7 @@
           ;; (racer-mode)
           (lsp)
           (cargo-minor-mode)
-          (cargo-process--command-flags "--color never")
+          ;; (cargo-process--command-flags "--color never")
           (set-fill-column 100)
           (flycheck-rust-setup)
           )
@@ -2297,10 +2304,16 @@
      Following Tuh-Do's tutorial/guide for C++ with emacs:
      #+BEGIN_SRC emacs-lisp
        (use-package company-c-headers)
-       (add-to-list 'company-backends 'company-c-headers)
-       (add-to-list 'company-c-headers-path-system "/usr/include/c++/8.2.1/")
+       ;; (add-to-list 'company-backends 'company-c-headers)
+       ;; (add-to-list 'company-c-headers-path-system "/usr/include/c++/8.2.1/")
 
      #+END_SRC
+*** HL7
+    #+BEGIN_SRC emacs-lisp
+      (autoload 'highlight-chars "~/.emacs.d/highlight-chars.el" "minor mode for highlighting chars." t nil)
+      (autoload 'hl7-mode "~/.emacs.d/hl7-mode/hl7-mode.el" "Major mode for editing HL7v2 messages." t nil)
+      (add-to-list 'auto-mode-alist '("\\.hl7\\'" . hl7-mode))
+    #+END_SRC
 ** bug fixes
    
    it's not good code if it doesn't have bugs in it.
@@ -2309,17 +2322,17 @@
 
      ;; fci mode has this unfortunate compatibility issue with the company-mode
      ;; completion menu, this is a workaround for it by the company-mode maintainer
-     (defvar-local company-fci-mode-on-p nil)
+     ;; (defvar-local company-fci-mode-on-p nil)
 
-     (defun company-turn-off-fci (&rest ignore)
-       (when (boundp 'fci-mode)
-         (setq company-fci-mode-on-p fci-mode)
-         (when fci-mode (fci-mode -1))))
+     ;; (defun company-turn-off-fci (&rest ignore)
+     ;;   (when (boundp 'fci-mode)
+     ;;     (setq company-fci-mode-on-p fci-mode)
+     ;;     (when fci-mode (fci-mode -1))))
 
-     (defun company-maybe-turn-on-fci (&rest ignore)
-       (when company-fci-mode-on-p (fci-mode 1)))
+     ;; (defun company-maybe-turn-on-fci (&rest ignore)
+     ;;   (when company-fci-mode-on-p (fci-mode 1)))
 
-     (add-hook 'company-completion-started-hook 'company-turn-off-fci)
-     (add-hook 'company-completion-finished-hook 'company-maybe-turn-on-fci)
-     (add-hook 'company-completion-cancelled-hook 'company-maybe-turn-on-fci)
+     ;; (add-hook 'company-completion-started-hook 'company-turn-off-fci)
+     ;; (add-hook 'company-completion-finished-hook 'company-maybe-turn-on-fci)
+     ;; (add-hook 'company-completion-cancelled-hook 'company-maybe-turn-on-fci)
    #+END_SRC
