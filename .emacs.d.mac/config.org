@@ -2161,11 +2161,13 @@
           ;; (racer-mode)
           (lsp)
           (cargo-minor-mode)
+          (rust-enable-format-on-save)
+          (flycheck-mode)
           ;; (cargo-process--command-flags "--color never")
           (set-fill-column 100)
-          (flycheck-rust-setup)
-          )
+          (flycheck-rust-setup))
         (add-hook 'rust-mode-hook 'my-rust-setup))
+        (setq lsp-rust-clippy-preference "on")
     #+END_SRC
 *** TODO webprogramming
     #+BEGIN_SRC emacs-lisp
@@ -2183,9 +2185,9 @@
           (emmet-mode))
         (add-hook 'web-mode-hook 'my-web-mode-setup))
 
-      ;; (setq web-mode-engines-alist
-      ;;       '(("django" . "\\.html\\'")
-      ;;         ("jinja" . "\\.djhtml\\'")))
+      (setq web-mode-engines-alist
+            '(("django" . "\\.html\\'")
+              ("jinja" . "\\.djhtml\\'")))
     #+END_SRC
 *** TODO js
     Disable ugly af vue background:
@@ -2322,17 +2324,17 @@
 
      ;; fci mode has this unfortunate compatibility issue with the company-mode
      ;; completion menu, this is a workaround for it by the company-mode maintainer
-     ;; (defvar-local company-fci-mode-on-p nil)
+     (defvar-local company-fci-mode-on-p nil)
 
-     ;; (defun company-turn-off-fci (&rest ignore)
-     ;;   (when (boundp 'fci-mode)
-     ;;     (setq company-fci-mode-on-p fci-mode)
-     ;;     (when fci-mode (fci-mode -1))))
+     (defun company-turn-off-fci (&rest ignore)
+       (when (boundp 'fci-mode)
+         (setq company-fci-mode-on-p fci-mode)
+         (when fci-mode (fci-mode -1))))
 
-     ;; (defun company-maybe-turn-on-fci (&rest ignore)
-     ;;   (when company-fci-mode-on-p (fci-mode 1)))
+     (defun company-maybe-turn-on-fci (&rest ignore)
+       (when company-fci-mode-on-p (fci-mode 1)))
 
-     ;; (add-hook 'company-completion-started-hook 'company-turn-off-fci)
-     ;; (add-hook 'company-completion-finished-hook 'company-maybe-turn-on-fci)
-     ;; (add-hook 'company-completion-cancelled-hook 'company-maybe-turn-on-fci)
+     (add-hook 'company-completion-started-hook 'company-turn-off-fci)
+     (add-hook 'company-completion-finished-hook 'company-maybe-turn-on-fci)
+     (add-hook 'company-completion-cancelled-hook 'company-maybe-turn-on-fci)
    #+END_SRC
