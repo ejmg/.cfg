@@ -4,12 +4,11 @@
 #+PROPERTY: header-args :tangle yes
 
 * TODO
-  - [-] finish figuring out what packages i need, full-stop.
-    - [X] company and auto-complete for every lang
-    - [ ] lang packages themselves
-    - [ ] utilities such as pdf tools
-    - [X] visual packages like themes and fci
-    - [ ] clean up hooks using use-package's very sane implementation, via =:hook=
+  - [ ] choose consistent format to package/PL setup
+    - probably means difference between use-package'ing everything and making
+      config blocks with more explicit annotations :(. I don't think
+      use-package lends itself to literate programming as well, but it arguably
+      leads to better package management and configuration overall.
 
 * my-init
   configurations for my emacs. these configs are opinionated and by no
@@ -156,7 +155,7 @@
                 auctex auctex-latexmk typo cdlatex
 
                 ;; org
-                org-bullets org-pomodoro org-download htmlize org-journal secretaria
+                org-bullets org-pomodoro org-download htmlize org-journal secretaria org-download
 
                 ;; themes
                 challenger-deep-theme exotica-theme seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme material-theme
@@ -179,325 +178,22 @@
 
     things that don't seem to go anywhere because of their generality or edge-case nature:
 **** FONTS
-     
-     Here is the solution that is considered the most "preferred" by the Fira
-     Fonts community, [[https://github.com/tonsky/FiraCode/wiki/Emacs-instructions#using-prettify-symbols][link]]:
-     
-     #+BEGIN_SRC emacs-lisp
-       (defun fira-code-mode--make-alist (list)
-         "Generate prettify-symbols alist from LIST."
-         (let ((idx -1))
-           (mapcar
-            (lambda (s)
-              (setq idx (1+ idx))
-              (let* ((code (+ #Xe100 idx))
-                 (width (string-width s))
-                 (prefix ())
-                 (suffix '(?\s (Br . Br)))
-                 (n 1))
-            (while (< n width)
-              (setq prefix (append prefix '(?\s (Br . Bl))))
-              (setq n (1+ n)))
-            (cons s (append prefix suffix (list (decode-char 'ucs code))))))
-            list)))
 
-       ;; TODO: disable "x" ligature without messing up the list order
-       ;; of characters which are mapped to character codes, e.g.
-       ;; taking "x" out of this list as it stands results in the
-       ;; ligatures after it being offset by (-1), with : rendering as
-       ;; the x product operator. and so forth.
-
-       ;; Horrible hack that I'm not proud of in use: add rare ascii characters before
-       ;; 'x', won't render it unless I for some reason ever start using really weird
-       ;; variable names...
-       (defconst fira-code-mode--ligatures
-         '("www" "**" "***" "**/" "*>" "*/" "\\\\" "\\\\\\"
-           "{-" "¤¶[]" "::" ":::" ":=" "!!" "!=" "!==" "-}"
-           "--" "---" "-->" "->" "->>" "-<" "-<<" "-~"
-           "#{" "#[" "##" "###" "####" "#(" "#?" "#_" "#_("
-           ".-" ".=" ".." "..<" "..." "?=" "??" ";;" "/*"
-           "/**" "/=" "/==" "/>" "//" "///" "&&" "||" "||="
-           "|=" "|>" "^=" "$>" "++" "+++" "+>" "=:=" "=="
-           "===" "==>" "=>" "=>>" "<=" "=<<" "=/=" ">-" ">="
-           ">=>" ">>" ">>-" ">>=" ">>>" "<*" "<*>" "<|" "<|>"
-           "<$" "<$>" "<!--" "<-" "<--" "<->" "<+" "<+>" "<="
-           "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<" "<~"
-           "<~~" "</" "</>" "~@" "~-" "~=" "~>" "~~" "~~>" "%%"
-           "¤¶x" ":" "+" "+" "*"))
-
-       (defvar fira-code-mode--old-prettify-alist)
-
-       (defun fira-code-mode--enable ()
-         "Enable Fira Code ligatures in current buffer."
-         (setq-local fira-code-mode--old-prettify-alist prettify-symbols-alist)
-         (setq-local prettify-symbols-alist (append (fira-code-mode--make-alist fira-code-mode--ligatures) fira-code-mode--old-prettify-alist))
-         (prettify-symbols-mode t))
-
-       (defun fira-code-mode--disable ()
-         "Disable Fira Code ligatures in current buffer."
-         (setq-local prettify-symbols-alist fira-code-mode--old-prettify-alist)
-         (prettify-symbols-mode -1))
-
-       (define-minor-mode fira-code-mode
-         "Fira Code ligatures minor mode"
-         :lighter " Fira Code"
-         (setq-local prettify-symbols-unprettify-at-point 'right-edge)
-         (if fira-code-mode
-             (fira-code-mode--enable)
-           (fira-code-mode--disable)))
-
-       (defun fira-code-mode--setup ()
-         "Setup Fira Code Symbols"
-         (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))
-
-       (provide 'fira-code-mode)
-     #+END_SRC
-
-
-     And to make sure the font is used in any programming mode:
-     
-     #+BEGIN_SRC emacs-lisp
-       (fira-code-mode--setup)
-       (fira-code-mode)
-       (add-hook 'prog-mode 'fira-code-mode)
-     #+END_SRC
-
-     A key part of how my emacs setup properly uses Fira Code fonts with the
-     current community derived hack + as a daemon server is to set my
-     .Xresources file with the default font to be used by emacs. The daemon
-     respects this setting where it typically ignores most other font config
-     options. This is because Xorg itself tells emacs what fonts to use.
-
-     #+BEGIN_SRC conf :tangle no
-       Emacs.font: Fira Code-12
-     #+END_SRC
-
-     Then, once set, run the following in terminal and restart the emacs daemon
-     for the font configs to take hold:
-
-     #+BEGIN_SRC sh :tangle no
-       xrdb -merge .Xresources # preserves previous .Xresources file configs.
-     #+END_SRC
-
-     TODO ATTEMPTED FIX ONCE AGAIN. This is in my resources file, too.
+     I have given up on ligatures for now in GUI emacs. It's just too
+     painful/work to maintain, and even then I never got it working at a level
+     of consistency that made it satisfactory. For now, I just default to Fira
+     Code but don't do anything to enable ligatures.
 
      #+BEGIN_SRC emacs-lisp
-       ;; (add-to-list 'default-frame-alist '(font . "Fira Code-12"))
-       (add-to-list 'default-frame-alist '(font . "-CTDB-Fira Code-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"))
+       (set-default-font "Fira Code-10") ;;; set default font
+       (setq default-frame-alist '((font . "Fira Code-10"))) ;; set it for the daemon itself
+
+       ;; Keeping as a note: this is what fira code comes up as in buffer.
        ;; this is the font "code" used by emacs to describe/select fira code
-       ;; from its font selection menu. Might be useful info.
+       ;; from its font selection menu.
        ;; -CTDB-Fira Code-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1
-     #+END_SRC
-     
-     My attempt at fixing the conflict between the hack to get Fira Code fonts
-     to work with emacs GUI and when running emacs in a terminal that already
-     provides Fira Code fonts. *Do not work at all currently. Breaks emacs.*
+     #+END_SRC     
 
-     #+BEGIN_SRC emacs-lisp :tangle no
-       (defun ejmg/check-if-term-init ()
-         (if (display-graphic-p)
-             (fira-code-mode--enable)
-           (fira-code-mode--disable)))
-
-       (defun ejmg/check-if-term-mk-frame ()
-         (if (display-graphic-p)
-             (fira-code-mode--enable)
-           (fira-code-mode--disable)))
-
-
-       ;; (add-hook 'after-make-frame-functions 'ejmg/check-if-term-mk-frame)
-       ;; (add-hook 'after-init-hook 'ejmg/check-if-term-init)
-     #+END_SRC
-
-       Old solution, set to not tangle:
-
-       #+BEGIN_SRC emacs-lisp :tangle no
-         (add-to-list 'default-frame-alist
-                       '(font . "Fira Code-12"))
-         ;;; Fira code
-         ;; This works when using emacs --daemon + emacsclient
-         (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
-
-         ;; TODO: Clearly still broken. Terminal emacs still has buggy ligatures.
-         ;; IDEA: Rather than use (when), which only executes on non-nil, change to an if-else
-         ;; statement. This (might?) allow me to unset the font if a prior GUI instance changed it to using the Fira ligatures.
-         ;; I think this is the next logical step in terms of debugging it.
-
-         ;; my attempt at fixing ligature conflict between terminal fonts & emacs
-         ;; (add-hook 'after-make-frame-functions
-         ;;           (lambda (frame)
-         ;;             (when (display-graphic-p)
-         ;;               ;; he sets the font over the range of hex code Xe100 to Xe16f
-         ;;               ;; Following the TODO above, maybe the solution is to have an else
-         ;;               ;; clause that simply re-sets set-fontset-font to a normal font,
-         ;;               ;; maybe `Fira Code-12`?
-         ;;               ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Modifying-Fontsets.html
-         ;;               (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))))
-
-         ;; This works when using emacs without server/client
-         (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
-
-         ;; my attempt at fixing ligature conflict between terminal fonts & emacs
-         ;; In theory, this should catch the exception noted above by the original
-         ;; author for these font hooks. This only runs when starting emacs and checks
-         ;; for both daemon and non-daemon processes...I think.
-         ;; (add-hook 'after-init-hook
-         ;;           (lambda ()
-         ;;             (when (display-graphic-p)
-         ;;               (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))))
-
-         ;; I haven't found one statement that makes both of the above situations work, so I use both for now
-
-         (defconst fira-code-font-lock-keywords-alist
-           (mapcar (lambda (regex-char-pair)
-                     `(,(car regex-char-pair)
-                       (0 (prog1 ()
-                            (compose-region (match-beginning 1)
-                                            (match-end 1)
-                                            ;; The first argument to concat is a string containing a literal tab
-                                            ,(concat "	" (list (decode-char 'ucs (cadr regex-char-pair)))))))))
-                   '(("\\(www\\)"                   #Xe100)
-                     ("[^/]\\(\\*\\*\\)[^/]"        #Xe101)
-                     ("\\(\\*\\*\\*\\)"             #Xe102)
-                     ("\\(\\*\\*/\\)"               #Xe103)
-                     ("\\(\\*>\\)"                  #Xe104)
-                     ("[^*]\\(\\*/\\)"              #Xe105)
-                     ("\\(\\\\\\\\\\)"              #Xe106)
-                     ("\\(\\\\\\\\\\\\\\)"          #Xe107)
-                     ("\\({-\\)"                    #Xe108)
-                     ;;("\\(\\[\\]\\)"                #Xe109) ;; p sure this is the annoying square ligature
-                     ("\\(::\\)"                    #Xe10a)
-                     ("\\(:::\\)"                   #Xe10b)
-                     ("[^=]\\(:=\\)"                #Xe10c)
-                     ("\\(!!\\)"                    #Xe10d)
-                     ("\\(!=\\)"                    #Xe10e)
-                     ("\\(!==\\)"                   #Xe10f)
-                     ("\\(-}\\)"                    #Xe110)
-                     ("\\(--\\)"                    #Xe111)
-                     ("\\(---\\)"                   #Xe112)
-                     ("\\(-->\\)"                   #Xe113)
-                     ("[^-]\\(->\\)"                #Xe114)
-                     ("\\(->>\\)"                   #Xe115)
-                     ("\\(-<\\)"                    #Xe116)
-                     ("\\(-<<\\)"                   #Xe117)
-                     ("\\(-~\\)"                    #Xe118)
-                     ("\\(#{\\)"                    #Xe119)
-                     ("\\(#\\[\\)"                  #Xe11a)
-                     ("\\(##\\)"                    #Xe11b)
-                     ("\\(###\\)"                   #Xe11c)
-                     ("\\(####\\)"                  #Xe11d)
-                     ("\\(#(\\)"                    #Xe11e)
-                     ("\\(#\\?\\)"                  #Xe11f)
-                     ("\\(#_\\)"                    #Xe120)
-                     ("\\(#_(\\)"                   #Xe121)
-                     ("\\(\\.-\\)"                  #Xe122)
-                     ("\\(\\.=\\)"                  #Xe123)
-                     ("\\(\\.\\.\\)"                #Xe124)
-                     ("\\(\\.\\.<\\)"               #Xe125)
-                     ("\\(\\.\\.\\.\\)"             #Xe126)
-                     ("\\(\\?=\\)"                  #Xe127)
-                     ("\\(\\?\\?\\)"                #Xe128)
-                     ("\\(;;\\)"                    #Xe129)
-                     ("\\(/\\*\\)"                  #Xe12a)
-                     ("\\(/\\*\\*\\)"               #Xe12b)
-                     ("\\(/=\\)"                    #Xe12c)
-                     ("\\(/==\\)"                   #Xe12d)
-                     ("\\(/>\\)"                    #Xe12e)
-                     ("\\(//\\)"                    #Xe12f)
-                     ("\\(///\\)"                   #Xe130)
-                     ("\\(&&\\)"                    #Xe131)
-                     ("\\(||\\)"                    #Xe132)
-                     ("\\(||=\\)"                   #Xe133)
-                     ("[^|]\\(|=\\)"                #Xe134)
-                     ("\\(|>\\)"                    #Xe135)
-                     ("\\(\\^=\\)"                  #Xe136)
-                     ("\\(\\$>\\)"                  #Xe137)
-                     ("\\(\\+\\+\\)"                #Xe138)
-                     ("\\(\\+\\+\\+\\)"             #Xe139)
-                     ("\\(\\+>\\)"                  #Xe13a)
-                     ("\\(=:=\\)"                   #Xe13b)
-                     ("[^!/]\\(==\\)[^>]"           #Xe13c)
-                     ("\\(===\\)"                   #Xe13d)
-                     ("\\(==>\\)"                   #Xe13e)
-                     ("[^=]\\(=>\\)"                #Xe13f)
-                     ("\\(=>>\\)"                   #Xe140)
-                     ("\\(<=\\)"                    #Xe141)
-                     ("\\(=<<\\)"                   #Xe142)
-                     ("\\(=/=\\)"                   #Xe143)
-                     ("\\(>-\\)"                    #Xe144)
-                     ("\\(>=\\)"                    #Xe145)
-                     ("\\(>=>\\)"                   #Xe146)
-                     ("[^-=]\\(>>\\)"               #Xe147)
-                     ("\\(>>-\\)"                   #Xe148)
-                     ("\\(>>=\\)"                   #Xe149)
-                     ("\\(>>>\\)"                   #Xe14a)
-                     ("\\(<\\*\\)"                  #Xe14b)
-                     ("\\(<\\*>\\)"                 #Xe14c)
-                     ("\\(<|\\)"                    #Xe14d)
-                     ("\\(<|>\\)"                   #Xe14e)
-                     ("\\(<\\$\\)"                  #Xe14f)
-                     ("\\(<\\$>\\)"                 #Xe150)
-                     ("\\(<!--\\)"                  #Xe151)
-                     ("\\(<-\\)"                    #Xe152)
-                     ("\\(<--\\)"                   #Xe153)
-                     ("\\(<->\\)"                   #Xe154)
-                     ("\\(<\\+\\)"                  #Xe155)
-                     ("\\(<\\+>\\)"                 #Xe156)
-                     ("\\(<=\\)"                    #Xe157)
-                     ("\\(<==\\)"                   #Xe158)
-                     ("\\(<=>\\)"                   #Xe159)
-                     ("\\(<=<\\)"                   #Xe15a)
-                     ("\\(<>\\)"                    #Xe15b)
-                     ("[^-=]\\(<<\\)"               #Xe15c)
-                     ("\\(<<-\\)"                   #Xe15d)
-                     ("\\(<<=\\)"                   #Xe15e)
-                     ("\\(<<<\\)"                   #Xe15f)
-                     ("\\(<~\\)"                    #Xe160)
-                     ("\\(<~~\\)"                   #Xe161)
-                     ("\\(</\\)"                    #Xe162)
-                     ("\\(</>\\)"                   #Xe163)
-                     ("\\(~@\\)"                    #Xe164)
-                     ("\\(~-\\)"                    #Xe165)
-                     ("\\(~=\\)"                    #Xe166)
-                     ("\\(~>\\)"                    #Xe167)
-                     ("[^<]\\(~~\\)"                #Xe168)
-                     ("\\(~~>\\)"                   #Xe169)
-                     ("\\(%%\\)"                    #Xe16a)
-                    ;; ("\\(x\\)"                   #Xe16b) This ended up being hard to do properly so i'm leaving it out.
-                     ("[^:=]\\(:\\)[^:=]"           #Xe16c)
-                     ("[^\\+<>]\\(\\+\\)[^\\+<>]"   #Xe16d)
-                     ("[^\\*/<>]\\(\\*\\)[^\\*/<>]" #Xe16f))))
-
-         (defun add-fira-code-symbol-keywords ()
-           ;; TODO THIS MIGHT ACTUALLY BE THE ANSWER, IGNORE PREVIOUS TODO's(?):
-           ;; https://stackoverflow.com/questions/18152681/syntax-for-adding-removing-font-lock-keywords-in-emacs
-           ;; https://www.emacswiki.org/emacs/AddKeywords
-           (font-lock-add-keywords nil fira-code-font-lock-keywords-alist))
-
-
-         (add-hook 'prog-mode-hook
-                   #'add-fira-code-symbol-keywords)
-
-         ;; Old TODO before ^^^ occurred to me:
-         ;; Maybe set a hook that unsets the #'add-fira-code-symbol-keywords function
-         ;; Still could work as a solution but idk in context of above.
-         ;; (defun fira-set-if-display-p ()
-         ;;   (when (display-graphic-p)
-         ;;     #'add-fira-code-symbol-keywords)
-         ;;   )
-
-         ;; (add-hook 'prog-mode-hook (lambda ()
-         ;;                             (when (display-graphic-p)
-         ;;                               ()))
-         ;;           )
-
-         ;; figure out why i need to manually call
-         ;; M-x interactive-haskell-mode while in a buffer
-         ;; that is already in interactive-haskell-mode
-         ;; for these fonts to render.
-         (add-hook 'interactive-haskell-mode-hook
-                   #'add-fira-code-symbol-keywords)
-       #+END_SRC
 **** system defaults
      
     #+BEGIN_SRC emacs-lisp
@@ -654,7 +350,7 @@
        ;; for light: gandalf, kaolin-valley-light
        ;; when i feel like a hacker: cyberpunk or dark-mint
        ;; 'challenger-deep
-       (load-theme 'kaolin-aurora t)
+       (load-theme 'gandalf t)
 
        ;; pretty symbols
        (prettify-symbols-mode t)
@@ -939,8 +635,7 @@
 
       (use-package lsp-mode
         :ensure t
-        :commands lsp
-        :config (require 'lsp-clients))
+        :commands lsp)
 
       (use-package lsp-ui :commands lsp-ui-mode)
       (use-package company-lsp :commands company-lsp)
@@ -1077,7 +772,6 @@
       (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤")))
       ;; (setq org-hide-emphasis-markers t)
       (setq org-journal-dir "/home/spook/org/journal/")
-      (setq org-journal-enable-encryption t)
 
       ;; stops org-journal from opening previous day's entry
       (setq org-journal-carryover-items nil)
@@ -1819,6 +1513,11 @@
                    (or subtree-end (point-max)))
                next-headline))))
      #+END_SRC
+**** org-download
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-download)
+       (setq org-image-actual-width 600)
+     #+END_SRC
 *** erc
 
     #+BEGIN_SRC emacs-lisp
@@ -2066,11 +1765,14 @@
         (setq pytest-cmd-flags "-x -s --color=yes")
         (defun my-python-setup ()
           (interactive)
+          (lsp)
           (electric-pair-mode)
           (anaconda-mode)
           (anaconda-eldoc-mode)
           (pyenv-mode)
-          (py-yapf-enable-on-save))
+          ;; (py-yapf-enable-on-save) ;; turns out this causes problems when you are
+          ;; working collaboratively on code where everyone isn't yapf'ing their stuff.
+          )
           (add-hook 'python-mode-hook 'my-python-setup))
 
 
@@ -2151,14 +1853,17 @@
         :config
         (defun my-rust-setup ()
           (interactive)
-          ;; (racer-mode)
           (lsp)
           (cargo-minor-mode)
-          (cargo-process--command-flags "--color never")
+          (rust-enable-format-on-save)
+          (flycheck-mode)    
+          ;; (cargo-process--command-flags "--color never")
           (set-fill-column 100)
           (flycheck-rust-setup)
           )
         (add-hook 'rust-mode-hook 'my-rust-setup))
+
+      (setq lsp-rust-clippy-preference "on")
     #+END_SRC
 *** TODO webprogramming
     #+BEGIN_SRC emacs-lisp
@@ -2176,9 +1881,9 @@
           (emmet-mode))
         (add-hook 'web-mode-hook 'my-web-mode-setup))
 
-      ;; (setq web-mode-engines-alist
-      ;;       '(("django" . "\\.html\\'")
-      ;;         ("jinja" . "\\.djhtml\\'")))
+      (setq web-mode-engines-alist
+            '(("django" . "\\.html\\'")
+              ("jinja" . "\\.djhtml\\'")))
     #+END_SRC
 *** TODO js
     Disable ugly af vue background:
