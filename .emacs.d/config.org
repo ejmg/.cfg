@@ -185,7 +185,7 @@
      Code but don't do anything to enable ligatures.
 
      #+BEGIN_SRC emacs-lisp
-       (set-default-font "Fira Code-10") ;;; set default font
+       ;; (set-default-font "Fira Code-10") ;;; set default font
        (setq default-frame-alist '((font . "Fira Code-10"))) ;; set it for the daemon itself
 
        ;; Keeping as a note: this is what fira code comes up as in buffer.
@@ -771,7 +771,9 @@
       ;; ✲ ✺ ✹ ✸ ✽ ✻ ✿ ➤ ➡ ➔ ✪ ✜ ✚ ✙ ▢ ⧐ ▷ ◆
       (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤")))
       ;; (setq org-hide-emphasis-markers t)
+
       (setq org-journal-dir "/home/spook/org/journal/")
+      (add-hook 'org-journal-mode-hook 'org-mode)
 
       ;; stops org-journal from opening previous day's entry
       (setq org-journal-carryover-items nil)
@@ -941,6 +943,8 @@
         (setq org-capture-templates
               (quote (("t" "todo" entry (file "~/org/inbox.org")
                        "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                      ("a" "anki" entry (file "~/org/inbox.org")
+                       "*  %? \n%^{ANKI_NOTE_TYPE}p\n" :clock-in t :clock-resume t)
                       ("r" "respond" entry (file "~/org/inbox.org")
                        "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in :clock-resume t :immediate-finish t)
                       ("n" "note" entry (file "~/org/inbox.org")
