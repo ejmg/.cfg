@@ -943,8 +943,11 @@
         (setq org-capture-templates
               (quote (("t" "todo" entry (file "~/org/inbox.org")
                        "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-                      ("a" "anki" entry (file "~/org/inbox.org")
-                       "*  %? \n%^{ANKI_NOTE_TYPE}p\n" :clock-in t :clock-resume t)
+                      ("a" "templates for anki cards")
+                      ("ab" "basic card" entry (file "~/org/inbox.org")
+                       "* %^{note heading} \n :PROPERTIES:\n :ANKI_NOTE_TYPE: Basic\n :END:\n** Front\n** Back\n")
+                      ("ac" "cloze card" entry (file "~/org/inbox.org")
+                       "* %^{note heading} \n :PROPERTIES:\n :ANKI_NOTE_TYPE: Cloze\n :END:\n** Front\n** Back\n")
                       ("r" "respond" entry (file "~/org/inbox.org")
                        "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in :clock-resume t :immediate-finish t)
                       ("n" "note" entry (file "~/org/inbox.org")
