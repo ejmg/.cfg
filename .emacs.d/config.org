@@ -185,7 +185,13 @@
      Code but don't do anything to enable ligatures.
 
      #+BEGIN_SRC emacs-lisp
-       ;; (set-default-font "Fira Code-10") ;;; set default font
+       ;; experiment to fix tooltip font errors
+
+       ;; this variable defaults to t but reports as nil during runtime, but is not
+       ;; touched in this file.
+       (setq x-gtk-use-system-tooltips t)
+
+       (set-default-font "Fira Code-10") ;;; set default font
        (setq default-frame-alist '((font . "Fira Code-10"))) ;; set it for the daemon itself
 
        ;; Keeping as a note: this is what fira code comes up as in buffer.
@@ -350,7 +356,11 @@
        ;; for light: gandalf, kaolin-valley-light
        ;; when i feel like a hacker: cyberpunk or dark-mint
        ;; 'challenger-deep
-       (load-theme 'gandalf t)
+       (load-theme 'kaolin-light t)
+       ;; (custom-theme-set-faces
+       ;;  'gandalf
+       ;;  '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
+       ;;  '(lsp-ui-sideline-current-symbol ((t (:foreground "MediumBlue")))))
 
        ;; pretty symbols
        (prettify-symbols-mode t)
@@ -772,12 +782,6 @@
       (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤")))
       ;; (setq org-hide-emphasis-markers t)
 
-      (setq org-journal-dir "/home/spook/org/journal/")
-      (add-hook 'org-journal-mode-hook 'org-mode)
-
-      ;; stops org-journal from opening previous day's entry
-      (setq org-journal-carryover-items nil)
-
       (defun generic-org-minor-modes ()
         (interactive)
         (org-bullets-mode 1)
@@ -802,6 +806,20 @@
                                    (emacs-lisp . t)
                                    (clojure . t)
                                    (js . t)))
+
+      (use-package org-journal
+        :ensure t
+        :defer t
+        :custom
+        (org-journal-dir "~/org/journal/"))
+
+      ;; customize-set-variable is recommended over setq for org-journal
+      ;; (customize-set-variable org-journal-dir "~/org/journal/")
+
+
+
+      ;; stops org-journal from opening previous day's entry
+      ;; (setq org-journal-carryover-items nil)
 
     #+END_SRC
 **** beginning of line behavior
@@ -947,11 +965,13 @@
                       ("ab" "basic card" entry (file "~/org/inbox.org")
                        "* %^{note heading} \n :PROPERTIES:\n :ANKI_NOTE_TYPE: Basic\n :END:\n** Front\n** Back\n")
                       ("ac" "cloze card" entry (file "~/org/inbox.org")
-                       "* %^{note heading} \n :PROPERTIES:\n :ANKI_NOTE_TYPE: Cloze\n :END:\n** Front\n** Back\n")
+                       "* %^{note heading} \n :PROPERTIES:\n :ANKI_NOTE_TYPE: Cloze\n :END:\n** Text\n** Extra\n")
                       ("r" "respond" entry (file "~/org/inbox.org")
                        "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in :clock-resume t :immediate-finish t)
                       ("n" "note" entry (file "~/org/inbox.org")
                        "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+                      ("i" "idea" entry (file "~/org/inbox.org")
+                       "* %? :IDEAS:\n%U\n%a\n" :clock-in t :clock-resume t)
                       ;; ("j" "Journal" entry (file+datetree "~/git/org/diary.org")
                       ;;  "* %?\n%U\n" :clock-in t :clock-resume t)
                       ;; ("w" "org-protocol" entry (file "~/org/inbox.org")
@@ -976,7 +996,9 @@
                                    ("~/org/tasks.org" :maxlevel . 9)
                                    ("~/org/later.org" :maxlevel . 9)
                                    ("~/org/reference.org" :maxlevel . 9)
-                                   ("~/org/cmr.org" :maxlevel . 9)))
+                                   ;; ("~/org/cmr.org" :maxlevel . 9)
+                                   ("~/org/anki/anki.org" :maxlevel . 9)
+                                   ))
 
         ; Allow refile to create parent tasks with confirmation
         (setq org-refile-allow-creating-parent-nodes (quote confirm))
