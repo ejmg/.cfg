@@ -116,7 +116,7 @@
                 company-ghci flycheck-haskell company-statistics yasnippet-snippets lsp-mode lsp-ui company-lsp
 
                 ;; git
-                git-gutter-fringe magit
+                magit diff-hl
 
                 ;; markdown
                 markdown-mode toml-mode yaml-mode
@@ -159,10 +159,11 @@
 
                 ;; themes
                 challenger-deep-theme exotica-theme seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme material-theme
-                kaolin-themes
+                kaolin-themes minimal-theme
 
                 ;; other
                 writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace anki-editor emojify wolfram
+                define-word
 
                 ;; google
                 google-this google-translate
@@ -187,17 +188,17 @@
      #+BEGIN_SRC emacs-lisp
        ;; experiment to fix tooltip font errors
 
-       ;; this variable defaults to t but reports as nil during runtime, but is not
-       ;; touched in this file.
-       (setq x-gtk-use-system-tooltips t)
+       ;; emacs typically comes built with GTK support, and will default
+       ;; to using the tooltips of GTK. However, this doesn't play nicely
+       ;; when it comes to any kind of customizations because GTK has control
+       ;; over the tooltips, not emacs. Swerve.
+       (setq x-gtk-use-system-tooltips nil)
 
-       (set-default-font "Fira Code-10") ;;; set default font
-       (setq default-frame-alist '((font . "Fira Code-10"))) ;; set it for the daemon itself
+       ;; (set-frame-font "Fira Code") ;;; set default font
+       ;; (setq default-frame-alist '((font . "Fira Code-10"))) ;; set it for the daemon itself
 
-       ;; Keeping as a note: this is what fira code comes up as in buffer.
-       ;; this is the font "code" used by emacs to describe/select fira code
-       ;; from its font selection menu.
-       ;; -CTDB-Fira Code-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1
+       (setq default-frame-alist '((font . "-CTDB-Fira Code-normal-normal-normal-*-13-*-*-*-m-0-iso10646-1")))
+       ;; set it for the daemon itself
      #+END_SRC     
 
 **** system defaults
@@ -343,44 +344,61 @@
      #+END_SRC
 **** theme, styling, and transparency
      #+BEGIN_SRC emacs-lisp
-       ;; Set transparency of emacs
-       (defun transparency (value)
-         "Sets the transparency of the frame window. 0=transparent/100=opaque"
-         (interactive "nTransparency Value 0 - 100 opaque:")
-         (set-frame-parameter (selected-frame) 'alpha value))
+            ;; Set transparency of emacs
+            (defun transparency (value)
+              "Sets the transparency of the frame window. 0=transparent/100=opaque"
+              (interactive "nTransparency Value 0 - 100 opaque:")
+              (set-frame-parameter (selected-frame) 'alpha value))
 
-       ;; i have one them i play with that isn't on melpa
-       (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-       (use-package kaolin-themes)
-       ;; for dark: seti, kaolin-aurora; 
-       ;; for light: gandalf, kaolin-valley-light
-       ;; when i feel like a hacker: cyberpunk or dark-mint
-       ;; 'challenger-deep
-       (load-theme 'kaolin-light t)
-       ;; (custom-theme-set-faces
-       ;;  'gandalf
-       ;;  '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
-       ;;  '(lsp-ui-sideline-current-symbol ((t (:foreground "MediumBlue")))))
+            ;; i have one them i play with that isn't on melpa
+            (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+            (use-package kaolin-themes)
+            (use-package minimal-theme)       
+            ;; for dark: seti, kaolin-aurora; 
+            ;; for light: gandalf, kaolin-valley-light
+            ;; when i feel like a hacker: cyberpunk or dark-mint
+            ;; 'challenger-deep
+       (load-theme 'minimal-light t)
 
-       ;; pretty symbols
-       (prettify-symbols-mode t)
-       (setq-default prettify-symbols-alist '(("lambda" . ?λ)
-                                              (".\\" . ?λ)
-                                              ;;("->" . ?⟶)
-                                              ;;("=/=" . ?≠)
-                                              ;;("===" . ?≡)
-                                              ;;("!=" . ?≠)
-                                              ;;("<=" . ?≤)
-                                              (">=" . ?≥)
-                                              ("delta" . ?Δ)
-                                              ("gamma" . ?Γ)
-                                              ("phi" . ?φ)
-                                              ("psi" . ?ψ)
-                                              ;; ("x" . x)
-                                              ))
-       ;; dims the buffers that are not active
-       (use-package dimmer)
-       (dimmer-mode)
+       (with-eval-after-load "minimal-theme"
+         (setq lsp-ui-doc-border "black")
+         (custom-theme-set-faces
+          'minimal-light
+          '(region ((t (:foreground "gainsboro" :background "dim grey"))))
+          '(show-paren-match ((t (:background "gray30" :foreground "white" :weight extrabold))))
+          '(org-block-begin-line ((t (:foreground "gray70" :background "gray98"))))
+          '(org-block-end-line ((t (:foreground "gray70" :background "gray98"))))
+          '(tooltip ((t (:background "gray90"))))
+          '(italic ((t (:font "Fira Sans" :slant italic))))
+          '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
+          '(lsp-ui-sideline-current-symbol ((t (:foreground "DarkBlue"))))
+          '(lsp-ui-sideline-symbol ((t (:foreground "Black"))))
+          '(lsp-ui-doc-background ((t (:background "gray92"))))
+          '(fringe ((t (:background "gray100"))))))
+            ;; (custom-theme-set-faces
+            ;;  'gandalf
+            ;;  '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
+            ;;  '(lsp-ui-sideline-current-symbol ((t (:foreground "MediumBlue")))))
+
+            ;; pretty symbols
+            (prettify-symbols-mode t)
+            (setq-default prettify-symbols-alist '(("lambda" . ?λ)
+                                                   (".\\" . ?λ)
+                                                   ;;("->" . ?⟶)
+                                                   ;;("=/=" . ?≠)
+                                                   ;;("===" . ?≡)
+                                                   ;;("!=" . ?≠)
+                                                   ;;("<=" . ?≤)
+                                                   (">=" . ?≥)
+                                                   ("delta" . ?Δ)
+                                                   ("gamma" . ?Γ)
+                                                   ("phi" . ?φ)
+                                                   ("psi" . ?ψ)
+                                                   ;; ("x" . x)
+                                                   ))
+            ;; dims the buffers that are not active
+            (use-package dimmer)
+            (dimmer-mode)
      #+END_SRC
 **** window and file history
 
@@ -492,6 +510,8 @@
                  ;; -F marks links with @
                  dired-ls-F-marks-symlinks t
                  delete-by-moving-to-trash t
+                 ;; i typically want to see hidden files
+                 dired-omit-mode nil
                  ;; Auto refresh dired
                  global-auto-revert-non-file-buffers t
                  wdired-allow-to-change-permissions t)
@@ -511,6 +531,13 @@
              (list "--sug-mode=fast" ;; ultra|fast|normal|bad-spellers
                    "--lang=en_US"
                    "--ignore=3"))
+     #+END_SRC
+
+     really nice package for finding definitions without leaving emacs. by same
+     author behind ivy, swiper. Thanks abo-abo!
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package define-word)
      #+END_SRC
 **** multiple cursors
      this is a dope package that makes multi-line editing a breeze. to be
@@ -639,1039 +666,1136 @@
                         (funcall 'compilation-filter proc
                                  (xterm-color-filter string)))))))
      #+END_SRC
-*** completion
-
-    #+BEGIN_SRC emacs-lisp
-
-      (use-package lsp-mode
-        :ensure t
-        :commands lsp)
-
-      (use-package lsp-ui :commands lsp-ui-mode)
-      (use-package company-lsp :commands company-lsp)
-
-      (use-package yasnippet)
-      (yas-global-mode 1)
-
-
-
-      (use-package company
-        :defer t
-        :diminish ""
-        :bind ("C-." . company-complete)
-        :init (add-hook 'prog-mode-hook 'company-mode)
-        :config
-        (progn
-          (setq company-idle-delay 0.1
-                company-minimum-prefix-length 2
-                company-selection-wrap-around t
-                company-dabbrev-downcase nil
-                company-transformers '(company-sort-by-occurrence))
-          (bind-keys :map company-active-map
-                     ("C-n" . company-select-next)
-                     ("C-p" . company-select-previous)
-                     ("C-d" . company-show-doc-buffer)
-                     ("<tab>" . company-complete)))
-        (add-hook 'company-mode-hook 'company-statistics-mode))
-
-      (use-package company-web)
-
-      ;; haskell
-      (eval-after-load "company"
-        '(add-to-list 'company-backends 'company-ghci))
-
-      ;; python
-      (eval-after-load "company"
-        '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
-
-      ;; rust
-      (eval-after-load "company"
-        '(add-to-list 'company-backends 'company-lsp))
-
-      ;; (eval-after-load "company"
-      ;;   '(add-to-list 'company-backends company-web-html))
-
-
-      ;; Add yasnippet support for all company backends
-      ;; https://github.com/syl20bnr/spacemacs/pull/179
-      (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
-
-      (defun company-mode/backend-with-yas (backend)
-        (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-            backend
-      (append (if (consp backend) backend (list backend))
-              '(:with company-yasnippet))))
-      (eval-after-load "company"
-        '(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
-
-      ;;(eval-after-load "company"
-      ;;'(add-to-list 'company-backends 'company-yasnippet))
-
-    #+END_SRC
-
-**** ignore buffers with bad completion candidates
-     I use dabbrev mode as a completion candidate with company mode. This means
-     it will look at other buffers for strings to complete from when it can't
-     find anything from an intelligent completion engine/source. However, if
-     you are reading a PDF (or tex log file, etc), you can get literal escape
-     sequences as completion candidates. It also adds a good amount of lag due
-     to the sheer number being looked at as potential completion candidates.
-
-     This should stop it... I think.
-
-     #+BEGIN_SRC emacs-lisp
-       (setq company-files-exclusions '(".pdf" ".fbd_latexmk" ".aux" ".log" ".bbl"
-                                       ".bcf" ".gz" ".blg" ".fls" ".doc" ".docx" ".ppt" ".pptx" ".odt"))
-     #+END_SRC
-
-     This function sets =company-dabbrev-ignore-buffers= to anything matching a
-     .pdf file.
-
-     #+BEGIN_SRC emacs-lisp
-       (defun company-dabbrev-ignore-pdfs (buffer)
-         "ignore all pdf buffers"
-         (string-match-p "\\.pdf\\|\\.doc\\|\\.docx\\|\\.ppt\\|\\.pptx\\|\\.odt"
-                      (buffer-name buffer)))
-       (setq company-dabbrev-ignore-buffers 'company-dabbrev-ignore-pdfs)
-     #+END_SRC
-
-**** expand region
-     #+BEGIN_SRC emacs-lisp
-       (use-package expand-region
-         :bind ("M-/" . er/expand-region))
-     #+END_SRC
-**** flycheck
-     #+BEGIN_SRC emacs-lisp
-       (defun my-flycheck-customize ()
-         (interactive)
-         (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
-         (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse))
-
-       (use-package flycheck
-         :defer t
-         :bind (("M-g M-n" . flycheck-next-error)
-                ("M-g M-p" . flycheck-previous-error)
-                ("M-g M-=" . flycheck-list-errors))
-         :diminish ""
-         :config
-         (use-package flycheck-tip
-           :config (add-hook 'flycheck-mode-hook 'my-flycheck-customize)))
-     #+END_SRC
-**** undo tree
-     #+BEGIN_SRC emacs-lisp
-
-       (use-package undo-tree
-         :init (global-undo-tree-mode t)
-         :defer t
-         :diminish ""
-         :config
-         (progn
-           (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
-           (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
-           (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo)))
-     #+END_SRC     
-
-*** TODO org
-
-    settings for org mode
-
-    #+BEGIN_SRC emacs-lisp
-      ;; other symbols that might be of use idk:
-      ;; ● ◼ ⁍ ◙ ◯ □ ◎ ◪ ▆ ▅ █ ⨀ ⨁ ⨂ ✱ ⏣ ⋙ ⃟ 
-      ;; ✲ ✺ ✹ ✸ ✽ ✻ ✿ ➤ ➡ ➔ ✪ ✜ ✚ ✙ ▢ ⧐ ▷ ◆
-      (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤")))
-      ;; (setq org-hide-emphasis-markers t)
-
-      (defun generic-org-minor-modes ()
-        (interactive)
-        (org-bullets-mode 1)
-        (org-cdlatex-mode 1)
-        ;; I am pretty sure this adds a delay to loading any org file
-        ;; and some generally laggy behavior for some certain actions
-        ;; so goodbye for now.
-        ;;(emojify-mode 1)
-        (auto-fill-mode 1))
-      (add-hook 'org-mode-hook 'generic-org-minor-modes)
-
-      ;; (setq epa-pinentry-mode 'loopback)
-      ;; (pinentry-start)
-
-
-      ;; enable org to evaluate the following PL code blocks with C-c C-c
-      (org-babel-do-load-languages
-       'org-babel-load-languages '((C . t)
-                                   (python . t)
-                                   (shell . t)
-                                   (haskell . t)
-                                   (emacs-lisp . t)
-                                   (clojure . t)
-                                   (js . t)))
-
-      (use-package org-journal
-        :ensure t
-        :defer t
-        :custom
-        (org-journal-dir "~/org/journal/"))
-
-      ;; customize-set-variable is recommended over setq for org-journal
-      ;; (customize-set-variable org-journal-dir "~/org/journal/")
-
-
-
-      ;; stops org-journal from opening previous day's entry
-      ;; (setq org-journal-carryover-items nil)
-
-    #+END_SRC
-**** beginning of line behavior
-     =C-a= will behave identical to =M-m= by default, meaning instead of going
-     to the start of a heading, you will go to the first asterisk in a
-     heading. This setting changes that behavior to cycle between the first
-     character of a heading to the literal start of a line in a
-     header. Additionally, it changes =C-e= to respect tags as well and cycles
-     in a similar manner.
-
-     #+BEGIN_SRC emacs-lisp
-       (setq org-special-ctrl-a/e t)
-     #+END_SRC
-**** internal links
-     This makes linking to other headlines in files more
-     straightforward.
-     #+BEGIN_SRC emacs-lisp
-       (setq org-link-search-must-match-exact-headline nil)
-     #+END_SRC
-**** Stopping invisible edits
-     It is really really hard sometimes to know what, and if, I've edited my
-     org files when my carat is hidden. This stops that.
-
-     #+BEGIN_SRC emacs-lisp
-       (setq org-catch-invisible-edits 'error)
-     #+END_SRC
-**** TODO modules
-     #+BEGIN_SRC emacs-lisp
-       (add-to-list 'org-modules 'org-habit)
-       (require 'org-habit)
-     #+END_SRC
-**** GDT Methodology
-     I use org mode to store a lot of random tidbits of information. Too much
-     information, actually. TODO's with vacuous deadlines, TODOs that should
-     actually be done tomorrow, things I'll realistically never get around to
-     in my mortal lifetime, and various bits of information inbetween.
-
-     As a result, I try to follow the Getting Things Done methodology. While I
-     don't really believe in silver bullets for organization, the skeleton of
-     this system tends to work well for me. I've taken inspiration from [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][Petton]]
-     and [[http://doc.norang.ca/org-mode.html][Hansen]].
-
-***** Keybindings
-      I have =C-c c= for =org-capture=, which allows me to file any random
-      thing that comes across my mind or desk.
-
-      #+BEGIN_SRC emacs-lisp
-        (global-set-key (kbd "C-c c") 'org-capture)
-      #+END_SRC
-
-      I don't need to edit what agenda files I will be using on the fly, so
-      disabling =C-c [= and =C-c ]= saves me grief.
-      
-      #+begin_SRC emacs-lisp
-        ;; TODO
-        ;; decide how to go about unbinding w/o making my kbd's break like this does.
-
-        ;; Disable keys in org-mode
-        ;;    C-c [ 
-        ;;    C-c ]
-        ;; (add-hook 'org-mode-hook
-        ;;           '(lambda ()
-        ;;              ;; Undefine C-c [ and C-c ] since this breaks my
-        ;;              ;; org-agenda files when directories are include It
-        ;;              ;; expands the files in the directories individually
-        ;;              (org-defkey org-mode-map "\C-c[" 'undefined)
-        ;;              (org-defkey org-mode-map "\C-c]" 'undefined))
-        ;;           'append)
-      #+END_SRC
-
-      Finally, I need to be able to access my agenda view quickly. This setting
-      is currently made with my lenovo x1 carbon in mind. It has a function
-      key, "Favorite", that is not recognized by xorg. I remapped it to the
-      key =prog2= which is an alias for =XF86Launch2=.
-
-      #+BEGIN_SRC emacs-lisp 
-        (global-set-key (kbd "<XF86Launch2>") 'org-agenda)
-      #+END_SRC
-
-***** Org Agenda
-      Here are the files I will be using to sort and organize my tasks:
-      #+BEGIN_SRC emacs-lisp
-        (setq org-agenda-files '("~/org/thoughts.org"
-                                 "~/org/cmr.org"
-                                 "~/org/inbox.org"
-                                 "~/org/tasks.org"))
-      #+END_SRC
-
-***** Org TODOs
-      
-      Here are the states that a TODO can have in my org config:
-
-      #+BEGIN_SRC emacs-lisp
-        (setq org-todo-keywords
-              (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-                      (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
-
-      #+END_SRC
-
-      I slightly tweak the default color settings for the faces of these
-      states:
-
-      #+BEGIN_SRC emacs-lisp
-        (setq org-todo-keyword-faces
-              (quote (("TODO" :foreground "red" :weight bold)
-                      ("NEXT" :foreground "blue" :weight bold)
-                      ("DONE" :foreground "forest green" :weight bold)
-                      ("WAITING" :foreground "orange" :weight bold)
-                      ("HOLD" :foreground "magenta" :weight bold)
-                      ("CANCELLED" :foreground "forest green" :weight bold)
-                      ("MEETING" :foreground "red" :weight bold)
-                      ("PHONE" :foreground "red" :weight bold))))
-      #+END_SRC
-
-      Lets me use fast selection to swap through states of my TODOs:
-      
-      #+BEGIN_SRC emacs-lisp
-        (setq org-use-fast-todo-selection t)
-      #+END_SRC
-
-      Disable ability to change these states via =S-left= and =S-right=:
-      
-      #+BEGIN_SRC emacs-lisp
-        (setq org-treat-S-cursor-todo-selection-as-state-change nil)
-      #+END_SRC
-
-***** Capture Templates
-      
-      We'll file every captured moment into my inbox:
-
-      #+BEGIN_SRC emacs-lisp
-        (setq org-default-notes-file "~/git/org/inbox.org")
-      #+END_SRC
-
-      List of templates to choose from when capturing a moment via =C-c c=:
-
-      #+BEGIN_SRC emacs-lisp
-        ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
-        (setq org-capture-templates
-              (quote (("t" "todo" entry (file "~/org/inbox.org")
-                       "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-                      ("a" "templates for anki cards")
-                      ("ab" "basic card" entry (file "~/org/inbox.org")
-                       "* %^{note heading} \n :PROPERTIES:\n :ANKI_NOTE_TYPE: Basic\n :END:\n** Front\n** Back\n")
-                      ("ac" "cloze card" entry (file "~/org/inbox.org")
-                       "* %^{note heading} \n :PROPERTIES:\n :ANKI_NOTE_TYPE: Cloze\n :END:\n** Text\n** Extra\n")
-                      ("r" "respond" entry (file "~/org/inbox.org")
-                       "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in :clock-resume t :immediate-finish t)
-                      ("n" "note" entry (file "~/org/inbox.org")
-                       "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-                      ("i" "idea" entry (file "~/org/inbox.org")
-                       "* %? :IDEAS:\n%U\n%a\n" :clock-in t :clock-resume t)
-                      ;; ("j" "Journal" entry (file+datetree "~/git/org/diary.org")
-                      ;;  "* %?\n%U\n" :clock-in t :clock-resume t)
-                      ;; ("w" "org-protocol" entry (file "~/org/inbox.org")
-                      ;;  "* TODO Review %c\n%U\n" :immediate-finish t)
-                      ("m" "Meeting" entry (file "~/org/inbox.org")
-                       "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
-                      ("p" "Phone call" entry (file "~/org/inbox.org")
-                       "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
-                      ;; ("h" "Habit" entry (file "~/org/inbox.org")
-                      ;;  "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
-                      )))
-      #+END_SRC
-      
-      My refile targets for moments. Ideally, I should actively be refiling
-      things from my inbox to where they belong. If they are something I will
-      be working on, big or small, they go to tasks. If it's just an
-      idea/something I won't be touching for sometime, then thoughts. Etc.
-
-      #+BEGIN_SRC emacs-lisp
-        ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-        (setq org-refile-targets '(("~/org/thoughts.org" :maxlevel . 9)
-                                   ("~/org/tasks.org" :maxlevel . 9)
-                                   ("~/org/later.org" :maxlevel . 9)
-                                   ("~/org/reference.org" :maxlevel . 9)
-                                   ;; ("~/org/cmr.org" :maxlevel . 9)
-                                   ("~/org/anki/anki.org" :maxlevel . 9)
-                                   ))
-
-        ; Allow refile to create parent tasks with confirmation
-        (setq org-refile-allow-creating-parent-nodes (quote confirm))
-      #+END_SRC
-
-      We don't want to include DONE tasks as refile targets because that will
-      make our lists *huge*.
-      
-      #+BEGIN_SRC emacs-lisp
-        ;;;; Refile settings
-        ; Exclude DONE state tasks from refile targets
-        (defun bh/verify-refile-target ()
-          "Exclude todo keywords with a done state from refile targets"
-          (not (member (nth 2 (org-heading-components)) org-done-keywords)))
-
-        (setq org-refile-target-verify-function 'bh/verify-refile-target)
-      #+END_SRC
-      
-***** TODO Agenda View
-      #+BEGIN_SRC emacs-lisp
-        ;; Do not dim blocked tasks
-        (setq org-agenda-dim-blocked-tasks nil)
-
-        ;; Compact the block agenda view
-        (setq org-agenda-compact-blocks t)
-
-        ;; Custom agenda command definitions
-        (setq org-agenda-custom-commands
-              (quote (("N" "Notes" tags "NOTE"
-                       ((org-agenda-overriding-header "Notes")
-                        (org-tags-match-list-sublevels t)))
-                      ("h" "Habits" tags-todo "STYLE=\"habit\""
-                       ((org-agenda-overriding-header "Habits")
-                        (org-agenda-sorting-strategy
-                         '(todo-state-down effort-up category-keep))))
-                      (" " "Agenda"
-                       ((agenda "" nil)
-                        (tags "REFILE"
-                              ((org-agenda-overriding-header "Tasks to Refile")
-                               (org-tags-match-list-sublevels nil)))
-                        (tags-todo "-CANCELLED/!"
-                                   ((org-agenda-overriding-header "Stuck Projects")
-                                    (org-agenda-skip-function 'bh/skip-non-stuck-projects)
-                                    (org-agenda-sorting-strategy
-                                     '(category-keep))))
-                        (tags-todo "-HOLD-CANCELLED/!"
-                                   ((org-agenda-overriding-header "Projects")
-                                    (org-agenda-skip-function 'bh/skip-non-projects)
-                                    (org-tags-match-list-sublevels 'indented)
-                                    (org-agenda-sorting-strategy
-                                     '(category-keep))))
-                        (tags-todo "-CANCELLED/!NEXT"
-                                   ((org-agenda-overriding-header (concat "Project Next Tasks"
-                                                                          (if bh/hide-scheduled-and-waiting-next-tasks
-                                                                              ""
-                                                                            " (including WAITING and SCHEDULED tasks)")))
-                                    (org-agenda-skip-function 'bh/skip-projects-and-habits-and-single-tasks)
-                                    (org-tags-match-list-sublevels t)
-                                    (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
-                                    (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
-                                    (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
-                                    (org-agenda-sorting-strategy
-                                     '(todo-state-down effort-up category-keep))))
-                        (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
-                                   ((org-agenda-overriding-header (concat "Project Subtasks"
-                                                                          (if bh/hide-scheduled-and-waiting-next-tasks
-                                                                              ""
-                                                                            " (including WAITING and SCHEDULED tasks)")))
-                                    (org-agenda-skip-function 'bh/skip-non-project-tasks)
-                                    (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
-                                    (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
-                                    (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
-                                    (org-agenda-sorting-strategy
-                                     '(category-keep))))
-                        (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
-                                   ((org-agenda-overriding-header (concat "Standalone Tasks"
-                                                                          (if bh/hide-scheduled-and-waiting-next-tasks
-                                                                              ""
-                                                                            " (including WAITING and SCHEDULED tasks)")))
-                                    (org-agenda-skip-function 'bh/skip-project-tasks)
-                                    (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
-                                    (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
-                                    (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
-                                    (org-agenda-sorting-strategy
-                                     '(category-keep))))
-                        (tags-todo "-CANCELLED+WAITING|HOLD/!"
-                                   ((org-agenda-overriding-header (concat "Waiting and Postponed Tasks"
-                                                                          (if bh/hide-scheduled-and-waiting-next-tasks
-                                                                              ""
-                                                                            " (including WAITING and SCHEDULED tasks)")))
-                                    (org-agenda-skip-function 'bh/skip-non-tasks)
-                                    (org-tags-match-list-sublevels nil)
-                                    (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
-                                    (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)))
-                        (tags "-REFILE/"
-                              ((org-agenda-overriding-header "Tasks to Archive")
-                               (org-agenda-skip-function 'bh/skip-non-archivable-tasks)
-                               (org-tags-match-list-sublevels nil))))
-                       nil))))
-
-      #+END_SRC
-***** TODO Project Management/View
-      #+BEGIN_SRC emacs-lisp
-        (setq org-stuck-projects (quote ("" nil nil "")))
-      #+END_SRC
-
-      #+BEGIN_SRC emacs-lisp
-        (defun bh/is-project-p ()
-          "Any task with a todo keyword subtask"
-          (save-restriction
-            (widen)
-            (let ((has-subtask)
-                  (subtree-end (save-excursion (org-end-of-subtree t)))
-                  (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-              (save-excursion
-                (forward-line 1)
-                (while (and (not has-subtask)
-                            (< (point) subtree-end)
-                            (re-search-forward "^\*+ " subtree-end t))
-                  (when (member (org-get-todo-state) org-todo-keywords-1)
-                    (setq has-subtask t))))
-              (and is-a-task has-subtask))))
-
-        (defun bh/is-project-subtree-p ()
-          "Any task with a todo keyword that is in a project subtree.
-        Callers of this function already widen the buffer view."
-          (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
-                                      (point))))
-            (save-excursion
-              (bh/find-project-task)
-              (if (equal (point) task)
-                  nil
-                t))))
-
-        (defun bh/is-task-p ()
-          "Any task with a todo keyword and no subtask"
-          (save-restriction
-            (widen)
-            (let ((has-subtask)
-                  (subtree-end (save-excursion (org-end-of-subtree t)))
-                  (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-              (save-excursion
-                (forward-line 1)
-                (while (and (not has-subtask)
-                            (< (point) subtree-end)
-                            (re-search-forward "^\*+ " subtree-end t))
-                  (when (member (org-get-todo-state) org-todo-keywords-1)
-                    (setq has-subtask t))))
-              (and is-a-task (not has-subtask)))))
-
-        (defun bh/is-subproject-p ()
-          "Any task which is a subtask of another project"
-          (let ((is-subproject)
-                (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-            (save-excursion
-              (while (and (not is-subproject) (org-up-heading-safe))
-                (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-                  (setq is-subproject t))))
-            (and is-a-task is-subproject)))
-
-        (defun bh/list-sublevels-for-projects-indented ()
-          "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
-          This is normally used by skipping functions where this variable is already local to the agenda."
-          (if (marker-buffer org-agenda-restrict-begin)
-              (setq org-tags-match-list-sublevels 'indented)
-            (setq org-tags-match-list-sublevels nil))
-          nil)
-
-        (defun bh/list-sublevels-for-projects ()
-          "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
-          This is normally used by skipping functions where this variable is already local to the agenda."
-          (if (marker-buffer org-agenda-restrict-begin)
-              (setq org-tags-match-list-sublevels t)
-            (setq org-tags-match-list-sublevels nil))
-          nil)
-
-        (defvar bh/hide-scheduled-and-waiting-next-tasks t)
-
-        (defun bh/toggle-next-task-display ()
-          (interactive)
-          (setq bh/hide-scheduled-and-waiting-next-tasks (not bh/hide-scheduled-and-waiting-next-tasks))
-          (when  (equal major-mode 'org-agenda-mode)
-            (org-agenda-redo))
-          (message "%s WAITING and SCHEDULED NEXT Tasks" (if bh/hide-scheduled-and-waiting-next-tasks "Hide" "Show")))
-
-        (defun bh/skip-stuck-projects ()
-          "Skip trees that are not stuck projects"
-          (save-restriction
-            (widen)
-            (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-              (if (bh/is-project-p)
-                  (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-                         (has-next ))
-                    (save-excursion
-                      (forward-line 1)
-                      (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
-                        (unless (member "WAITING" (org-get-tags-at))
-                          (setq has-next t))))
-                    (if has-next
-                        nil
-                      next-headline)) ; a stuck project, has subtasks but no next task
-                nil))))
-
-        (defun bh/skip-non-stuck-projects ()
-          "Skip trees that are not stuck projects"
-          ;; (bh/list-sublevels-for-projects-indented)
-          (save-restriction
-            (widen)
-            (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-              (if (bh/is-project-p)
-                  (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-                         (has-next ))
-                    (save-excursion
-                      (forward-line 1)
-                      (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
-                        (unless (member "WAITING" (org-get-tags-at))
-                          (setq has-next t))))
-                    (if has-next
-                        next-headline
-                      nil)) ; a stuck project, has subtasks but no next task
-                next-headline))))
-
-        (defun bh/skip-non-projects ()
-          "Skip trees that are not projects"
-          ;; (bh/list-sublevels-for-projects-indented)
-          (if (save-excursion (bh/skip-non-stuck-projects))
-              (save-restriction
-                (widen)
-                (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-                  (cond
-                   ((bh/is-project-p)
-                    nil)
-                   ((and (bh/is-project-subtree-p) (not (bh/is-task-p)))
-                    nil)
-                   (t
-                    subtree-end))))
-            (save-excursion (org-end-of-subtree t))))
-
-        (defun bh/skip-non-tasks ()
-          "Show non-project tasks.
-        Skip project and sub-project tasks, habits, and project related tasks."
-          (save-restriction
-            (widen)
-            (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-              (cond
-               ((bh/is-task-p)
-                nil)
-               (t
-                next-headline)))))
-
-        (defun bh/skip-project-trees-and-habits ()
-          "Skip trees that are projects"
-          (save-restriction
-            (widen)
-            (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-              (cond
-               ((bh/is-project-p)
-                subtree-end)
-               ((org-is-habit-p)
-                subtree-end)
-               (t
-                nil)))))
-
-        (defun bh/skip-projects-and-habits-and-single-tasks ()
-          "Skip trees that are projects, tasks that are habits, single non-project tasks"
-          (save-restriction
-            (widen)
-            (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-              (cond
-               ((org-is-habit-p)
-                next-headline)
-               ((and bh/hide-scheduled-and-waiting-next-tasks
-                     (member "WAITING" (org-get-tags-at)))
-                next-headline)
-               ((bh/is-project-p)
-                next-headline)
-               ((and (bh/is-task-p) (not (bh/is-project-subtree-p)))
-                next-headline)
-               (t
-                nil)))))
-
-        (defun bh/skip-project-tasks-maybe ()
-          "Show tasks related to the current restriction.
-        When restricted to a project, skip project and sub project tasks, habits, NEXT tasks, and loose tasks.
-        When not restricted, skip project and sub-project tasks, habits, and project related tasks."
-          (save-restriction
-            (widen)
-            (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-                   (next-headline (save-excursion (or (outline-next-heading) (point-max))))
-                   (limit-to-project (marker-buffer org-agenda-restrict-begin)))
-              (cond
-               ((bh/is-project-p)
-                next-headline)
-               ((org-is-habit-p)
-                subtree-end)
-               ((and (not limit-to-project)
-                     (bh/is-project-subtree-p))
-                subtree-end)
-               ((and limit-to-project
-                     (bh/is-project-subtree-p)
-                     (member (org-get-todo-state) (list "NEXT")))
-                subtree-end)
-               (t
-                nil)))))
-
-        (defun bh/skip-project-tasks ()
-          "Show non-project tasks.
-        Skip project and sub-project tasks, habits, and project related tasks."
-          (save-restriction
-            (widen)
-            (let* ((subtree-end (save-excursion (org-end-of-subtree t))))
-              (cond
-               ((bh/is-project-p)
-                subtree-end)
-               ((org-is-habit-p)
-                subtree-end)
-               ((bh/is-project-subtree-p)
-                subtree-end)
-               (t
-                nil)))))
-
-        (defun bh/skip-non-project-tasks ()
-          "Show project tasks.
-        Skip project and sub-project tasks, habits, and loose non-project tasks."
-          (save-restriction
-            (widen)
-            (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-                   (next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-              (cond
-               ((bh/is-project-p)
-                next-headline)
-               ((org-is-habit-p)
-                subtree-end)
-               ((and (bh/is-project-subtree-p)
-                     (member (org-get-todo-state) (list "NEXT")))
-                subtree-end)
-               ((not (bh/is-project-subtree-p))
-                subtree-end)
-               (t
-                nil)))))
-
-        (defun bh/skip-projects-and-habits ()
-          "Skip trees that are projects and tasks that are habits"
-          (save-restriction
-            (widen)
-            (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-              (cond
-               ((bh/is-project-p)
-                subtree-end)
-               ((org-is-habit-p)
-                subtree-end)
-               (t
-                nil)))))
-
-        (defun bh/skip-non-subprojects ()
-          "Skip trees that are not projects"
-          (let ((next-headline (save-excursion (outline-next-heading))))
-            (if (bh/is-subproject-p)
-                nil
-              next-headline)))
-      #+END_SRC
-***** TODO clock
-      Sometimes I like having the total time shown be only for the current
-      session of a task. When I want that, set this to ='current=.
-      #+BEGIN_SRC emacs-lisp
-        (setq org-clock-mode-line-total 'auto)
-      #+END_SRC
-
-      #+BEGIN_SRC emacs-lisp
-        ;; Resume clocking task when emacs is restarted
-        ;; (org-clock-persistence-insinuate)
-        ;;
-        ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
-        (setq org-clock-history-length 23)
-        ;; Resume clocking task on clock-in if the clock is open
-        ;; (setq org-clock-in-resume t)
-        ;; Change tasks to NEXT when clocking in
-        (setq org-clock-in-switch-to-state 'bh/clock-in-to-next)
-        ;; Separate drawers for clocking and logs
-        ;; (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
-        ;; Save clock data and state changes and notes in the LOGBOOK drawer
-        ;; (setq org-clock-into-drawer t)
-        ;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
-        (setq org-clock-out-remove-zero-time-clocks t)
-        ;; Clock out when moving task to a done state
-        (setq org-clock-out-when-done t)
-        ;; Save the running clock and all clock history when exiting Emacs, load it on startup
-        (setq org-clock-persist t)
-        ;; Do not prompt to resume an active clock
-        (setq org-clock-persist-query-resume nil)
-        ;; Enable auto clock resolution for finding open clocks
-        ;; (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
-        ;; Include current clocking task in clock reports
-        (setq org-clock-report-include-clocking-task t)
-
-        (setq bh/keep-clock-running nil)
-
-        (defun bh/clock-in-to-next (kw)
-          "Switch a task from TODO to NEXT when clocking in.
-        Skips capture tasks, projects, and subprojects.
-        Switch projects and subprojects from NEXT back to TODO"
-          (when (not (and (boundp 'org-capture-mode) org-capture-mode))
-            (cond
-             ((and (member (org-get-todo-state) (list "TODO"))
-                   (bh/is-task-p))
-              "NEXT")
-             ((and (member (org-get-todo-state) (list "NEXT"))
-                   (bh/is-project-p))
-              "TODO"))))
-
-        (defun bh/find-project-task ()
-          "Move point to the parent (project) task if any"
-          (save-restriction
-            (widen)
-            (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
-              (while (org-up-heading-safe)
-                (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-                  (setq parent-task (point))))
-              (goto-char parent-task)
-              parent-task)))
-
-        (defun bh/punch-in (arg)
-          "Start continuous clocking and set the default task to the
-        selected task.  If no task is selected set the Organization task
-        as the default task."
-          (interactive "p")
-          (setq bh/keep-clock-running t)
-          (if (equal major-mode 'org-agenda-mode)
-              ;;
-              ;; We're in the agenda
-              ;;
-              (let* ((marker (org-get-at-bol 'org-hd-marker))
-                     (tags (org-with-point-at marker (org-get-tags-at))))
-                (if (and (eq arg 4) tags)
-                    (org-agenda-clock-in '(16))
-                  (bh/clock-in-organization-task-as-default)))
-            ;;
-            ;; We are not in the agenda
-            ;;
-            (save-restriction
-              (widen)
-              ; Find the tags on the current task
-              (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
-                  (org-clock-in '(16))
-                (bh/clock-in-organization-task-as-default)))))
-
-        (defun bh/punch-out ()
-          (interactive)
-          (setq bh/keep-clock-running nil)
-          (when (org-clock-is-active)
-            (org-clock-out))
-          (org-agenda-remove-restriction-lock))
-
-        (defun bh/clock-in-default-task ()
-          (save-excursion
-            (org-with-point-at org-clock-default-task
-              (org-clock-in))))
-
-        (defun bh/clock-in-parent-task ()
-          "Move point to the parent (project) task if any and clock in"
-          (let ((parent-task))
-            (save-excursion
-              (save-restriction
-                (widen)
-                (while (and (not parent-task) (org-up-heading-safe))
-                  (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-                    (setq parent-task (point))))
-                (if parent-task
-                    (org-with-point-at parent-task
-                      (org-clock-in))
-                  (when bh/keep-clock-running
-                    (bh/clock-in-default-task)))))))
-
-        (defvar bh/organization-task-id "eb155a82-92b2-4f25-a3c6-0304591af2f9")
-
-        (defun bh/clock-in-organization-task-as-default ()
-          (interactive)
-          (org-with-point-at (org-id-find bh/organization-task-id 'marker)
-            (org-clock-in '(16))))
-
-        (defun bh/clock-out-maybe ()
-          (when (and bh/keep-clock-running
-                     (not org-clock-clocking-in)
-                     (marker-buffer org-clock-default-task)
-                     (not org-clock-resolving-clocks-due-to-idleness))
-            (bh/clock-in-parent-task)))
-
-        (add-hook 'org-clock-out-hook 'bh/clock-out-maybe 'append)
-      #+END_SRC
-***** Displaying the clock
-      I want to be able to see my clocked time in as many places as
-      possible. This makes sure I see it both in the mode-line and the frame
-      title. I have it this way because if the frame/window is small enough,
-      the clock in the mode-line will be cut off, with emacs preferring to
-      display major-mode and minor-mode information instead. Until I fix that
-      behavior, this provides a good compromise:
-      
-      #+BEGIN_SRC emacs-lisp
-        (setq org-clock-clocked-in-display 'both)
-      #+END_SRC
-***** reminders of tasks
-      Secretaria is a minor mode that will remind you of things currently
-      scheduled for the day in addition to the task you are supposed to be
-      working on.
-      #+BEGIN_SRC emacs-lisp
-        (use-package secretaria
-          :config
-          ;; use this for getting a reminder every 30 minutes of those tasks scheduled
-          ;; for today and which have no time of day defined.
-          (add-hook 'after-init-hook #'secretaria-unknown-time-always-remind-me))
-      #+END_SRC
-**** archiving tasks
-     Settings
-     #+BEGIN_SRC emacs-lisp
-       (setq org-archive-mark-done nil)
-       (setq org-archive-location "%s_archive::* Archived Tasks")
-     #+END_SRC
-
-     Function behavior
-     #+BEGIN_SRC emacs-lisp
-       (defun bh/skip-non-archivable-tasks ()
-         "Skip trees that are not available for archiving"
-         (save-restriction
-           (widen)
-           ;; Consider only tasks with done todo headings as archivable candidates
-           (let ((next-headline (save-excursion (or (outline-next-heading) (point-max))))
-                 (subtree-end (save-excursion (org-end-of-subtree t))))
-             (if (member (org-get-todo-state) org-todo-keywords-1)
-                 (if (member (org-get-todo-state) org-done-keywords)
-                     (let* ((daynr (string-to-number (format-time-string "%d" (current-time))))
-                            (a-month-ago (* 60 60 24 (+ daynr 1)))
-                            (last-month (format-time-string "%Y-%m-" (time-subtract (current-time) (seconds-to-time a-month-ago))))
-                            (this-month (format-time-string "%Y-%m-" (current-time)))
-                            (subtree-is-current (save-excursion
-                                                  (forward-line 1)
-                                                  (and (< (point) subtree-end)
-                                                       (re-search-forward (concat last-month "\\|" this-month) subtree-end t)))))
-                       (if subtree-is-current
-                           subtree-end ; Has a date in this month or last month, skip it
-                         nil))  ; available to archive
-                   (or subtree-end (point-max)))
-               next-headline))))
-     #+END_SRC
-**** org-download
-     #+BEGIN_SRC emacs-lisp
-       (use-package org-download)
-       (setq org-image-actual-width 600)
-     #+END_SRC
-*** erc
-
-    #+BEGIN_SRC emacs-lisp
-
-       ;; Load authentication info from an external source.  Put sensitive
-      ;; passwords and the like in here.
-
-      (use-package erc)
-
-      (load "~/.emacs.d/.erc-auth")
-      (erc-services-mode 1)
-
-      ;; This causes ERC to connect to the Freenode network upon hitting
-      ;; C-c e f.  Replace MYNICK with your IRC nick.
-
-      ;; TODO: FIGURE OUT SASL SUPPORT so I can use VPN + IRC
-      (defun login-erc-tls ()
-        "Log in to irc using ssl."
-        (interactive)
-        (erc-tls :server "irc.freenode.net"
-                 :port "6697"
-                 :nick "[spook]"))
-
-      (global-set-key "\C-cef" #'login-erc-tls)
-
-      (defun login-erc ()
-        "login to irc w/o ssl"
-        (interactive)
-        (erc :server "irc.freenode.net"
-             :port "6667"
-             :nick "[spook]")
-        :password spook-password)
-
-
-
-      ;; Rename server buffers to reflect the current network name instead
-      ;; of SERVER:PORT (e.g., "freenode" instead of "irc.freenode.net:6667").
-      ;; This is useful when using a bouncer like ZNC where you have multiple
-      ;; connections to the same server.
-      (setq erc-rename-buffers t)
-
-      ;; Interpret mIRC-style color commands in IRC chats
-      (setq erc-interpret-mirc-color t)
-    #+END_SRC
-
-** keybindings
-   
-   Not sure I'm sold on the idea of setting my keybindings with my use-package
-   declarations so here's a section holding general keybindings until i decide
-   otherwise.
+** completion
 
    #+BEGIN_SRC emacs-lisp
-     (global-unset-key (kbd "C-z"))
 
-     (bind-key (kbd "M-/") 'hippie-expand)
+     (use-package lsp-mode
+       :ensure t
+       :commands lsp)
 
-     (general-define-key
-      :prefix "C-c m"
-      "s" 'magit-status
-      "p" 'magit-pull-popup
-      "c" 'magit-checkout
-      "b" 'magit-branch-popup)
+     (use-package lsp-ui :commands lsp-ui-mode)
+     (use-package company-lsp :commands company-lsp)
 
-     ;; Don't really use wg's that much.
-     ;; wasted keybindings till I find the need.
-     ;; (general-define-key
-     ;;  :prefix "C-c w"
-     ;;  "c" 'wg-create-workgroup
-     ;;  "v" 'wg-switch-to-workgroup
-     ;;  "w" 'wg-toggle-morph
-     ;;  "r" 'wg-revert-workgroup
-     ;;  "u" 'wg-update-workgroup
-     ;;  "s" 'wg-save
-     ;;  "l" 'wg-load)
+     (use-package yasnippet)
+     (yas-global-mode 1)
 
-     (general-define-key
-      :prefix "C-c s-m"
-      "c" 'mc/edit-lines
-      ">" 'mc/mark-next-like-this
-      "<" 'mc/mark-previous-like-this
-      "e" 'mc/edit-ends-of-lines
-      "b" 'mc/edit-beginnings-of-lines
-      "a" 'mc/mark-all-like-this
-      "r" 'mc/mark-all-in-region)
 
-     (general-define-key
-      :prefix "C-c e"
-      "t" 'login-erc-tls
-      "l" 'login-erc)
 
-     (general-define-key
-      "C-~" 'ace-swap-window)
+     (use-package company
+       :defer t
+       :diminish ""
+       :bind ("C-." . company-complete)
+       :init (add-hook 'prog-mode-hook 'company-mode)
+       :config
+       (progn
+         (setq company-idle-delay 0.1
+               company-minimum-prefix-length 2
+               company-selection-wrap-around t
+               company-dabbrev-downcase nil
+               company-transformers '(company-sort-by-occurrence))
+         (bind-keys :map company-active-map
+                    ("C-n" . company-select-next)
+                    ("C-p" . company-select-previous)
+                    ("C-d" . company-show-doc-buffer)
+                    ("<tab>" . company-complete)))
+       (add-hook 'company-mode-hook 'company-statistics-mode))
 
-     (general-define-key
-      "C-z" 'other-window)
+     (use-package company-web)
 
-     (general-define-key
-     "C-S-z" 'ace-window)
+     ;; haskell
+     (eval-after-load "company"
+       '(add-to-list 'company-backends 'company-ghci))
 
-     ;; setting [ as a leader key breaks emacs for some reason.
-     ;; Error trace: `(error "Key sequence C-c [ n starts with non-prefix key C-c [")`
-     ;;
-     ;; Disabled for now given I want to use C-c a for agenda???
-     ;; IDK.
-     (general-define-key
-      :keymaps 'org-mode-map
-      :prefix "C-c s-a"
-      "n" 'anki-editor-insert-note
-      "r" 'anki-editor-retry-failure-notes
-      "s" 'anki-editor-push-notes)
+     ;; python
+     (eval-after-load "company"
+       '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
 
-     (which-key-add-key-based-replacements
-       "C-c m" "magit"
-       "C-c !" "flycheck"
-       "C-c &" "yas"
-       "C-c e" "erc"
-       ;; "C-c w" "wg"
-       "s-c" "multi")
+     ;; rust
+     (eval-after-load "company"
+       '(add-to-list 'company-backends 'company-lsp))
 
-     ;; not sure if need?
-     ;; (which-key-add-major-mode-key-based-replacements 'org-mode
-     ;;   "C-c [" "anki")
+     ;; (eval-after-load "company"
+     ;;   '(add-to-list 'company-backends company-web-html))
+
+
+     ;; Add yasnippet support for all company backends
+     ;; https://github.com/syl20bnr/spacemacs/pull/179
+     (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
+
+     (defun company-mode/backend-with-yas (backend)
+       (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+           backend
+     (append (if (consp backend) backend (list backend))
+             '(:with company-yasnippet))))
+     (eval-after-load "company"
+       '(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
+
+     ;;(eval-after-load "company"
+     ;;'(add-to-list 'company-backends 'company-yasnippet))
 
    #+END_SRC
-*** TODO General-mode and leader keybinding setup
+
+*** ignore buffers with bad completion candidates
+    I use dabbrev mode as a completion candidate with company mode. This means
+    it will look at other buffers for strings to complete from when it can't
+    find anything from an intelligent completion engine/source. However, if
+    you are reading a PDF (or tex log file, etc), you can get literal escape
+    sequences as completion candidates. It also adds a good amount of lag due
+    to the sheer number being looked at as potential completion candidates.
+
+    This should stop it... I think.
+
+    #+BEGIN_SRC emacs-lisp
+      (setq company-files-exclusions '(".pdf" ".fbd_latexmk" ".aux" ".log" ".bbl"
+                                      ".bcf" ".gz" ".blg" ".fls" ".doc" ".docx" ".ppt" ".pptx" ".odt"))
+    #+END_SRC
+
+    This function sets =company-dabbrev-ignore-buffers= to anything matching a
+    .pdf file.
+
+    #+BEGIN_SRC emacs-lisp
+      (defun company-dabbrev-ignore-pdfs (buffer)
+        "ignore all pdf buffers"
+        (string-match-p "\\.pdf\\|\\.doc\\|\\.docx\\|\\.ppt\\|\\.pptx\\|\\.odt"
+                     (buffer-name buffer)))
+      (setq company-dabbrev-ignore-buffers 'company-dabbrev-ignore-pdfs)
+    #+END_SRC
+
+*** expand region
+    #+BEGIN_SRC emacs-lisp
+      (use-package expand-region
+        :bind ("M-/" . er/expand-region))
+    #+END_SRC
+*** flycheck
+    #+BEGIN_SRC emacs-lisp
+      (defun my-flycheck-customize ()
+        (interactive)
+        (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
+        (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse))
+
+      (use-package flycheck
+        :defer t
+        :bind (("M-g M-n" . flycheck-next-error)
+               ("M-g M-p" . flycheck-previous-error)
+               ("M-g M-=" . flycheck-list-errors))
+        :diminish ""
+        :config
+        (use-package flycheck-tip
+          :config (add-hook 'flycheck-mode-hook 'my-flycheck-customize)))
+    #+END_SRC
+*** undo tree
+    #+BEGIN_SRC emacs-lisp
+
+      (use-package undo-tree
+        :init (global-undo-tree-mode t)
+        :defer t
+        :diminish ""
+        :config
+        (progn
+          (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
+          (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
+          (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo)))
+    #+END_SRC     
+** special modes
+**** git/magit
+***** diff-hl
+      package by same person maintaining/behind company-mode, so you know it’s
+      that good ish 👌🏼
+      #+BEGIN_SRC emacs-lisp
+        (use-package diff-hl
+          :init
+          (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+          :config
+          (global-diff-hl-mode))
+      #+END_SRC
+**** TODO org
+
+     one day i'll have proper documentation for this entire sub-heading.
+
+     generic settings/my initialization hook for org-mode.
+
+     #+BEGIN_SRC emacs-lisp
+
+       (defun generic-org-minor-modes ()
+         (interactive)
+         (org-bullets-mode 1)
+         ;; I don't really use cdlatex mode that much anymore, so i'm
+         ;; disabling it for now. if i realize i miss it/incidentally used it before,
+         ;; i'll reenable it later. otherwise i'll delete this line entirely soon.
+         ;; (org-cdlatex-mode 1)
+
+         ;; there's a possibility that emojify-mode is behind some laggy behavior.
+         (emojify-mode 1)
+
+         ;; org-mode uses visual line mode, which makes sense for text editing.
+         ;; however, it means that if you ever look at an org-mode file without
+         ;; line-wrapping behavior, you can have huge long lines of text that is hard
+         ;; to read. i generally don't like that, so i enable auto-fill-mode to
+         ;; prevent it.
+         (auto-fill-mode 1)
+         (set-fill-column 100))
+       (add-hook 'org-mode-hook 'generic-org-minor-modes)
+
+
+       ;; enable org to evaluate the following PL code blocks with C-c C-c
+       ;; one of the many cool things you can use org-mode for!
+       (org-babel-do-load-languages
+        'org-babel-load-languages '((C . t)
+                                    (python . t)
+                                    (shell . t)
+                                    (haskell . t)
+                                    (emacs-lisp . t)
+                                    (clojure . t)
+                                    ;; TODO figure out how to get rust. there's at least one solution out there: https://gitlab.com/ajyoon/ob-rust
+                                    (js . t)))
+
+
+     #+END_SRC
+***** org journal
+      i use org-journal as a driver for my ~daily journal writing. nothing
+      special about how i use it in-of-itself, given i now handle encryption
+      via keybase's git hooks. i used to encrypt it locally, but i've decided
+      that if you have local access to my machine, local encryption does
+      little-to-nothing to protect me from you reading about my melancholy and
+      existential ennui.
+      #+BEGIN_SRC emacs-lisp
+        (use-package org-journal
+          :ensure t
+          :defer t
+          :custom
+          (org-journal-dir "~/org/journal/"))
+
+        ;; customize-set-variable is recommended over setq for org-journal
+        ;; (customize-set-variable org-journal-dir "~/org/journal/")
+
+
+
+        ;; stops org-journal from opening previous day's entry
+        ;; (setq org-journal-carryover-items nil)
+      #+END_SRC
+***** org pomodoro
+      org-pomodoro is a minor mode that integrates the pomodoro technique into
+      org-mode's clocking mechanism. i use it a lot.
+      #+BEGIN_SRC emacs-lisp
+        (use-package org-pomodoro
+          :init
+          (setq org-pomodoro-length 30)
+          (setq org-pomodoro-ticking-sound-p t)
+          (setq org-pomodoro-long-break-frequency 4))
+      #+END_SRC
+***** misc settings
+      org bullets is a minor mode that lets you have pretty header symbols.
+      #+BEGIN_SRC emacs-lisp
+        ;; other symbols that might be of use idk:
+        ;; ● ◼ ⁍ ◙ ◯ □ ◎ ◪ ▆ ▅ █ ⨀ ⨁ ⨂ ✱ ⏣ ⋙ ⃟ 
+        ;; ✲ ✺ ✹ ✸ ✽ ✻ ✿ ➤ ➡ ➔ ✪ ✜ ✚ ✙ ▢ ⧐ ▷ ◆
+        (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤")))
+        ;; (setq org-hide-emphasis-markers t)
+      #+END_SRC
+***** beginning of line behavior
+      =C-a= will behave identical to =M-m= by default, meaning instead of going
+      to the start of a heading, you will go to the first asterisk in a
+      heading. This setting changes that behavior to cycle between the first
+      character of a heading to the literal start of a line in a
+      header. Additionally, it changes =C-e= to respect tags as well and cycles
+      in a similar manner.
+
+      #+BEGIN_SRC emacs-lisp
+        (setq org-special-ctrl-a/e t)
+      #+END_SRC
+***** internal links
+      This makes linking to other headlines in files more
+      straightforward.
+      #+BEGIN_SRC emacs-lisp
+        (setq org-link-search-must-match-exact-headline nil)
+      #+END_SRC
+***** Stopping invisible edits
+      It is really really hard sometimes to know what, and if, I've edited my
+      org files when my carat is hidden. This stops that.
+
+      #+BEGIN_SRC emacs-lisp
+        (setq org-catch-invisible-edits 'error)
+      #+END_SRC
+***** TODO modules
+      #+BEGIN_SRC emacs-lisp
+        (add-to-list 'org-modules 'org-habit)
+        (require 'org-habit)
+      #+END_SRC
+***** GDT Methodology
+      I use org mode to store a lot of random tidbits of information. Too much
+      information, actually. TODO's with vacuous deadlines, TODOs that should
+      actually be done tomorrow, things I'll realistically never get around to
+      in my mortal lifetime, and various bits of information inbetween.
+
+      As a result, I try to follow the Getting Things Done methodology. While I
+      don't really believe in silver bullets for organization, the skeleton of
+      this system tends to work well for me. I've taken inspiration from [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][Petton]]
+      and [[http://doc.norang.ca/org-mode.html][Hansen]].
+
+****** Keybindings
+       I have =C-c c= for =org-capture=, which allows me to file any random
+       thing that comes across my mind or desk.
+
+       #+BEGIN_SRC emacs-lisp
+         (global-set-key (kbd "C-c c") 'org-capture)
+       #+END_SRC
+
+       I don't need to edit what agenda files I will be using on the fly, so
+       disabling =C-c [= and =C-c ]= saves me grief.
+      
+       #+begin_SRC emacs-lisp
+         ;; TODO
+         ;; decide how to go about unbinding w/o making my kbd's break like this does.
+
+         ;; Disable keys in org-mode
+         ;;    C-c [ 
+         ;;    C-c ]
+         ;; (add-hook 'org-mode-hook
+         ;;           '(lambda ()
+         ;;              ;; Undefine C-c [ and C-c ] since this breaks my
+         ;;              ;; org-agenda files when directories are include It
+         ;;              ;; expands the files in the directories individually
+         ;;              (org-defkey org-mode-map "\C-c[" 'undefined)
+         ;;              (org-defkey org-mode-map "\C-c]" 'undefined))
+         ;;           'append)
+       #+END_SRC
+
+****** Org Agenda
+       Here are the files I will be using to sort and organize my tasks:
+       #+BEGIN_SRC emacs-lisp
+         (setq org-agenda-files '("~/org/inbox.org"
+                                  "~/org/tasks.org"))
+       #+END_SRC
+
+       You can also tell Org mode your lat/long to get sunrise/sunset times to
+       further enable your seasonal affective disorder. I do that here.
+
+       #+BEGIN_SRC emacs-lisp
+         (setq calendar-longitude -94.5786)
+         (setq calendar-latitude 39.0997)
+         (setq calendar-location-name "Kansas City")
+       #+END_SRC
+
+****** Org TODOs
+      
+       Here are the states that a TODO can have in my org config:
+
+       #+BEGIN_SRC emacs-lisp
+         (setq org-todo-keywords
+               (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+                       (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+
+       #+END_SRC
+
+       I slightly tweak the default color settings for the faces of these
+       states:
+
+       #+BEGIN_SRC emacs-lisp
+         (setq org-todo-keyword-faces
+               (quote (("TODO" :foreground "red" :weight bold)
+                       ("NEXT" :foreground "blue" :weight bold)
+                       ("DONE" :foreground "forest green" :weight bold)
+                       ("WAITING" :foreground "orange" :weight bold)
+                       ("HOLD" :foreground "magenta" :weight bold)
+                       ("CANCELLED" :foreground "forest green" :weight bold)
+                       ("MEETING" :foreground "red" :weight bold)
+                       ("PHONE" :foreground "red" :weight bold))))
+       #+END_SRC
+
+       Lets me use fast selection to swap through states of my TODOs:
+      
+       #+BEGIN_SRC emacs-lisp
+         (setq org-use-fast-todo-selection t)
+       #+END_SRC
+
+       Disable ability to change these states via =S-left= and =S-right=:
+      
+       #+BEGIN_SRC emacs-lisp
+         (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+       #+END_SRC
+
+****** Capture Templates
+      
+       We'll file every captured moment into my inbox:
+
+       #+BEGIN_SRC emacs-lisp
+         (setq org-default-notes-file "~/org/inbox.org")
+       #+END_SRC
+
+       List of templates to choose from when capturing a moment via =C-c c=:
+
+       #+BEGIN_SRC emacs-lisp
+         ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
+         (setq org-capture-templates
+               (quote (("t" "todo" entry (file "~/org/inbox.org")
+                        "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                       ("a" "templates for anki cards")
+                       ("ab" "basic card" entry (file "~/org/inbox.org")
+                        "* %^{note heading} \n :PROPERTIES:\n :ANKI_NOTE_TYPE: Basic\n :END:\n** Front\n** Back\n")
+                       ("ac" "cloze card" entry (file "~/org/inbox.org")
+                        "* %^{note heading} \n :PROPERTIES:\n :ANKI_NOTE_TYPE: Cloze\n :END:\n** Text\n** Extra\n")
+                       ("r" "respond" entry (file "~/org/inbox.org")
+                        "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in :clock-resume t :immediate-finish t)
+                       ("n" "note" entry (file "~/org/inbox.org")
+                        "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+                       ("i" "templates for ideas")
+                       ;; random
+                       ("ir" "random idea" entry (file "~/org/inbox.org")
+                        "* %? :IDEAS:\n%U\n%a\n" :clock-in t :clock-resume t)
+                       ("ib" "blostpost idea" entry (file "~/org/inbox.org")
+                        "* %? :IDEAS:BLOGPOST:\n%U\n%a\n" :clock-in t :clock-resume t)
+                       ("ip" "project idea" entry (file "~/org/inbox.org")
+                        "* %? :IDEAS:PROJECT:\n%U\n%a\n" :clock-in t :clock-resume t)
+                       ;; ("j" "Journal" entry (file+datetree "~/git/org/diary.org")
+                       ;;  "* %?\n%U\n" :clock-in t :clock-resume t)
+                       ;; ("w" "org-protocol" entry (file "~/org/inbox.org")
+                       ;;  "* TODO Review %c\n%U\n" :immediate-finish t)
+                       ("m" "Meeting" entry (file "~/org/inbox.org")
+                        "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+                       ("p" "Phone call" entry (file "~/org/inbox.org")
+                        "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
+                       ;; ("h" "Habit" entry (file "~/org/inbox.org")
+                       ;;  "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
+                       )))
+       #+END_SRC
+      
+       My refile targets for moments. Ideally, I should actively be refiling
+       things from my inbox to where they belong. If they are something I will
+       be working on, big or small, they go to tasks. If it's just an
+       idea/something I won't be touching for sometime, then thoughts. Etc.
+
+       #+BEGIN_SRC emacs-lisp
+         ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+         (setq org-refile-targets '(("~/org/tasks.org" :maxlevel . 9)
+                                    ("~/org/later.org" :maxlevel . 9)
+                                    ("~/org/reference.org" :maxlevel . 9)
+                                    ;; ("~/org/cmr.org" :maxlevel . 9)
+                                    ("~/org/anki/anki.org" :maxlevel . 9)
+                                    ))
+
+         ; Allow refile to create parent tasks with confirmation
+         (setq org-refile-allow-creating-parent-nodes (quote confirm))
+       #+END_SRC
+
+       We don't want to include DONE tasks as refile targets because that will
+       make our lists *huge*.
+      
+       #+BEGIN_SRC emacs-lisp
+         ;;;; Refile settings
+         ; Exclude DONE state tasks from refile targets
+         (defun bh/verify-refile-target ()
+           "Exclude todo keywords with a done state from refile targets"
+           (not (member (nth 2 (org-heading-components)) org-done-keywords)))
+
+         (setq org-refile-target-verify-function 'bh/verify-refile-target)
+       #+END_SRC
+      
+****** TODO Agenda View
+       #+BEGIN_SRC emacs-lisp
+         ;; Do not dim blocked tasks
+         (setq org-agenda-dim-blocked-tasks nil)
+
+         ;; Compact the block agenda view
+         (setq org-agenda-compact-blocks t)
+
+         ;; Custom agenda command definitions
+         (setq org-agenda-custom-commands
+               (quote (("N" "Notes" tags "NOTE"
+                        ((org-agenda-overriding-header "Notes")
+                         (org-tags-match-list-sublevels t)))
+                       ("h" "Habits" tags-todo "STYLE=\"habit\""
+                        ((org-agenda-overriding-header "Habits")
+                         (org-agenda-sorting-strategy
+                          '(todo-state-down effort-up category-keep))))
+                       (" " "Agenda"
+                        ((agenda "" nil)
+                         (tags "REFILE"
+                               ((org-agenda-overriding-header "Tasks to Refile")
+                                (org-tags-match-list-sublevels nil)))
+                         (tags-todo "-CANCELLED/!"
+                                    ((org-agenda-overriding-header "Stuck Projects")
+                                     (org-agenda-skip-function 'bh/skip-non-stuck-projects)
+                                     (org-agenda-sorting-strategy
+                                      '(category-keep))))
+                         (tags-todo "-HOLD-CANCELLED/!"
+                                    ((org-agenda-overriding-header "Projects")
+                                     (org-agenda-skip-function 'bh/skip-non-projects)
+                                     (org-tags-match-list-sublevels 'indented)
+                                     (org-agenda-sorting-strategy
+                                      '(category-keep))))
+                         (tags-todo "-CANCELLED/!NEXT"
+                                    ((org-agenda-overriding-header (concat "Project Next Tasks"
+                                                                           (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                               ""
+                                                                             " (including WAITING and SCHEDULED tasks)")))
+                                     (org-agenda-skip-function 'bh/skip-projects-and-habits-and-single-tasks)
+                                     (org-tags-match-list-sublevels t)
+                                     (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                                     (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                                     (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                                     (org-agenda-sorting-strategy
+                                      '(todo-state-down effort-up category-keep))))
+                         (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+                                    ((org-agenda-overriding-header (concat "Project Subtasks"
+                                                                           (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                               ""
+                                                                             " (including WAITING and SCHEDULED tasks)")))
+                                     (org-agenda-skip-function 'bh/skip-non-project-tasks)
+                                     (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                                     (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                                     (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                                     (org-agenda-sorting-strategy
+                                      '(category-keep))))
+                         (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+                                    ((org-agenda-overriding-header (concat "Standalone Tasks"
+                                                                           (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                               ""
+                                                                             " (including WAITING and SCHEDULED tasks)")))
+                                     (org-agenda-skip-function 'bh/skip-project-tasks)
+                                     (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                                     (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                                     (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                                     (org-agenda-sorting-strategy
+                                      '(category-keep))))
+                         (tags-todo "-CANCELLED+WAITING|HOLD/!"
+                                    ((org-agenda-overriding-header (concat "Waiting and Postponed Tasks"
+                                                                           (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                               ""
+                                                                             " (including WAITING and SCHEDULED tasks)")))
+                                     (org-agenda-skip-function 'bh/skip-non-tasks)
+                                     (org-tags-match-list-sublevels nil)
+                                     (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                                     (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)))
+                         (tags "-REFILE/"
+                               ((org-agenda-overriding-header "Tasks to Archive")
+                                (org-agenda-skip-function 'bh/skip-non-archivable-tasks)
+                                (org-tags-match-list-sublevels nil))))
+                        nil))))
+
+       #+END_SRC
+****** TODO Project Management/View
+       #+BEGIN_SRC emacs-lisp
+         (setq org-stuck-projects (quote ("" nil nil "")))
+       #+END_SRC
+
+       #+BEGIN_SRC emacs-lisp
+         (defun bh/is-project-p ()
+           "Any task with a todo keyword subtask"
+           (save-restriction
+             (widen)
+             (let ((has-subtask)
+                   (subtree-end (save-excursion (org-end-of-subtree t)))
+                   (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+               (save-excursion
+                 (forward-line 1)
+                 (while (and (not has-subtask)
+                             (< (point) subtree-end)
+                             (re-search-forward "^\*+ " subtree-end t))
+                   (when (member (org-get-todo-state) org-todo-keywords-1)
+                     (setq has-subtask t))))
+               (and is-a-task has-subtask))))
+
+         (defun bh/is-project-subtree-p ()
+           "Any task with a todo keyword that is in a project subtree.
+         Callers of this function already widen the buffer view."
+           (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
+                                       (point))))
+             (save-excursion
+               (bh/find-project-task)
+               (if (equal (point) task)
+                   nil
+                 t))))
+
+         (defun bh/is-task-p ()
+           "Any task with a todo keyword and no subtask"
+           (save-restriction
+             (widen)
+             (let ((has-subtask)
+                   (subtree-end (save-excursion (org-end-of-subtree t)))
+                   (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+               (save-excursion
+                 (forward-line 1)
+                 (while (and (not has-subtask)
+                             (< (point) subtree-end)
+                             (re-search-forward "^\*+ " subtree-end t))
+                   (when (member (org-get-todo-state) org-todo-keywords-1)
+                     (setq has-subtask t))))
+               (and is-a-task (not has-subtask)))))
+
+         (defun bh/is-subproject-p ()
+           "Any task which is a subtask of another project"
+           (let ((is-subproject)
+                 (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+             (save-excursion
+               (while (and (not is-subproject) (org-up-heading-safe))
+                 (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+                   (setq is-subproject t))))
+             (and is-a-task is-subproject)))
+
+         (defun bh/list-sublevels-for-projects-indented ()
+           "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
+           This is normally used by skipping functions where this variable is already local to the agenda."
+           (if (marker-buffer org-agenda-restrict-begin)
+               (setq org-tags-match-list-sublevels 'indented)
+             (setq org-tags-match-list-sublevels nil))
+           nil)
+
+         (defun bh/list-sublevels-for-projects ()
+           "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
+           This is normally used by skipping functions where this variable is already local to the agenda."
+           (if (marker-buffer org-agenda-restrict-begin)
+               (setq org-tags-match-list-sublevels t)
+             (setq org-tags-match-list-sublevels nil))
+           nil)
+
+         (defvar bh/hide-scheduled-and-waiting-next-tasks t)
+
+         (defun bh/toggle-next-task-display ()
+           (interactive)
+           (setq bh/hide-scheduled-and-waiting-next-tasks (not bh/hide-scheduled-and-waiting-next-tasks))
+           (when  (equal major-mode 'org-agenda-mode)
+             (org-agenda-redo))
+           (message "%s WAITING and SCHEDULED NEXT Tasks" (if bh/hide-scheduled-and-waiting-next-tasks "Hide" "Show")))
+
+         (defun bh/skip-stuck-projects ()
+           "Skip trees that are not stuck projects"
+           (save-restriction
+             (widen)
+             (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+               (if (bh/is-project-p)
+                   (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                          (has-next ))
+                     (save-excursion
+                       (forward-line 1)
+                       (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
+                         (unless (member "WAITING" (org-get-tags-at))
+                           (setq has-next t))))
+                     (if has-next
+                         nil
+                       next-headline)) ; a stuck project, has subtasks but no next task
+                 nil))))
+
+         (defun bh/skip-non-stuck-projects ()
+           "Skip trees that are not stuck projects"
+           ;; (bh/list-sublevels-for-projects-indented)
+           (save-restriction
+             (widen)
+             (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+               (if (bh/is-project-p)
+                   (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                          (has-next ))
+                     (save-excursion
+                       (forward-line 1)
+                       (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
+                         (unless (member "WAITING" (org-get-tags-at))
+                           (setq has-next t))))
+                     (if has-next
+                         next-headline
+                       nil)) ; a stuck project, has subtasks but no next task
+                 next-headline))))
+
+         (defun bh/skip-non-projects ()
+           "Skip trees that are not projects"
+           ;; (bh/list-sublevels-for-projects-indented)
+           (if (save-excursion (bh/skip-non-stuck-projects))
+               (save-restriction
+                 (widen)
+                 (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+                   (cond
+                    ((bh/is-project-p)
+                     nil)
+                    ((and (bh/is-project-subtree-p) (not (bh/is-task-p)))
+                     nil)
+                    (t
+                     subtree-end))))
+             (save-excursion (org-end-of-subtree t))))
+
+         (defun bh/skip-non-tasks ()
+           "Show non-project tasks.
+         Skip project and sub-project tasks, habits, and project related tasks."
+           (save-restriction
+             (widen)
+             (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+               (cond
+                ((bh/is-task-p)
+                 nil)
+                (t
+                 next-headline)))))
+
+         (defun bh/skip-project-trees-and-habits ()
+           "Skip trees that are projects"
+           (save-restriction
+             (widen)
+             (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+               (cond
+                ((bh/is-project-p)
+                 subtree-end)
+                ((org-is-habit-p)
+                 subtree-end)
+                (t
+                 nil)))))
+
+         (defun bh/skip-projects-and-habits-and-single-tasks ()
+           "Skip trees that are projects, tasks that are habits, single non-project tasks"
+           (save-restriction
+             (widen)
+             (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+               (cond
+                ((org-is-habit-p)
+                 next-headline)
+                ((and bh/hide-scheduled-and-waiting-next-tasks
+                      (member "WAITING" (org-get-tags-at)))
+                 next-headline)
+                ((bh/is-project-p)
+                 next-headline)
+                ((and (bh/is-task-p) (not (bh/is-project-subtree-p)))
+                 next-headline)
+                (t
+                 nil)))))
+
+         (defun bh/skip-project-tasks-maybe ()
+           "Show tasks related to the current restriction.
+         When restricted to a project, skip project and sub project tasks, habits, NEXT tasks, and loose tasks.
+         When not restricted, skip project and sub-project tasks, habits, and project related tasks."
+           (save-restriction
+             (widen)
+             (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                    (next-headline (save-excursion (or (outline-next-heading) (point-max))))
+                    (limit-to-project (marker-buffer org-agenda-restrict-begin)))
+               (cond
+                ((bh/is-project-p)
+                 next-headline)
+                ((org-is-habit-p)
+                 subtree-end)
+                ((and (not limit-to-project)
+                      (bh/is-project-subtree-p))
+                 subtree-end)
+                ((and limit-to-project
+                      (bh/is-project-subtree-p)
+                      (member (org-get-todo-state) (list "NEXT")))
+                 subtree-end)
+                (t
+                 nil)))))
+
+         (defun bh/skip-project-tasks ()
+           "Show non-project tasks.
+         Skip project and sub-project tasks, habits, and project related tasks."
+           (save-restriction
+             (widen)
+             (let* ((subtree-end (save-excursion (org-end-of-subtree t))))
+               (cond
+                ((bh/is-project-p)
+                 subtree-end)
+                ((org-is-habit-p)
+                 subtree-end)
+                ((bh/is-project-subtree-p)
+                 subtree-end)
+                (t
+                 nil)))))
+
+         (defun bh/skip-non-project-tasks ()
+           "Show project tasks.
+         Skip project and sub-project tasks, habits, and loose non-project tasks."
+           (save-restriction
+             (widen)
+             (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                    (next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+               (cond
+                ((bh/is-project-p)
+                 next-headline)
+                ((org-is-habit-p)
+                 subtree-end)
+                ((and (bh/is-project-subtree-p)
+                      (member (org-get-todo-state) (list "NEXT")))
+                 subtree-end)
+                ((not (bh/is-project-subtree-p))
+                 subtree-end)
+                (t
+                 nil)))))
+
+         (defun bh/skip-projects-and-habits ()
+           "Skip trees that are projects and tasks that are habits"
+           (save-restriction
+             (widen)
+             (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+               (cond
+                ((bh/is-project-p)
+                 subtree-end)
+                ((org-is-habit-p)
+                 subtree-end)
+                (t
+                 nil)))))
+
+         (defun bh/skip-non-subprojects ()
+           "Skip trees that are not projects"
+           (let ((next-headline (save-excursion (outline-next-heading))))
+             (if (bh/is-subproject-p)
+                 nil
+               next-headline)))
+       #+END_SRC
+****** TODO clock
+       Sometimes I like having the total time shown be only for the current
+       session of a task. When I want that, set this to ='current=.
+       #+BEGIN_SRC emacs-lisp
+         (setq org-clock-mode-line-total 'auto)
+       #+END_SRC
+
+       #+BEGIN_SRC emacs-lisp
+         ;; Resume clocking task when emacs is restarted
+         ;; (org-clock-persistence-insinuate)
+         ;;
+         ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
+         (setq org-clock-history-length 23)
+         ;; Resume clocking task on clock-in if the clock is open
+         ;; (setq org-clock-in-resume t)
+         ;; Change tasks to NEXT when clocking in
+         (setq org-clock-in-switch-to-state 'bh/clock-in-to-next)
+         ;; Separate drawers for clocking and logs
+         ;; (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
+         ;; Save clock data and state changes and notes in the LOGBOOK drawer
+         ;; (setq org-clock-into-drawer t)
+         ;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
+         (setq org-clock-out-remove-zero-time-clocks t)
+         ;; Clock out when moving task to a done state
+         (setq org-clock-out-when-done t)
+         ;; Save the running clock and all clock history when exiting Emacs, load it on startup
+         (setq org-clock-persist t)
+         ;; Do not prompt to resume an active clock
+         (setq org-clock-persist-query-resume nil)
+         ;; Enable auto clock resolution for finding open clocks
+         ;; (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
+         ;; Include current clocking task in clock reports
+         (setq org-clock-report-include-clocking-task t)
+
+         (setq bh/keep-clock-running nil)
+
+         (defun bh/clock-in-to-next (kw)
+           "Switch a task from TODO to NEXT when clocking in.
+         Skips capture tasks, projects, and subprojects.
+         Switch projects and subprojects from NEXT back to TODO"
+           (when (not (and (boundp 'org-capture-mode) org-capture-mode))
+             (cond
+              ((and (member (org-get-todo-state) (list "TODO"))
+                    (bh/is-task-p))
+               "NEXT")
+              ((and (member (org-get-todo-state) (list "NEXT"))
+                    (bh/is-project-p))
+               "TODO"))))
+
+         (defun bh/find-project-task ()
+           "Move point to the parent (project) task if any"
+           (save-restriction
+             (widen)
+             (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
+               (while (org-up-heading-safe)
+                 (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+                   (setq parent-task (point))))
+               (goto-char parent-task)
+               parent-task)))
+
+         (defun bh/punch-in (arg)
+           "Start continuous clocking and set the default task to the
+         selected task.  If no task is selected set the Organization task
+         as the default task."
+           (interactive "p")
+           (setq bh/keep-clock-running t)
+           (if (equal major-mode 'org-agenda-mode)
+               ;;
+               ;; We're in the agenda
+               ;;
+               (let* ((marker (org-get-at-bol 'org-hd-marker))
+                      (tags (org-with-point-at marker (org-get-tags-at))))
+                 (if (and (eq arg 4) tags)
+                     (org-agenda-clock-in '(16))
+                   (bh/clock-in-organization-task-as-default)))
+             ;;
+             ;; We are not in the agenda
+             ;;
+             (save-restriction
+               (widen)
+               ; Find the tags on the current task
+               (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
+                   (org-clock-in '(16))
+                 (bh/clock-in-organization-task-as-default)))))
+
+         (defun bh/punch-out ()
+           (interactive)
+           (setq bh/keep-clock-running nil)
+           (when (org-clock-is-active)
+             (org-clock-out))
+           (org-agenda-remove-restriction-lock))
+
+         (defun bh/clock-in-default-task ()
+           (save-excursion
+             (org-with-point-at org-clock-default-task
+               (org-clock-in))))
+
+         (defun bh/clock-in-parent-task ()
+           "Move point to the parent (project) task if any and clock in"
+           (let ((parent-task))
+             (save-excursion
+               (save-restriction
+                 (widen)
+                 (while (and (not parent-task) (org-up-heading-safe))
+                   (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+                     (setq parent-task (point))))
+                 (if parent-task
+                     (org-with-point-at parent-task
+                       (org-clock-in))
+                   (when bh/keep-clock-running
+                     (bh/clock-in-default-task)))))))
+
+         (defvar bh/organization-task-id "eb155a82-92b2-4f25-a3c6-0304591af2f9")
+
+         (defun bh/clock-in-organization-task-as-default ()
+           (interactive)
+           (org-with-point-at (org-id-find bh/organization-task-id 'marker)
+             (org-clock-in '(16))))
+
+         (defun bh/clock-out-maybe ()
+           (when (and bh/keep-clock-running
+                      (not org-clock-clocking-in)
+                      (marker-buffer org-clock-default-task)
+                      (not org-clock-resolving-clocks-due-to-idleness))
+             (bh/clock-in-parent-task)))
+
+         (add-hook 'org-clock-out-hook 'bh/clock-out-maybe 'append)
+       #+END_SRC
+****** Displaying the clock
+       I want to be able to see my clocked time in as many places as
+       possible. This makes sure I see it both in the mode-line and the frame
+       title. I have it this way because if the frame/window is small enough,
+       the clock in the mode-line will be cut off, with emacs preferring to
+       display major-mode and minor-mode information instead. Until I fix that
+       behavior, this provides a good compromise:
+      
+       #+BEGIN_SRC emacs-lisp
+         (setq org-clock-clocked-in-display 'both)
+       #+END_SRC
+****** reminders of tasks
+       Secretaria is a minor mode that will remind you of things currently
+       scheduled for the day in addition to the task you are supposed to be
+       working on.
+       #+BEGIN_SRC emacs-lisp
+         (use-package secretaria
+           :config
+           ;; use this for getting a reminder every 30 minutes of those tasks scheduled
+           ;; for today and which have no time of day defined.
+           (add-hook 'after-init-hook #'secretaria-unknown-time-always-remind-me))
+       #+END_SRC
+***** archiving tasks
+      Settings
+      #+BEGIN_SRC emacs-lisp
+        (setq org-archive-mark-done nil)
+        (setq org-archive-location "%s_archive::* Archived Tasks")
+      #+END_SRC
+
+      Function behavior
+      #+BEGIN_SRC emacs-lisp
+        (defun bh/skip-non-archivable-tasks ()
+          "Skip trees that are not available for archiving"
+          (save-restriction
+            (widen)
+            ;; Consider only tasks with done todo headings as archivable candidates
+            (let ((next-headline (save-excursion (or (outline-next-heading) (point-max))))
+                  (subtree-end (save-excursion (org-end-of-subtree t))))
+              (if (member (org-get-todo-state) org-todo-keywords-1)
+                  (if (member (org-get-todo-state) org-done-keywords)
+                      (let* ((daynr (string-to-number (format-time-string "%d" (current-time))))
+                             (a-month-ago (* 60 60 24 (+ daynr 1)))
+                             (last-month (format-time-string "%Y-%m-" (time-subtract (current-time) (seconds-to-time a-month-ago))))
+                             (this-month (format-time-string "%Y-%m-" (current-time)))
+                             (subtree-is-current (save-excursion
+                                                   (forward-line 1)
+                                                   (and (< (point) subtree-end)
+                                                        (re-search-forward (concat last-month "\\|" this-month) subtree-end t)))))
+                        (if subtree-is-current
+                            subtree-end ; Has a date in this month or last month, skip it
+                          nil))  ; available to archive
+                    (or subtree-end (point-max)))
+                next-headline))))
+      #+END_SRC
+***** org-download
+      #+BEGIN_SRC emacs-lisp
+        (use-package org-download)
+        (setq org-image-actual-width 600)
+      #+END_SRC
+**** erc
+
+     #+BEGIN_SRC emacs-lisp
+
+        ;; Load authentication info from an external source.  Put sensitive
+       ;; passwords and the like in here.
+
+       (use-package erc)
+
+       (load "~/.emacs.d/.erc-auth")
+       (erc-services-mode 1)
+
+       ;; This causes ERC to connect to the Freenode network upon hitting
+       ;; C-c e f.  Replace MYNICK with your IRC nick.
+
+       ;; TODO: FIGURE OUT SASL SUPPORT so I can use VPN + IRC
+       (defun login-erc-tls ()
+         "Log in to irc using ssl."
+         (interactive)
+         (erc-tls :server "irc.freenode.net"
+                  :port "6697"
+                  :nick "[spook]"))
+
+       ;; (global-set-key "\C-cef" #'login-erc-tls)
+
+       (defun login-erc ()
+         "login to irc w/o ssl"
+         (interactive)
+         (erc :server "irc.freenode.net"
+              :port "6667"
+              :nick "[spook]")
+         :password spook-password)
+
+
+
+       ;; Rename server buffers to reflect the current network name instead
+       ;; of SERVER:PORT (e.g., "freenode" instead of "irc.freenode.net:6667").
+       ;; This is useful when using a bouncer like ZNC where you have multiple
+       ;; connections to the same server.
+       (setq erc-rename-buffers t)
+
+       ;; Interpret mIRC-style color commands in IRC chats
+       (setq erc-interpret-mirc-color t)
+     #+END_SRC
+** TODO keybindings
+
+   So this is something i really don't have a full or proper opinion on as of now. I think the idea
+   of defining keybindings in each use-package declaration is kinda gross because it would mean i
+   haphazardly define keybindings all over my config and i could easily re-assign old bindings
+   without knowing it, etc. Simultaneously, I don't know of a better way of linking a mode's
+   bindings with the mode's configurations? I guess a possible *solution* is properly organizing
+   each binding declaration under a subheader for the mode it is most related to and then =C-c C-l=
+   each keybinding subheading to its respective mode configuration for easy cross referencing. those
+   links won't work on github, unfortunately but w/e.
+
+   - [ ] figure out how to better organize general groups/prefix keys. i know the readme discusses
+     this, e.g. how to setup a general leader key like "C-c", and then use that as a prefix
+     elsewhere rather than having to re-do it for each general keybinding definition like I
+     currently do below ("C-c m", "C-c e", etc).
+   - [ ] figure out if there is a way to define top level binding maps/groups, i.e. "C-c m" gets
+     binded to a set of keybindings for magit, and expands to the general defined key bindings
+     defined, as of now, to a prefix, like ="s" 'magit-status=, ="p" 'magit-pull=, etc below.
+   - [ ] need to break these up into their own subheadings and use general-define-key consistently
+     instead of haphazard use of bind-key vs general-define-key, etc.
+   - [ ] need to search rest of the config for one off keybinding defs and put them in this section
+     under their correct subheading
+   - [ ] figure out benefit of defining on-top of keymaps.  I presume it means the bindings are
+     localized only to that mode's keymaps, which would be very nice and reduce noise.
+
+*** TODO unsorted bindings
+
+    these are my unsorted keybindings from before my recent reshuffling. i will be breaking them
+    apart as described above.
+    
+    #+BEGIN_SRC emacs-lisp
+      (global-unset-key (kbd "C-z"))
+
+      (bind-key (kbd "M-/") 'hippie-expand)
+
+      (general-define-key
+       :prefix "C-c m"
+       "s" 'magit-status
+       "p" 'magit-pull
+       "b" 'magit-branch
+       "c" 'magit-checkout
+       "d" 'magit-branch-and-checkout
+       "n" 'magit-init)
+
+      ;; Don't really use wg's that much.
+      ;; wasted keybindings till I find the need.
+      ;; (general-define-key
+      ;;  :prefix "C-c w"
+      ;;  "c" 'wg-create-workgroup
+      ;;  "v" 'wg-switch-to-workgroup
+      ;;  "w" 'wg-toggle-morph
+      ;;  "r" 'wg-revert-workgroup
+      ;;  "u" 'wg-update-workgroup
+      ;;  "s" 'wg-save
+      ;;  "l" 'wg-load)
+
+      (general-define-key
+       :prefix "C-c e"
+       "c" 'mc/edit-lines
+       ">" 'mc/mark-next-like-this
+       "<" 'mc/mark-previous-like-this
+       "e" 'mc/edit-ends-of-lines
+       "b" 'mc/edit-beginnings-of-lines
+       "a" 'mc/mark-all-like-this
+       "r" 'mc/mark-all-in-region)
+
+       ;; (general-define-key
+       ;;  :prefix "C-c e"
+       ;;  "t" 'login-erc-tls
+       ;;  "l" 'login-erc)
+
+       (general-define-key
+        "C-~" 'ace-swap-window)
+
+       (general-define-key
+        "C-z" 'other-window)
+
+       (general-define-key
+       "C-S-z" 'ace-window)
+
+       (general-define-key
+        :keymaps 'org-mode-map
+        :prefix "C-c s-a"
+        "n" 'anki-editor-insert-note
+        "r" 'anki-editor-retry-failure-notes
+        "s" 'anki-editor-push-notes)
+
+       (which-key-add-key-based-replacements
+         "C-c m" "magit"
+         "C-c !" "flycheck"
+         "C-c &" "yas"
+         "C-c e" "mcursor"
+         )
+
+       ;; not sure if need?
+       ;; (which-key-add-major-mode-key-based-replacements 'org-mode
+       ;;   "C-c [" "anki")
+
+    #+END_SRC
+    
+*** TODO org mode bindings
+    I need to be able to access my agenda view quickly. This setting
+    is currently made with my lenovo x1 carbon in mind. It has a function
+    key, "Favorite", that is not recognized by xorg. I remapped it to the
+    key =prog2= which is an alias for =XF86Launch2=.
+
+    #+BEGIN_SRC emacs-lisp 
+      ;;(global-set-key (kbd "<XF86Launch2>") 'org-agenda)
+
+      (general-define-key
+       :prefix "<XF86Launch2>"
+       "a" 'org-agenda
+       "o" 'org-clock-out
+       "l" 'org-clock-in-last
+       "j" 'org-journal-new-entry
+       "c" 'org-clock-cancel
+       "p" 'org-pomodoro)
+
+      (which-key-add-key-based-replacements "<XF86Launch2>" "agenda")
+    #+END_SRC
+
+*** TODO utility key bindings
+    these are keybindings that i find myself using universally across modes and thus want to have
+    ready access to. <XF86Launch1> makes a good candidate for a leader key when universal access is
+    wanted w/o polluting keyspace.
+
+**** TODO projectile
+**** TODO ripgrep/searching utils
+**** TODO dired mode stuff
+**** TODO which-key helpers
+
 ** Languages
 *** General
 
@@ -1904,7 +2028,7 @@
           (interactive)
           (company-mode)
           (smartparens-mode 0)
-          (electric-pair-mode 1)
+          (electric-pair-mode 0)
           (linum-mode 1)
           ;; (web-mode-enable-current-column-highlight t)
           (emmet-mode))
@@ -2057,3 +2181,4 @@
      (add-hook 'company-completion-finished-hook 'company-maybe-turn-on-fci)
      (add-hook 'company-completion-cancelled-hook 'company-maybe-turn-on-fci)
    #+END_SRC
+
