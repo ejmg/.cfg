@@ -381,20 +381,20 @@
      #+END_SRC
 **** theme, styling, and transparency
      #+BEGIN_SRC emacs-lisp
-            ;; Set transparency of emacs
-            (defun transparency (value)
-              "Sets the transparency of the frame window. 0=transparent/100=opaque"
-              (interactive "nTransparency Value 0 - 100 opaque:")
-              (set-frame-parameter (selected-frame) 'alpha value))
+       ;; Set transparency of emacs
+       (defun transparency (value)
+         "Sets the transparency of the frame window. 0=transparent/100=opaque"
+         (interactive "nTransparency Value 0 - 100 opaque:")
+         (set-frame-parameter (selected-frame) 'alpha value))
 
-            ;; i have one them i play with that isn't on melpa
-            (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-            (use-package kaolin-themes)
-            (use-package minimal-theme)       
-            ;; for dark: seti, kaolin-aurora; 
-            ;; for light: gandalf, kaolin-valley-light
-            ;; when i feel like a hacker: cyberpunk or dark-mint
-            ;; 'challenger-deep
+       ;; i have one them i play with that isn't on melpa
+       (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+       (use-package kaolin-themes)
+       (use-package minimal-theme)
+       ;; for dark: seti, kaolin-aurora;
+       ;; for light: gandalf, kaolin-valley-light
+       ;; when i feel like a hacker: cyberpunk or dark-mint
+       ;; 'challenger-deep
        (load-theme 'minimal-light t)
 
        (with-eval-after-load "minimal-theme"
@@ -405,37 +405,55 @@
           '(show-paren-match ((t (:background "gray30" :foreground "white" :weight extrabold))))
           '(org-block-begin-line ((t (:foreground "gray70" :background "gray98"))))
           '(org-block-end-line ((t (:foreground "gray70" :background "gray98"))))
-          '(tooltip ((t (:background "gray90"))))
+          '(tooltip ((t (:background "gray90" :height 0.95 :family "Fira Code"))))
           '(italic ((t (:font "Fira Sans" :slant italic))))
           '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
           '(lsp-ui-sideline-current-symbol ((t (:foreground "DarkBlue"))))
           '(lsp-ui-sideline-symbol ((t (:foreground "Black"))))
           '(lsp-ui-doc-background ((t (:background "gray92"))))
+          '(table-cell ((t (:background "LightSteelBlue" :foreground "black"))))
           '(fringe ((t (:background "gray100"))))))
-            ;; (custom-theme-set-faces
-            ;;  'gandalf
-            ;;  '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
-            ;;  '(lsp-ui-sideline-current-symbol ((t (:foreground "MediumBlue")))))
+       ;; (custom-theme-set-faces
+       ;;  'gandalf
+       ;;  '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
+       ;;  '(lsp-ui-sideline-current-symbol ((t (:foreground "MediumBlue")))))
 
-            ;; pretty symbols
-            (prettify-symbols-mode t)
-            (setq-default prettify-symbols-alist '(("lambda" . ?λ)
-                                                   (".\\" . ?λ)
-                                                   ;;("->" . ?⟶)
-                                                   ;;("=/=" . ?≠)
-                                                   ;;("===" . ?≡)
-                                                   ;;("!=" . ?≠)
-                                                   ;;("<=" . ?≤)
-                                                   (">=" . ?≥)
-                                                   ("delta" . ?Δ)
-                                                   ("gamma" . ?Γ)
-                                                   ("phi" . ?φ)
-                                                   ("psi" . ?ψ)
-                                                   ;; ("x" . x)
-                                                   ))
-            ;; dims the buffers that are not active
-            (use-package dimmer)
-            (dimmer-mode)
+       ;; pretty symbols
+       (setq-default prettify-symbols-alist '(("lambda" . ?λ)
+                                              (".\\" . ?λ)
+                                              ("->" . ?⟶)
+                                              ("=/=" . ?≠)
+                                              ("===" . ?≡)
+                                              ("!=" . ?≠)
+                                              ("<=" . ?≤)
+                                              (">=" . ?≥)
+                                              ("alpha" . ?α)
+                                              ("beta" . ?β)
+                                              ("Gamma" . ?Γ)
+                                              ("gamma" . ?γ)
+                                              ("Delta" . ?Δ)
+                                              ("delta" . ?δ)
+                                              ("epsilon" . ?ε)
+                                              ("theta" . ?θ)
+                                              ("mu" . ?μ)
+                                              ("Xi" . ?Ξ)
+                                              ("xi" . ?ξ)
+                                              ("Pi" . ?Π)
+                                              ("pi" . ?π)
+                                              ("rho" . ?ρ)
+                                              ("Sigma" . ?Σ)
+                                              ("sigma" . ?σ)
+                                              ("tau" . ?τ)
+                                              ("Phi" . ?Φ)
+                                              ("phi" . ?φ)
+                                              ("psi" . ?ψ)
+                                              ("Omega" . ?Ω)
+                                              ("omega" . ?ω)
+                                              ;; ("x" . x)
+                                              ))
+       ;; dims the buffers that are not active
+       (use-package dimmer)
+       (dimmer-mode)
      #+END_SRC
 **** window and file history
 
@@ -871,6 +889,8 @@
          ;; to read. i generally don't like that, so i enable auto-fill-mode to
          ;; prevent it.
          (auto-fill-mode 1)
+         (setq org-hide-emphasis-markers t)
+         (prettify-symbols-mode 1)
          (set-fill-column 100))
        (add-hook 'org-mode-hook 'generic-org-minor-modes)
 
@@ -930,6 +950,23 @@
         (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤")))
         ;; (setq org-hide-emphasis-markers t)
       #+END_SRC
+
+      speaking of lists and bullets, turns out that you can also make org-mode automatically
+      alternate between ordered and un-ordered bullet items between list levels so you don't have
+      nested lists all with the same list style which, imho, makes them hard to read/discern by item
+      level.
+
+      #+BEGIN_SRC emacs-lisp
+        (setq org-list-demote-modify-bullet '(
+                                              ("-" . "+")
+                                              ("+" . "*")
+                                              ("*" . "-")
+                                              ("A." . "1.")
+                                              ("1." . "a)")
+                                              ("a)" . "-")
+                                              ))
+      #+END_SRC
+
 ***** beginning of line behavior
       =C-a= will behave identical to =M-m= by default, meaning instead of going
       to the start of a heading, you will go to the first asterisk in a
