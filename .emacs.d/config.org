@@ -1764,8 +1764,43 @@
    - [ ] figure out benefit of defining on-top of keymaps.  I presume it means the bindings are
      localized only to that mode's keymaps, which would be very nice and reduce noise.
 
-*** TODO unsorted bindings
+*** TODO leader key
+    So i think i'm going to use =M-SPC= as a local mode leader key for bindings that change based on
+    the mode, i.e. cargo commands for rust, etc. It feels a bit more natural than reaching for =F11=
+    or =F12= constantly, and let's me reserve those for keys that won't typically change.
+    
+    For global, I'm going to use =M-m=, which is going to be reserved for those things that don't
+    change often but I use everywhere.... I think.
+    #+BEGIN_SRC emacs-lisp
 
+      (global-unset-key (kbd "M-SPC"))
+      (general-create-definer local-leader
+        :prefix "M-SPC")
+
+      (global-unset-key (kbd "s-m"))
+      (general-create-definer g-leader
+        :prefix "s-m")
+
+      ;; (general-create-definer proj-leader
+      ;;   :prefix "M-m p")
+    #+END_SRC
+
+*** TODO utility key bindings
+    these are keybindings that i find myself using universally across modes and thus want to have
+    ready access to. <XF86Launch1> makes a good candidate for a leader key when universal access is
+    wanted w/o polluting keyspace.
+
+**** TODO projectile
+     #+BEGIN_SRC emacs-lisp
+       (g-leader
+         "M-p s" 'counsel-projectile-switch-project
+         "M-p p" 'counsel-projectile
+         "M-p k" 'projectile-kill-buffers)
+     #+END_SRC
+**** TODO ripgrep/searching utils
+**** TODO dired mode stuff
+**** TODO which-key helpers
+*** TODO unsorted bindings
     these are my unsorted keybindings from before my recent reshuffling. i will be breaking them
     apart as described above.
     
@@ -1859,17 +1894,21 @@
 
       (which-key-add-key-based-replacements "<XF86Launch2>" "agenda")
     #+END_SRC
+*** rust keybindings
+    Basically, I just want less keystrokes to get to cargo commands. Pretty straight forward.
 
-*** TODO utility key bindings
-    these are keybindings that i find myself using universally across modes and thus want to have
-    ready access to. <XF86Launch1> makes a good candidate for a leader key when universal access is
-    wanted w/o polluting keyspace.
-
-**** TODO projectile
-**** TODO ripgrep/searching utils
-**** TODO dired mode stuff
-**** TODO which-key helpers
-
+    #+BEGIN_SRC emacs-lisp
+      (local-leader
+        :keymaps 'rust-mode-map
+        "b" 'cargo-process-build
+        "c" 'cargo-process-check
+        "C" 'cargo-process-clean
+        "f" 'cargo-process-fmt
+        "r" 'cargo-process-run
+        "t" 'cargo-process-test
+        "C-t t" 'cargo-process-current-test
+        "C-t f" 'cargo-process-current-file-tests)
+    #+END_SRC
 ** Languages
 *** General
 
