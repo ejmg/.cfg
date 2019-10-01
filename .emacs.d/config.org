@@ -197,6 +197,7 @@
        ;; (set-frame-font "Fira Code") ;;; set default font
        ;; (setq default-frame-alist '((font . "Fira Code-10"))) ;; set it for the daemon itself
 
+
        (setq default-frame-alist '((font . "-CTDB-Fira Code-normal-normal-normal-*-13-*-*-*-m-0-iso10646-1")))
        ;; set it for the daemon itself
      #+END_SRC     
@@ -302,6 +303,42 @@
             (list (format "%s %%S: %%j " (system-name))
                   '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
     #+END_SRC
+**** frame-parameters
+     So tooltip is messy and has given me a lot of headaches over the months. Here are some tweaks
+     that make it work better after hours of agonizing procrastination and self-inflicted pain.
+
+     #+BEGIN_SRC emacs-lisp
+       (setq tooltip-frame-parameters
+             '((name . "tooltip")
+               (internal-border-width . 2)
+               (border-width . 0)
+               (no-special-glyphs . t)
+               (right-divider-width . 0)
+               (bottom-divider-width . 0)
+               (menu-bar-lines . 0)
+               (tool-bar-lines . 0)
+               (right-fringe . 0)
+               (inhibit-double-buffering . t)
+               (undecorated . t)
+               ;; (frame-inhibit-implied-resize t)
+               ;; (internal-border-width . 300)
+               ;; (line-spacing . 0)
+               ;; (line-height . 1.5)
+               ;; lsp-ui tooltip has these settings but they don't seem to help
+               ;;
+               ;; (unsplittable . t)
+               ;; (width . 400)
+               ;; (height . 200)
+               ;; (min-height . 0)
+               ;; (min-width . 0)
+               ))
+
+     #+END_SRC
+
+     i don't think this has anything to do with it, but it's more of a basic precaution:
+     #+BEGIN_SRC emacs-lisp
+       (setq x-max-tooltip-size '(260 . 140))
+     #+END_SRC
 **** limit buffer name size in modeline
      Sometimes I have very long file names (think textbook pdfs) and it makes
      seeing anything else on my mode line impossible. So let's reduce what can
