@@ -102,7 +102,7 @@
                 golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
                 smartparens ggtags expand-region ag neotree keychain-environment workgroups multiple-cursors
                 dimmer pdf-tools smooth-scrolling exec-path-from-shell unfill xterm-color
-                pandoc-mode lorem-ipsum
+                pandoc-mode lorem-ipsum quelpa-use-package
                 ;;bookmarks+ dired+ no longer on melpa, need to config from emacs wiki or their mirror on github
 
                 ;; TODO actually config this up so I have a more spacemacs-like navigation experience
@@ -175,6 +175,12 @@
             (package-refresh-contents)
             (mapc 'package-install packages))))
     #+END_SRC
+**** local packages
+     we'll put them in a directory called =custom/= under =.emacs.d/=
+     #+BEGIN_SRC emacs-lisp
+       (let ((default-directory  "~/.emacs.d/custom/"))
+         (normal-top-level-add-subdirs-to-load-path))
+     #+END_SRC
 *** general settings
 
     things that don't seem to go anywhere because of their generality or edge-case nature:
@@ -851,8 +857,18 @@
           (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
           (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
           (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo)))
-    #+END_SRC     
+    #+END_SRC
 ** special modes
+**** quelpa/quelpa-use-package
+     These allow me to install emacs packages from non-traditional sources, i.e. git repos and
+     whatnot. It's a lot more powerful than that, but tbh i'll probably only ever use it for git
+     repos.
+     #+BEGIN_SRC emacs-lisp
+       (use-package quelpa
+         :ensure t)
+       (use-package quelpa-use-package
+         :ensure t)
+     #+END_SRC
 **** git/magit
 ***** diff-hl
       package by same person maintaining/behind company-mode, so you know it’s
@@ -864,6 +880,36 @@
           :config
           (global-diff-hl-mode))
       #+END_SRC
+**** TODO spotify
+     as of now spotify w/o async doesn't work too hot, so ontop of having to install it locally
+     under custom, i have to use the async branch until it updates.
+
+     i would use quelpa, but idk how to specify which branch to use and can't seem to find immediate
+     docs for that. For when that gets fixed, *TODO*:
+     - [ ] re-enable quelpa + use-package
+     #+BEGIN_SRC emacs-lisp
+       (require 'spotify)
+       (load "~/.emacs.d/.spotify-auth")
+       (setq spotify-transport 'connect)
+       (setq spotify-api-search-limit 20)
+
+       ;; (use-package spotify
+       ;;   ;; For now, need async branch and it appears that this isn't being picked
+       ;;   ;; up by quelpa??
+       ;;   ;; :quelpa (spotify
+       ;;   ;;          :fetcher github
+       ;;   ;;          :repo "danielfm/spotify.el")
+       ;;   :config
+       ;;   ;; my config secrets
+       ;;   (load "~/.emacs.d/.spotify-auth")
+       ;;   ;; ability to use/control other devices running my spotify via emacs 🤓
+       ;;   (setq spotify-transport 'connect)
+       ;;   ;; bit plus of this mode is i can run the spotifyd on my linux
+       ;;   ;; machine and use <10kb of memory and virtually ~0% cpu, so
+       ;;   ;; clogging my emacs instance with huge api searches seems
+       ;;   ;; assinine lol
+       ;;   (setq spotify-api-search-limit 20))
+     #+END_SRC
 **** TODO org
 
      one day i'll have proper documentation for this entire sub-heading.
