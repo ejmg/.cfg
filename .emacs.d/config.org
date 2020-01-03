@@ -64,7 +64,7 @@
 
       - Thus, you will typically want to use =:config= for settings specific
         the mode being loaded, e.g. =(setq some-mode-color ’red)=
-      
+
 *** TODO Decide whether I will byte compile my emacs config
     we want our changes in any =.org= config file to be reflected back into our actual =.el= files. The
     hook below achieves this by re-compiling the byte file of any config =.org= file edited.
@@ -90,7 +90,7 @@
 
 ** the basics
 *** packages
-     
+
     the spice of emacs begins with packages:
 
     #+BEGIN_SRC emacs-lisp
@@ -100,9 +100,9 @@
                 ;; utilities
                 which-key ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
-                smartparens ggtags expand-region ag neotree keychain-environment workgroups multiple-cursors
+                smartparens ggtags expand-region ag neotree keychain-environment workgroups2 multiple-cursors
                 dimmer pdf-tools smooth-scrolling exec-path-from-shell unfill xterm-color
-                pandoc-mode lorem-ipsum quelpa-use-package
+                pandoc-mode lorem-ipsum quelpa-use-package symon sx alarm-clock
                 ;;bookmarks+ dired+ no longer on melpa, need to config from emacs wiki or their mirror on github
 
                 ;; TODO actually config this up so I have a more spacemacs-like navigation experience
@@ -114,6 +114,7 @@
                 elisp-slime-nav company-math company-auctex company-anaconda company-tern
                 slime-company company-ycmd flycheck-rust enh-ruby-mode company-web
                 company-ghci flycheck-haskell company-statistics yasnippet-snippets lsp-mode lsp-ui company-lsp
+                dap-mode
 
                 ;; git
                 magit diff-hl
@@ -142,12 +143,13 @@
                 ;; TODO: actually set these up
                 ;; js
                 js-doc js2-mode js2-refactor json-mode json-snatcher web-beautify coffee-mode vue-mode
+                tide
 
                 ;; TODO: actually set these up to be used.
                 ;; webprogramming
                 haml-mode sass-mode scss-mode slim-mode web-mode less-css-mode pug-mode emmet-mode
 
-                ;; TODO: SETUP 
+                ;; TODO: SETUP
                 ;; ruby
                 bundler chruby rbenv rspec-mode rubocop ruby-tools rvm rake
 
@@ -159,7 +161,7 @@
 
                 ;; themes
                 challenger-deep-theme exotica-theme seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme material-theme
-                kaolin-themes minimal-theme
+                kaolin-themes minimal-theme smart-mode-line-powerline-theme
 
                 ;; other
                 writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace anki-editor emojify wolfram
@@ -204,12 +206,12 @@
        ;; (setq default-frame-alist '((font . "Fira Code-10"))) ;; set it for the daemon itself
 
 
-       (setq default-frame-alist '((font . "-CTDB-Fira Code-normal-normal-normal-*-13-*-*-*-m-0-iso10646-1")))
+       (setq default-frame-alist '((font . "-CTDB-Fira Code-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1")))
        ;; set it for the daemon itself
-     #+END_SRC     
+     #+END_SRC
 
 **** system defaults
-     
+
     #+BEGIN_SRC emacs-lisp
       ;; need this for things like pyenv to work with emacs daemon.
       ;; this is a recent development and apparently has something to do with the fact
@@ -256,9 +258,14 @@
       (global-flycheck-mode)
 
       ;; make our mode line prettier
-      (use-package smart-mode-line)
-      (setq sml/no-confirm-load-theme t)
-      (sml/setup)
+      (use-package smart-mode-line
+        :config
+        (setq sml/no-confirm-load-theme t
+              ;; As it stands, I actually like the dark theme
+              ;; in conjunction with minimal-light more than sml's light theme
+              sml/theme 'dark)
+        (sml/setup))
+
 
       ;; make sure it attempts utf-8 first when pasting text into emacs
       (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
@@ -309,6 +316,22 @@
             (list (format "%s %%S: %%j " (system-name))
                   '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
     #+END_SRC
+**** buffer, symon display
+     Basically gives me system stats in my buffer when I'm not using it. Extremely cute and useful, tbh.
+     #+BEGIN_SRC emacs-lisp
+       (use-package symon
+         :config
+         (progn  
+           (setq symon-refresh-rate 5 ;; Refresh less by 1 second
+                 symon-history-size 35 ;; keep history shorter by 15 observations to more quickly see patterns as they occur.
+                 ))
+         ;; Turning off by default, for now.
+         ;; I really like Symon mode, but I would like to figure out a way such that
+         ;; when the emacs daemon doesn't have a window open, it doesn't spam
+         ;; my journactl log with symon's output.
+         ;; (symon-mode)
+         )
+     #+END_SRC
 **** frame-parameters
      So tooltip is messy and has given me a lot of headaches over the months. Here are some tweaks
      that make it work better after hours of agonizing procrastination and self-inflicted pain.
@@ -358,17 +381,18 @@
      saving you the hassle of having to memorize *every* key binding, and thus
      protecting you from going full emacs hermit.
 
-     
+
      general defines "leader" keys/keystrokes, which allows you to setup mappings
      predicated off of a set of leader keys. For example, I set "C-c m" to be
      the leader keystroke for all of my magit commands I typically use.
 
      key bindings are left to the actual key binding section
-     
+
      #+BEGIN_SRC emacs-lisp
        (use-package general)
 
        (use-package which-key
+         :diminish ""
          :init
          (which-key-mode)
          :config
@@ -401,9 +425,9 @@
        ;; for light: gandalf, kaolin-valley-light
        ;; when i feel like a hacker: cyberpunk or dark-mint
        ;; 'challenger-deep
-       (load-theme 'minimal-light t)
+       (load-theme 'minimal t)
 
-       (with-eval-after-load "minimal-theme"
+       (with-eval-after-load "minimal-light-theme"
          (setq lsp-ui-doc-border "black")
          (custom-theme-set-faces
           'minimal-light
@@ -417,6 +441,7 @@
           '(lsp-ui-sideline-current-symbol ((t (:foreground "DarkBlue"))))
           '(lsp-ui-sideline-symbol ((t (:foreground "Black"))))
           '(lsp-ui-doc-background ((t (:background "gray92"))))
+          '(aw-leading-char-face ((t (:background "white smoke" :foreground "red" :box (:line-width 1 :color "black") :height 2.5))))
           '(table-cell ((t (:background "LightSteelBlue" :foreground "black"))))
           '(fringe ((t (:background "gray100"))))))
        ;; (custom-theme-set-faces
@@ -458,8 +483,10 @@
                                               ;; ("x" . x)
                                               ))
        ;; dims the buffers that are not active
-       (use-package dimmer)
-       (dimmer-mode)
+       (use-package dimmer
+         :config
+         (setq dimmer-fraction 0.4)
+         (dimmer-mode))
      #+END_SRC
 **** window and file history
 
@@ -469,11 +496,13 @@
          :init (winner-mode 1))
 
        ;; TODO figure out if i want to figure out wg.
-       ;; (use-package workgroups)
+       (use-package workgroups2
+         :config
+         (setq wg-default-session-file "~/.emacs.d/.wg"))
        ;; (workgroups-mode 1)
        ;; (setq wg-prefix-key (kbd "C-c w"))
        ;; (setq wg-switch-on-load nil)
-       ;; (wg-file "~/.workgroups")
+       ;;(wg-file "~/.workgroups")
 
 
 
@@ -501,6 +530,7 @@
 
      #+BEGIN_SRC emacs-lisp
        (use-package projectile
+         :diminish ""
          :init
          (projectile-mode))
 
@@ -575,13 +605,14 @@
                  dired-omit-mode nil
                  ;; Auto refresh dired
                  global-auto-revert-non-file-buffers t
-                 wdired-allow-to-change-permissions t)
-           (add-hook 'dired-mode-hook #'my/dired-mode-hook)))
+                 wdired-allow-to-change-permissions t))
+         (add-hook 'dired-mode-hook #'my/dired-mode-hook))
      #+END_SRC
 **** spelling
 
      #+BEGIN_SRC emacs-lisp
        (use-package flyspell
+         :diminish ""
          :init
          (add-hook 'text-mode-hook 'turn-on-flyspell))
          ;; flyspell currently messes with company mode so we will suffer for now.
@@ -695,6 +726,8 @@
       Luckily, there is a keybinding that fixes that:
       #+BEGIN_SRC emacs-lisp
         (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+        (define-key pdf-view-mode-map (kbd "j") 'pdf-view-next-line-or-next-page)
+        (define-key pdf-view-mode-map (kbd "k") 'pdf-view-previous-line-or-previous-page)
       #+END_SRC
 ***** Doc-View resolution
       For documents that cannot use pdftools, e.g. djvu or ppt files, the
@@ -736,9 +769,17 @@
        :commands lsp)
 
      (use-package lsp-ui :commands lsp-ui-mode)
-     (use-package company-lsp :commands company-lsp)
+     (use-package company-lsp :commands company-lsp
+       :config
+       ;; caching always good. less lag/compilation.
+       (setq company-lsp-cache-candidates 'auto
+             ;; otherwise completion candidates come with arg params
+             ;; which is often more annoying than not, imho.
+             lsp-enable-snippet nil))
 
-     (use-package yasnippet)
+     (use-package yasnippet :diminish ""
+       :config
+       (diminish 'yas-minor-mode))
      (yas-global-mode 1)
 
 
@@ -753,6 +794,8 @@
          (setq company-idle-delay 0.1
                company-minimum-prefix-length 2
                company-selection-wrap-around t
+               company-dabbrev-minimum-length 3
+               company-dabbrev-time-limit 0.05
                company-dabbrev-downcase nil
                company-transformers '(company-sort-by-occurrence))
          (bind-keys :map company-active-map
@@ -773,8 +816,8 @@
        '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
 
      ;; rust
-     (eval-after-load "company"
-       '(add-to-list 'company-backends 'company-lsp))
+     (add-to-list 'company-backends '(company-lsp :with company-yasnippet))
+
 
      ;; (eval-after-load "company"
      ;;   '(add-to-list 'company-backends company-web-html))
@@ -782,15 +825,15 @@
 
      ;; Add yasnippet support for all company backends
      ;; https://github.com/syl20bnr/spacemacs/pull/179
-     (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
+     ;; (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
 
-     (defun company-mode/backend-with-yas (backend)
-       (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-           backend
-     (append (if (consp backend) backend (list backend))
-             '(:with company-yasnippet))))
-     (eval-after-load "company"
-       '(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
+     ;; (defun company-mode/backend-with-yas (backend)
+     ;;   (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+     ;;       backend
+     ;; (append (if (consp backend) backend (list backend))
+     ;;         '(:with company-yasnippet))))
+     ;; (eval-after-load "company"
+     ;;   '(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
 
      ;;(eval-after-load "company"
      ;;'(add-to-list 'company-backends 'company-yasnippet))
@@ -858,6 +901,12 @@
           (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)
           (define-key undo-tree-map (kbd "C-M-/") 'undo-tree-redo)))
     #+END_SRC
+*** smartparens
+    apparently smart parents totally has configurations for diff langs, such as rust, that you can
+    enable automatically:
+    #+BEGIN_SRC emacs-lisp
+      (require 'smartparens-config)
+    #+END_SRC
 ** special modes
 **** quelpa/quelpa-use-package
      These allow me to install emacs packages from non-traditional sources, i.e. git repos and
@@ -877,9 +926,16 @@
         (use-package diff-hl
           :init
           (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
-          :config
-          (global-diff-hl-mode))
+          (add-hook 'prog-mode-hook 'diff-hl-margin-mode))
       #+END_SRC
+**** TODO bookmarks
+     i want to start using these, but am not sure where to get started with them.
+
+     =bookmark+= is only hosted on the emacswiki and its github mirror ran by Jonas Bernoulli, so I
+     gotta clone it first and require it. I should use quelpa or something to better handle this.
+     #+BEGIN_SRC emacs-lisp
+
+     #+END_SRC
 **** TODO spotify
      as of now spotify w/o async doesn't work too hot, so ontop of having to install it locally
      under custom, i have to use the async branch until it updates.
@@ -887,18 +943,29 @@
      i would use quelpa, but idk how to specify which branch to use and can't seem to find immediate
      docs for that. For when that gets fixed, *TODO*:
      - [ ] re-enable quelpa + use-package
+     - [ ] make shortcut to easily restart spotifyd when it hiccups
+       - could just make hook to run eshell command with my alias
      #+BEGIN_SRC emacs-lisp
        (require 'spotify)
        (load "~/.emacs.d/.spotify-auth")
        (setq spotify-transport 'connect)
        (setq spotify-api-search-limit 20)
+       (setq spotify-mode-line-truncate-length 10)
+       ;; How often it basically runs a blocking
+       ;; query for all of my ****ing emacs daemon
+       ;; just to update the song title in modeline.
+       ;; Default is once a second. Try that on a low
+       ;; bandwidth connection and see how productive
+       ;; you can be.
+       (setq spotify-mode-line-refresh-interval 60)
+       (setq spotify-mode-line-format "[%p: %a - %t|%r%s]")
 
        ;; (use-package spotify
        ;;   ;; For now, need async branch and it appears that this isn't being picked
        ;;   ;; up by quelpa??
-       ;;   ;; :quelpa (spotify
-       ;;   ;;          :fetcher github
-       ;;   ;;          :repo "danielfm/spotify.el")
+       ;;   :quelpa (spotify
+       ;;            :fetcher github
+       ;;            :repo "danielfm/spotify.el")
        ;;   :config
        ;;   ;; my config secrets
        ;;   (load "~/.emacs.d/.spotify-auth")
@@ -908,7 +975,8 @@
        ;;   ;; machine and use <10kb of memory and virtually ~0% cpu, so
        ;;   ;; clogging my emacs instance with huge api searches seems
        ;;   ;; assinine lol
-       ;;   (setq spotify-api-search-limit 20))
+       ;;   (setq spotify-api-search-limit 20)
+       ;;   (setq spotify-mode-line-truncate-length 20))
      #+END_SRC
 **** TODO org
 
@@ -935,6 +1003,10 @@
          ;; to read. i generally don't like that, so i enable auto-fill-mode to
          ;; prevent it.
          (auto-fill-mode 1)
+         ;; i don't need to know fill mode is going
+         (diminish 'auto-fill-mode)
+         (diminish 'auto-fill-function)
+         (setq org-latex-listings t)
          (setq org-hide-emphasis-markers t)
          (prettify-symbols-mode 1)
          (set-fill-column 100))
@@ -991,7 +1063,7 @@
       org bullets is a minor mode that lets you have pretty header symbols.
       #+BEGIN_SRC emacs-lisp
         ;; other symbols that might be of use idk:
-        ;; ● ◼ ⁍ ◙ ◯ □ ◎ ◪ ▆ ▅ █ ⨀ ⨁ ⨂ ✱ ⏣ ⋙ ⃟ 
+        ;; ● ◼ ⁍ ◙ ◯ □ ◎ ◪ ▆ ▅ █ ⨀ ⨁ ⨂ ✱ ⏣ ⋙ ⃟
         ;; ✲ ✺ ✹ ✸ ✽ ✻ ✿ ➤ ➡ ➔ ✪ ✜ ✚ ✙ ▢ ⧐ ▷ ◆
         (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤")))
         ;; (setq org-hide-emphasis-markers t)
@@ -1063,13 +1135,13 @@
 
        I don't need to edit what agenda files I will be using on the fly, so
        disabling =C-c [= and =C-c ]= saves me grief.
-      
+
        #+begin_SRC emacs-lisp
          ;; TODO
          ;; decide how to go about unbinding w/o making my kbd's break like this does.
 
          ;; Disable keys in org-mode
-         ;;    C-c [ 
+         ;;    C-c [
          ;;    C-c ]
          ;; (add-hook 'org-mode-hook
          ;;           '(lambda ()
@@ -1098,7 +1170,7 @@
        #+END_SRC
 
 ****** Org TODOs
-      
+
        Here are the states that a TODO can have in my org config:
 
        #+BEGIN_SRC emacs-lisp
@@ -1124,19 +1196,19 @@
        #+END_SRC
 
        Lets me use fast selection to swap through states of my TODOs:
-      
+
        #+BEGIN_SRC emacs-lisp
          (setq org-use-fast-todo-selection t)
        #+END_SRC
 
        Disable ability to change these states via =S-left= and =S-right=:
-      
+
        #+BEGIN_SRC emacs-lisp
          (setq org-treat-S-cursor-todo-selection-as-state-change nil)
        #+END_SRC
 
 ****** Capture Templates
-      
+
        We'll file every captured moment into my inbox:
 
        #+BEGIN_SRC emacs-lisp
@@ -1179,7 +1251,7 @@
                        ;;  "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
                        )))
        #+END_SRC
-      
+
        My refile targets for moments. Ideally, I should actively be refiling
        things from my inbox to where they belong. If they are something I will
        be working on, big or small, they go to tasks. If it's just an
@@ -1190,7 +1262,6 @@
          (setq org-refile-targets '(("~/org/tasks.org" :maxlevel . 9)
                                     ("~/org/later.org" :maxlevel . 9)
                                     ("~/org/reference.org" :maxlevel . 9)
-                                    ;; ("~/org/cmr.org" :maxlevel . 9)
                                     ("~/org/anki/anki.org" :maxlevel . 9)
                                     ))
 
@@ -1200,7 +1271,7 @@
 
        We don't want to include DONE tasks as refile targets because that will
        make our lists *huge*.
-      
+
        #+BEGIN_SRC emacs-lisp
          ;;;; Refile settings
          ; Exclude DONE state tasks from refile targets
@@ -1210,7 +1281,7 @@
 
          (setq org-refile-target-verify-function 'bh/verify-refile-target)
        #+END_SRC
-      
+
 ****** TODO Agenda View
        #+BEGIN_SRC emacs-lisp
          ;; Do not dim blocked tasks
@@ -1689,7 +1760,7 @@
        the clock in the mode-line will be cut off, with emacs preferring to
        display major-mode and minor-mode information instead. Until I fix that
        behavior, this provides a good compromise:
-      
+
        #+BEGIN_SRC emacs-lisp
          (setq org-clock-clocked-in-display 'both)
        #+END_SRC
@@ -1748,31 +1819,38 @@
         ;; Load authentication info from an external source.  Put sensitive
        ;; passwords and the like in here.
 
-       (use-package erc)
-
+       (require 'erc)
        (load "~/.emacs.d/.erc-auth")
+       (require 'erc-services)
        (erc-services-mode 1)
+
+       (setq erc-prompt-for-nickserv-password nil)
+
+       (setq erc-nick '("ejmg"))
+
+       (setq erc-nickserv-passwords
+             '((freenode     (("ejmg"  . erc-freenode-ejmg-pass)))))
 
        ;; This causes ERC to connect to the Freenode network upon hitting
        ;; C-c e f.  Replace MYNICK with your IRC nick.
 
        ;; TODO: FIGURE OUT SASL SUPPORT so I can use VPN + IRC
-       (defun login-erc-tls ()
-         "Log in to irc using ssl."
-         (interactive)
-         (erc-tls :server "irc.freenode.net"
-                  :port "6697"
-                  :nick "[spook]"))
+       ;; (defun login-erc-tls ()
+       ;;   "Log in to irc using ssl."
+       ;;   (interactive)
+       ;;   (erc-tls :server "irc.freenode.net"
+       ;;            :port "6697"
+       ;;            :nick "[spook]"))
 
        ;; (global-set-key "\C-cef" #'login-erc-tls)
 
-       (defun login-erc ()
-         "login to irc w/o ssl"
-         (interactive)
-         (erc :server "irc.freenode.net"
-              :port "6667"
-              :nick "[spook]")
-         :password spook-password)
+       ;; (defun login-erc ()
+       ;;   "login to irc w/o ssl"
+       ;;   (interactive)
+       ;;   (erc :server "irc.freenode.net"
+       ;;        :port "6667"
+       ;;        :nick "[spook]")
+       ;;   :password spook-password)
 
 
 
@@ -1784,6 +1862,59 @@
 
        ;; Interpret mIRC-style color commands in IRC chats
        (setq erc-interpret-mirc-color t)
+     #+END_SRC
+**** sx mode
+     =sx= is a really awesome mode that lets you search stackexchange via their API. It's essentially
+     native support in emacs because of how the author implemented it, which is super nice.
+     #+BEGIN_SRC emacs-lisp
+       (use-package sx)
+     #+END_SRC
+**** vlc-rc
+     [[https://github.com/MoHKale/vlc-rc][vlc-rc]] is a nice mode that lets you control vlc when you
+     enable its remote control interface. run =vlc= and it'll give you a set of options + kick off a
+     vlc instance that it is correctly connected to.
+     #+BEGIN_SRC emacs-lisp
+       (require 'vlc-rc)
+     #+END_SRC
+**** eww
+     So I've started to unironically use, and enjoy, emacs' built in web browser, =eww=. Websites that
+     are heavily reliant on js won't work well with it, but the reality is i already avoid websites
+     like that and, for what i use eww, encountering js is even less of an issue.
+
+***** disabling images by default
+      eww works well even on a bad connection, but doesn't cache things like images
+      automatically. this makes refreshing annoying when on a bad connection, and i typically don't
+      want the images anyway for what i use eww for.
+
+      This works beautifully, very thankful to [[https://emacs.stackexchange.com/a/38639][Glucas' solution]]! 
+      #+BEGIN_SRC emacs-lisp
+        (defun glucas/eww-toggle-images ()
+          "Toggle whether images are loaded and reload the current page from cache."
+          (interactive)
+          (setq-local shr-inhibit-images (not shr-inhibit-images))
+          (eww-reload t)
+          (message "Images are now %s"
+                   (if shr-inhibit-images "off" "on")))
+
+        ;; minimal rendering by default
+        (setq-default shr-inhibit-images t)   ; toggle with `I`
+        (setq-default shr-use-fonts nil)      ; toggle with `F`
+      #+END_SRC
+**** TODO tex
+     Here's what org-latex-pdf-process is currently by default (idk if set by other mode or not, but
+     for preservation):
+     #+BEGIN_SRC emacs-lisp :tangle no
+       ("%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f")
+     #+END_SRC
+
+     Here's an attempt at a config that allows bibtex
+     
+     #+BEGIN_SRC emacs-lisp
+       (setq org-latex-to-pdf-process (list "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode' -pdf -bibtex -f %f"))
+       (setq org-latex-pdf-process (list "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode' -pdf -bibtex -f %f"))
+       ;; alternatives? 
+       ;; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+       ;; (setq org-latex-to-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
      #+END_SRC
 ** TODO keybindings
 
@@ -1814,7 +1945,7 @@
     So i think i'm going to use =M-SPC= as a local mode leader key for bindings that change based on
     the mode, i.e. cargo commands for rust, etc. It feels a bit more natural than reaching for =F11=
     or =F12= constantly, and let's me reserve those for keys that won't typically change.
-    
+
     For global, I'm going to use =M-m=, which is going to be reserved for those things that don't
     change often but I use everywhere.... I think.
     #+BEGIN_SRC emacs-lisp
@@ -1827,6 +1958,14 @@
       (general-create-definer g-leader
         :prefix "s-m")
 
+      ;; Stolen from kbd vermiculous' docs for sx.el, who in turn stole it from
+      ;; Endless Parentheses:
+      ;; http://endlessparentheses.com/sx-el-announcement-and-more-launcher-map.html
+
+      ;; (defconst launcher-map "s-l")
+      (general-create-definer launcher-map
+        :prefix "s-l")
+
       ;; (general-create-definer proj-leader
       ;;   :prefix "M-m p")
     #+END_SRC
@@ -1834,22 +1973,43 @@
 *** TODO utility key bindings
     these are keybindings that i find myself using universally across modes and thus want to have
     ready access to. <XF86Launch1> makes a good candidate for a leader key when universal access is
-    wanted w/o polluting keyspace.
+    wanted w/o polluting keyspace. This is still being figured out, though, so consistency is a
+    total =lol= at the moment.
 
 **** TODO projectile
      #+BEGIN_SRC emacs-lisp
        (g-leader
-         "M-p s" 'counsel-projectile-switch-project
-         "M-p p" 'counsel-projectile
-         "M-p k" 'projectile-kill-buffers)
+         "ps" 'counsel-projectile-switch-project
+         "pp" 'counsel-projectile
+         "pa" 'counsel-projectile-ag
+         "pf" 'counsel-find-file
+         "pk" 'projectile-kill-buffers)
+
+       (which-key-add-key-based-replacements
+         "s-m p" "projectile")
      #+END_SRC
+
 **** TODO ripgrep/searching utils
 **** TODO dired mode stuff
 **** TODO which-key helpers
+**** alarm
+     Self explanatory. =alarm-clock= is a useful utility that i use all the time. quick keystroke is
+     what i need.
+     #+BEGIN_SRC emacs-lisp
+       (launcher-map
+        "as" 'alarm-clock-set
+        "al" 'alarm-clock-list-view)
+
+       ;; Not impressed by having to do this, but I can't figure out from
+       ;; General's docs how to effectively get same behavior for common
+       ;; prefix keys that are not individually bound to something.
+       (which-key-add-key-based-replacements
+         "s-l a" "alarm")
+     #+END_SRC
 *** TODO unsorted bindings
     these are my unsorted keybindings from before my recent reshuffling. i will be breaking them
     apart as described above.
-    
+
     #+BEGIN_SRC emacs-lisp
       (global-unset-key (kbd "C-z"))
 
@@ -1862,6 +2022,7 @@
        "b" 'magit-branch
        "c" 'magit-checkout
        "d" 'magit-branch-and-checkout
+       "g" 'magit-clone
        "n" 'magit-init)
 
       ;; Don't really use wg's that much.
@@ -1919,14 +2080,16 @@
        ;;   "C-c [" "anki")
 
     #+END_SRC
-    
+
 *** TODO org mode bindings
     I need to be able to access my agenda view quickly. This setting
     is currently made with my lenovo x1 carbon in mind. It has a function
     key, "Favorite", that is not recognized by xorg. I remapped it to the
     key =prog2= which is an alias for =XF86Launch2=.
 
-    #+BEGIN_SRC emacs-lisp 
+    These are bindings I always want available, so I define them as such.
+
+    #+BEGIN_SRC emacs-lisp
       ;;(global-set-key (kbd "<XF86Launch2>") 'org-agenda)
 
       (general-define-key
@@ -1936,9 +2099,51 @@
        "l" 'org-clock-in-last
        "j" 'org-journal-new-entry
        "c" 'org-clock-cancel
-       "p" 'org-pomodoro)
+       "p" 'org-pomodoro
+       "g" 'org-clock-goto)
 
       (which-key-add-key-based-replacements "<XF86Launch2>" "agenda")
+    #+END_SRC
+
+    Other keybindings I want only while in org-mode buffers but aren't bound by default.
+
+    #+BEGIN_SRC emacs-lisp
+      (local-leader
+        :keymap 'org-mode-map
+        "tl" 'org-toggle-link-display)
+    #+END_SRC
+
+*** TODO spotify
+    Consider rebinding the defaults provided for a better interface. This might even be a good use
+    case for hydra mode, for example. I think some of the defaults are a bit too arbitrary for me vs
+    what the author might have as their workflow.
+    #+BEGIN_SRC emacs-lisp
+      (general-create-definer spotify-leader
+        :prefix "M-p")
+
+      (defun spotify-disable-mode-line ()
+        (interactive)
+        (setq spotify-mode-line-refresh-interval 0))
+
+      (defun spotify-set-mode-line-refresh ()
+        (interactive)
+        (let* ((prompt "Set interval [seconds]:")
+               (val (read-number prompt 60)))
+          (setq spotify-mode-line-refresh-interval val)))
+
+      (spotify-leader
+       "c" 'spotify-remote-mode
+       "SPC" 'spotify-toggle-play
+      ;; "M-l r" 'spotify-refresh-mode-line
+       "M-l s" 'spotify-set-mode-line-refresh
+       "M-l d" 'spotify-disable-mode-line
+       "M-p s" 'spotify-playlist-select)
+    #+END_SRC
+*** TODO sx
+    #+BEGIN_SRC emacs-lisp
+      (launcher-map
+       "ss" 'sx-search
+       "st" 'sx-tab-all-questions)
     #+END_SRC
 *** rust keybindings
     Basically, I just want less keystrokes to get to cargo commands. Pretty straight forward.
@@ -1949,12 +2154,33 @@
         "b" 'cargo-process-build
         "c" 'cargo-process-check
         "C" 'cargo-process-clean
-        "f" 'cargo-process-fmt
+        ;; bind nothing but give M-SPC f a description for which-key
+        "f" '(:ignore t :which-key "fmt")
+        "ff" 'cargo-process-fmt
+        "fe" 'rust-enable-format-on-save
+        "fd" 'rust-disable-format-on-save
+        "h" '(:ignore t :which-key "hide")
+        "hb" 'hs-hide-block
+        "hl" 'hs-hide-level
+        "ha" 'hs-hide-all
+        "hs" '(:ignore t :which-key "show")
+        "hsa" 'hs-show-all
+        "hsb" 'hs-show-block
         "r" 'cargo-process-run
-        "t" 'cargo-process-test
-        "C-t t" 'cargo-process-current-test
-        "C-t f" 'cargo-process-current-file-tests)
+        "t" '(:ignore t :which-key "tests")
+        "tt" 'cargo-process-test
+        "tc" 'cargo-process-current-test
+        "tf" 'cargo-process-current-file-tests
+        ;; TODO: anyway to generalize this to all programming maps?
+        "e" '(:ignore t :which-key "errors")
+        "ec" 'flycheck-explain-error-at-point
+        "ep" 'flycheck-previous-error
+        "en" 'flycheck-next-error
+        )
     #+END_SRC
+*** eww
+    These keybindings just go with the custom function I pulled from sx and documented for [[eww][eww]]
+    earlier.
 ** Languages
 *** General
 
@@ -1964,9 +2190,9 @@
     #+BEGIN_SRC emacs-lisp
 
       (defun my-add-watchwords ()
-        "Highlight FIXME, TODO, and NOCOMMIT in code"
+        "Highlight FIXME, TODO, NOTE, and NOCOMMIT in code"
         (font-lock-add-keywords
-         nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
+         nil '(("\\<\\(FIXME\\|TODO\\|NOTE\\|NOCOMMIT\\)\\>"
                 1 '((:foreground "#d7a3ad") (:weight bold)) t))))
 
       (add-hook 'prog-mode-hook 'my-add-watchwords)
@@ -2003,7 +2229,7 @@
           (haskell-snippets-initialize)
           ;; Warning, not picked up by non-daemon emacs for some reason?
           ;; Is configured as 'auto' for some reason.
-          ;; (setq haskell-compile-cabal-build-command "stack build --fast")    
+          ;; (setq haskell-compile-cabal-build-command "stack build --fast")
           (setq haskell-process-type 'stack-ghci)))
       (add-hook 'haskell-mode-hook 'my-haskell-setup)
 
@@ -2160,6 +2386,16 @@
     #+END_SRC
 *** rust
     #+BEGIN_SRC emacs-lisp
+      (use-package cargo
+        :config
+        (defun enable-cargo-visual-line ()
+          (interactive)
+          (visual-line-mode 1))
+          ;; cargo-process-mode comes from cargo-minor mode.
+          ;; this is the mode the buffer holding the output of cargo
+          ;; commands takes.
+        (add-hook 'cargo-process-mode-hook 'enable-cargo-visual-line))
+
       (use-package rust-mode
         :defer t
         :config
@@ -2167,21 +2403,30 @@
           (interactive)
           (lsp)
           (cargo-minor-mode)
+          (hs-minor-mode)
           (rust-enable-format-on-save)
-          (flycheck-mode)    
+          (flycheck-mode)
           ;; (cargo-process--command-flags "--color never")
           (set-fill-column 100)
-          (flycheck-rust-setup)
-          )
+          (flycheck-rust-setup))
         (add-hook 'rust-mode-hook 'my-rust-setup))
 
       (setq lsp-rust-clippy-preference "on")
     #+END_SRC
 *** TODO webprogramming
     #+BEGIN_SRC emacs-lisp
+
+      ;;js2 setup is taken from https://blog.jft.rocks/javascript/emacs-and-typescript.html
+      (use-package js2-mode
+        :ensure t
+        :init
+        (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
+
       (use-package web-mode
         :defer t
-        :mode ("\\.html\\'" "\\.css\\'" "\\.sass\\'")
+        :mode ("\\.html\\'" "\\.css\\'" "\\.sass\\'" "\\.scss\\'")
+        :init
+        (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
         :config
         (defun my-web-mode-setup ()
           (interactive)
@@ -2190,21 +2435,56 @@
           (electric-pair-mode 0)
           (linum-mode 1)
           ;; (web-mode-enable-current-column-highlight t)
-          (emmet-mode))
+          ;; (emmet-mode)
+          )
         (add-hook 'web-mode-hook 'my-web-mode-setup))
 
+      ;; Useful when I was doing python. not relevant right now.
       (setq web-mode-engines-alist
-            '(("django" . "\\.html\\'")
-              ("jinja" . "\\.djhtml\\'")))
+            '(("django" . "\\.tera\\'")))
+              ;; ("jinja" . "\\.djhtml\\'")))
     #+END_SRC
-*** TODO js
-    Disable ugly af vue background:
-    #+BEGIN_SRC emacs-lisp
-      (use-package vue-mode)
-      (add-hook 'mmm-mode-hook
-                (lambda ()
-                  (set-face-background 'mmm-default-submode-face nil)))
-    #+END_SRC
+**** typescript
+     #+BEGIN_SRC emacs-lisp
+       ;; Taken directly from the tide setup page. Don't know how good it is,
+       ;; hopefully plays well enough just to get working with it.
+
+       (defun setup-tide-mode ()
+         (interactive)
+         (tide-setup)
+         (flycheck-mode +1)
+         (setq flycheck-check-syntax-automatically '(save mode-enabled))
+         (eldoc-mode +1)
+         (tide-hl-identifier-mode +1)
+         ;; company is an optional dependency. You have to
+         ;; install it separately via package-install
+         ;; `M-x package-install [ret] company`
+         (company-mode +1))
+
+       ;; aligns annotation to the right hand side
+       (setq company-tooltip-align-annotations t)
+
+       ;; formats the buffer before saving
+       (add-hook 'before-save-hook 'tide-format-before-save)
+
+       (add-hook 'typescript-mode-hook #'setup-tide-mode)
+
+       (use-package tide
+         :ensure t
+         :after (typescript-mode company flycheck)
+         :hook ((typescript-mode . tide-setup)
+                (typescript-mode . tide-hl-identifier-mode)
+                (before-save . tide-format-before-save)))
+
+     #+END_SRC
+**** vue(?)
+     Disable ugly af vue background:
+     #+BEGIN_SRC emacs-lisp
+       (use-package vue-mode)
+       (add-hook 'mmm-mode-hook
+                 (lambda ()
+                   (set-face-background 'mmm-default-submode-face nil)))
+     #+END_SRC
 *** TODO clojure
     #+BEGIN_SRC emacs-lisp
       ;; FROM BRAVECLOJURE
@@ -2318,8 +2598,13 @@
        (add-to-list 'company-c-headers-path-system "/usr/include/c++/8.2.1/")
 
      #+END_SRC
+*** java
+    #+BEGIN_SRC emacs-lisp
+      (use-package lsp-java :ensure t :after lsp
+        :config (add-hook 'java-mode-hook 'lsp))
+    #+END_SRC
 ** bug fixes
-   
+
    it's not good code if it doesn't have bugs in it.
 
    #+BEGIN_SRC emacs-lisp
@@ -2340,4 +2625,6 @@
      (add-hook 'company-completion-finished-hook 'company-maybe-turn-on-fci)
      (add-hook 'company-completion-cancelled-hook 'company-maybe-turn-on-fci)
    #+END_SRC
+
+
 
