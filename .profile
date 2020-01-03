@@ -20,9 +20,7 @@ fi
 ## PATHS
 ############################################
 
-# RUST
-export PATH="$HOME/.cargo/bin:$PATH"
-export RUST_SRC_PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src"
+# RUSTexport RUST_SRC_PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src"
 
 # HASKELL, STACK
 # export PATH="$HOME/.stack/programs/x86_64-linux/ghc-8.2.1/bin:$PATH"
@@ -55,3 +53,5 @@ eval "$(rbenv init -)"
 
 # opam configuration
 test -r /home/spook/.opam/opam-init/init.sh && . /home/spook/.opam/opam-init/init.sh > /dev/null 2> /dev/null || true
+
+# export PATH="$HOME/.cargo/bin:$PATH"

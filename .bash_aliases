@@ -8,6 +8,9 @@ alias gghci='stack exec ghci' # global ghci
 alias ghci='stack ghci' # local, but defaults to global if no local proj.
 alias ppt-to-pdf='libreoffice --headless --invisible --convert-to pdf *ppt*'
 alias batp='bat -p'
+# give a query, like case-insensitive search for for: -i "foo", will then search txt output of all pdfs for "foo"
+alias rg-pdftotxt='rg --pre pre-pdftotext --pre-glob "*.pdf"'
+alias spotifydr='systemctl --user restart spotifyd'
 
 # Sends a popup via KDE Plasma's notification lib.
 # @param The message for the dialogue popup.
