@@ -425,7 +425,7 @@
        ;; for light: gandalf, kaolin-valley-light
        ;; when i feel like a hacker: cyberpunk or dark-mint
        ;; 'challenger-deep
-       (load-theme 'minimal t)
+       (load-theme 'minimal-light t)
 
        (with-eval-after-load "minimal-light-theme"
          (setq lsp-ui-doc-border "black")
@@ -994,8 +994,9 @@
          ;; i'll reenable it later. otherwise i'll delete this line entirely soon.
          ;; (org-cdlatex-mode 1)
 
-         ;; there's a possibility that emojify-mode is behind some laggy behavior.
-         (emojify-mode 1)
+         ;; emojify mode results in top level, single *, headings to get replaced with literal solid black square
+         ;; emojy somehow and fucks with things in a very special way. until i can unfuck that, i'm disabling it.
+         ;; (emojify-mode 1)
 
          ;; org-mode uses visual line mode, which makes sense for text editing.
          ;; however, it means that if you ever look at an org-mode file without
@@ -1916,6 +1917,24 @@
        ;; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
        ;; (setq org-latex-to-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
      #+END_SRC
+**** anki mode
+     anki mode doesn't come with its own keymap, so i define one to generate better keybindings
+     using general mode.
+     #+BEGIN_SRC emacs-lisp
+       ;; (defvar anki-editor-mode-keymap (make-keymap) "anki-editor-mode keymap")
+
+       (defvar anki-editor-mode-map
+         (let ((map (make-sparse-keymap)))
+           (set-keymap-parent map org-mode-map)
+           map)
+         "Keymap for anki editor mode. Inherits from `org-mode-map'.")
+
+       (defun anki-tweaks ()
+         (interactive)
+         (use-local-map anki-editor-mode-map))
+
+       (add-hook 'anki-editor-mode-hook 'anki-tweaks)
+     #+END_SRC
 ** TODO keybindings
 
    So this is something i really don't have a full or proper opinion on as of now. I think the idea
@@ -2061,13 +2080,6 @@
        (general-define-key
        "C-S-z" 'ace-window)
 
-       (general-define-key
-        :keymaps 'org-mode-map
-        :prefix "C-c s-a"
-        "n" 'anki-editor-insert-note
-        "r" 'anki-editor-retry-failure-notes
-        "s" 'anki-editor-push-notes)
-
        (which-key-add-key-based-replacements
          "C-c m" "magit"
          "C-c !" "flycheck"
@@ -2148,6 +2160,17 @@
 *** rust keybindings
     Basically, I just want less keystrokes to get to cargo commands. Pretty straight forward.
 
+    First I set the keystroke =M-SPC t= to nothing globally, otherwise the rust declaration becomes
+    global.
+
+    #+BEGIN_SRC emacs-lisp
+      (general-define-key
+       "M-SPC t" nil
+       )
+    #+END_SRC
+
+    now i provide my rust-mode local keybindings!
+
     #+BEGIN_SRC emacs-lisp
       (local-leader
         :keymaps 'rust-mode-map
@@ -2181,6 +2204,17 @@
 *** eww
     These keybindings just go with the custom function I pulled from sx and documented for [[eww][eww]]
     earlier.
+*** anki-editor
+    keybindings for quicker anki card editing
+
+    #+BEGIN_SRC emacs-lisp
+      (local-leader
+       :keymaps 'anki-editor-mode-map
+       "n" 'anki-editor-insert-note
+       "r" 'anki-editor-retry-failure-notes
+       "s" 'anki-editor-push-notes
+       "c" 'anki-editor-cloze-region)
+    #+END_SRC
 ** Languages
 *** General
 
