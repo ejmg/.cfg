@@ -29,17 +29,23 @@
 
 ;; Bootstrap `quelpa'
 (unless (package-installed-p 'quelpa)
+  (package-refresh-contents)
   (package-install 'quelpa))
+
+;; ;; Bootstrap `quelpa-use-package'
+;; (unless (package-installed-p 'quelpa-use-package)
+;;   (package-install 'quelpa-use-package))
 
 ;; Bootstrap `org-mode'
 (unless (package-installed-p 'org) ; unless it is already installed
   (package-install 'org))
 
 ;; TODO MAKE THESE THREE INTO A LIST COME ON
-(unless (package-installed-p 'cl) ; unless it is already installed
+(unless (package-installed-p 'cl-lib) ; unless it is already installed
   (package-refresh-contents) ; updage packages archive
-  (package-install 'cl))
+  (package-install 'cl-lib))
 
+(require 'cl-lib)
 (require 'cl)
 
 (org-babel-load-file "~/.emacs.d/config.org")
