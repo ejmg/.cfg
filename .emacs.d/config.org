@@ -955,6 +955,10 @@
        - could just make hook to run eshell command with my alias
      #+BEGIN_SRC emacs-lisp
        (require 'spotify)
+
+       (eval-after-load "spotify"
+         '(setq spotify-remote-mode-map (make-sparse-keymap)))
+
        (load "~/.emacs.d/.spotify-auth")
        (setq spotify-transport 'connect)
        (setq spotify-api-search-limit 20)
@@ -1872,6 +1876,16 @@
        ;; Interpret mIRC-style color commands in IRC chats
        (setq erc-interpret-mirc-color t)
      #+END_SRC
+**** matrix chat
+     matrix is popular these days as an alt to both irc and slack, so here's a nice package that
+     lets me run it with emacs. it's not on melpa, which is why quelpa is necessary for this one.
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package matrix-client
+         :quelpa (matrix-client :fetcher github :repo "alphapapa/matrix-client.el"
+                                :files (:defaults "logo.png" "matrix-client-standalone.el.sh")))
+     #+END_SRC
+
 **** sx mode
      =sx= is a really awesome mode that lets you search stackexchange via their API. It's essentially
      native support in emacs because of how the author implemented it, which is super nice.
@@ -1973,8 +1987,8 @@
     the mode, i.e. cargo commands for rust, etc. It feels a bit more natural than reaching for =F11=
     or =F12= constantly, and let's me reserve those for keys that won't typically change.
 
-    For global, I'm going to use =M-m=, which is going to be reserved for those things that don't
-    change often but I use everywhere.... I think.
+    For global, I'm going to use =s-m=, super + m key, which is going to be reserved for those things
+    that don't change often but I use everywhere.... I think.
     #+BEGIN_SRC emacs-lisp
 
       (global-unset-key (kbd "M-SPC"))
@@ -2017,6 +2031,7 @@
      #+END_SRC
 
 **** TODO ripgrep/searching utils
+     is this truly necessary when i have counsel-projectile-ag? i think so?
 **** TODO dired mode stuff
 **** TODO which-key helpers
 **** alarm
@@ -2110,19 +2125,22 @@
     These are bindings I always want available, so I define them as such.
 
     #+BEGIN_SRC emacs-lisp
-      ;;(global-set-key (kbd "<XF86Launch2>") 'org-agenda)
+            ;;(global-set-key (kbd "<XF86Launch2>") 'org-agenda)
 
-      (general-define-key
-       :prefix "<XF86Launch2>"
-       "a" 'org-agenda
-       "o" 'org-clock-out
-       "l" 'org-clock-in-last
-       "j" 'org-journal-new-entry
-       "c" 'org-clock-cancel
-       "p" 'org-pomodoro
-       "g" 'org-clock-goto)
+            (general-define-key
+             :prefix "<XF86Launch2>"
+             "a" 'org-agenda
+             "c" 'org-clock-cancel
+             "g" 'org-clock-goto
+             "j" 'org-journal-new-entry
+             "k" 'org-clock-cancel
+             "l" 'org-clock-in-last
+             "o" 'org-clock-out
+             "p" 'org-pomodoro
+             "r" 'org-resolve-clocks
+             "s" 'org-save-all-org-buffers)
 
-      (which-key-add-key-based-replacements "<XF86Launch2>" "agenda")
+            (which-key-add-key-based-replacements "<XF86Launch2>" "org mode")
     #+END_SRC
 
     Other keybindings I want only while in org-mode buffers but aren't bound by default.
@@ -2138,8 +2156,9 @@
     case for hydra mode, for example. I think some of the defaults are a bit too arbitrary for me vs
     what the author might have as their workflow.
     #+BEGIN_SRC emacs-lisp
-      (general-create-definer spotify-leader
-        :prefix "M-p")
+      ;; TODO make spotify config stuff more organized.
+      ;; (general-create-definer spotify-leader
+      ;;   :prefix "M-p")
 
       (defun spotify-disable-mode-line ()
         (interactive)
@@ -2151,19 +2170,26 @@
                (val (read-number prompt 60)))
           (setq spotify-mode-line-refresh-interval val)))
 
-      (spotify-leader
-       "c" 'spotify-remote-mode
-       "SPC" 'spotify-toggle-play
-      ;; "M-l r" 'spotify-refresh-mode-line
-       "M-l s" 'spotify-set-mode-line-refresh
-       "M-l d" 'spotify-disable-mode-line
-       "M-p s" 'spotify-playlist-select)
+      (launcher-map
+       "sc" 'spotify-remote-mode
+       "sd" 'spotify-device-select-mode
+       "s SPC p" 'spotify-toggle-play
+       "s SPC r" 'spotify-toggle-repeat
+       "s SPC s" 'spotify-toggle-shuffle
+       "smr" 'spotify-set-mode-line-refresh
+       "smd" 'spotify-disable-mode-line
+       "sp" 'spotify-playlist-select
+       )
+
+      (which-key-add-key-based-replacements "s-l s" "spotify")
+
     #+END_SRC
 *** TODO sx
     #+BEGIN_SRC emacs-lisp
       (launcher-map
-       "ss" 'sx-search
-       "st" 'sx-tab-all-questions)
+       "xs" 'sx-search
+       "xt" 'sx-tab-all-questions)
+       (which-key-add-key-based-replacements "s-l x" "sx")
     #+END_SRC
 *** rust keybindings
     Basically, I just want less keystrokes to get to cargo commands. Pretty straight forward.
