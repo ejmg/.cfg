@@ -427,23 +427,31 @@
        ;; 'challenger-deep
        (load-theme 'minimal-light t)
 
-       (with-eval-after-load "minimal-light-theme"
-         (setq lsp-ui-doc-border "black")
-         (custom-theme-set-faces
-          'minimal-light
-          '(region ((t (:foreground "gainsboro" :background "dim grey"))))
-          '(show-paren-match ((t (:background "gray30" :foreground "white" :weight extrabold))))
-          '(org-block-begin-line ((t (:foreground "gray70" :background "gray98"))))
-          '(org-block-end-line ((t (:foreground "gray70" :background "gray98"))))
-          '(tooltip ((t (:background "gray90" :height 0.95 :family "Fira Code"))))
-          '(italic ((t (:font "Fira Sans" :slant italic))))
-          '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
-          '(lsp-ui-sideline-current-symbol ((t (:foreground "DarkBlue"))))
-          '(lsp-ui-sideline-symbol ((t (:foreground "Black"))))
-          '(lsp-ui-doc-background ((t (:background "gray92"))))
-          '(aw-leading-char-face ((t (:background "white smoke" :foreground "red" :box (:line-width 1 :color "black") :height 2.5))))
-          '(table-cell ((t (:background "LightSteelBlue" :foreground "black"))))
-          '(fringe ((t (:background "gray100"))))))
+
+       ;; required to have custom-theme-set-faces work again: https://emacs.stackexchange.com/a/52804
+       (setq custom--inhibit-theme-enable nil)
+
+       (custom-theme-set-faces
+        'minimal-light
+        '(region ((t (:foreground "gainsboro" :background "dim grey"))))
+        '(show-paren-match ((t (:background "gray30" :foreground "white" :weight extrabold))))
+        '(org-block-begin-line ((t (:foreground "gray70" :background "gray98"))))
+        '(org-block-end-line ((t (:foreground "gray70" :background "gray98"))))
+        '(tooltip ((t (:background "gray90" :height 0.95 :family "Fira Code"))))
+        '(italic ((t (:font "Fira Sans" :slant italic))))
+        '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
+        '(lsp-ui-sideline-current-symbol ((t (:foreground "DarkBlue"))))
+        '(lsp-ui-sideline-symbol ((t (:foreground "Black"))))
+        '(lsp-ui-doc-background ((t (:background "gray92"))))
+        '(aw-leading-char-face ((t (:background "white smoke" :foreground "red" :box (:line-width 1 :color "black") :height 2.5))))
+        '(table-cell ((t (:background "LightSteelBlue" :foreground "black"))))
+        '(fringe ((t (:background "gray100"))))
+        '(lsp-ui-doc-border ((t (:border "black"))))
+        )
+       ;; (with-eval-after-load "minimal-theme"
+       ;;   (setq lsp-ui-doc-border "black")
+       ;;   )
+
        ;; (custom-theme-set-faces
        ;;  'gandalf
        ;;  '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
