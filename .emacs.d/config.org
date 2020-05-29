@@ -98,24 +98,26 @@
              (packages
               '(
                 ;; utilities
-                which-key ivy swiper counsel fill-column-indicator volatile-highlights
+                ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
                 smartparens ggtags expand-region ag neotree keychain-environment workgroups2 multiple-cursors
                 dimmer pdf-tools smooth-scrolling exec-path-from-shell unfill xterm-color
-                pandoc-mode lorem-ipsum quelpa-use-package sx alarm-clock 
-                ;; symon is causing issues, i think. no time to debug rn.
+                pandoc-mode lorem-ipsum quelpa-use-package sx alarm-clock symon
                 ;;bookmarks+ dired+ no longer on melpa, need to config from emacs wiki or their mirror on github
 
-                ;; TODO actually config this up so I have a more spacemacs-like navigation experience
-                general
+                ;; keybindings
+                general which-key
 
 
                 ;; auto-complete
                 company flycheck flycheck-tip hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
                 elisp-slime-nav company-math company-auctex company-anaconda company-tern
                 slime-company company-ycmd flycheck-rust enh-ruby-mode company-web
-                company-ghci flycheck-haskell company-statistics yasnippet-snippets lsp-mode lsp-ui company-lsp
-                dap-mode
+                company-ghci flycheck-haskell company-statistics yasnippet-snippets 
+
+
+                ;; lsp stuff
+                lsp-mode lsp-ui company-lsp dap-mode lsp-treemacs
 
                 ;; git
                 magit diff-hl
@@ -183,12 +185,10 @@
             (package-refresh-contents)
             (mapc 'package-install packages))))
     #+END_SRC
-**** TODO local packages
-     - TODO : not really convinced i am setting this correctly, like what is up with this nested let
-       statement.
-     
+**** local packages
+     setup the directory used for custom packages, i.e. stuff that isn't typically up on melpa but i
+     might find on github, the emacs wiki, or i might write myself
      #+BEGIN_SRC emacs-lisp
-       ;; don't look right!
        (let ((default-directory (concat (expand-file-name (concat user-emacs-directory "custom/")))))
          (normal-top-level-add-subdirs-to-load-path))
      #+END_SRC
@@ -199,6 +199,7 @@
      #+BEGIN_SRC emacs-lisp
        (use-package quelpa
          :ensure t)
+         ;; this lets me use quelpa as if its use-package
        (use-package quelpa-use-package
          :ensure t)
      #+END_SRC
