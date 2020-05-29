@@ -337,19 +337,22 @@
     #+END_SRC
 **** buffer, symon display
      Basically gives me system stats in my buffer when I'm not using it. Extremely cute and useful, tbh.
+
+     symon is causing bugs and no time to debug right now.
      #+BEGIN_SRC emacs-lisp
-       (use-package symon
-         :config
-         (progn  
-           (setq symon-refresh-rate 5 ;; Refresh less by 1 second
-                 symon-history-size 35 ;; keep history shorter by 15 observations to more quickly see patterns as they occur.
-                 ))
-         ;; Turning off by default, for now.
-         ;; I really like Symon mode, but I would like to figure out a way such that
-         ;; when the emacs daemon doesn't have a window open, it doesn't spam
-         ;; my journactl log with symon's output.
-         ;; (symon-mode)
-         )
+       ;; (use-package symon
+       ;;   :ensure t
+       ;;   :config
+       ;;   (progn  
+       ;;     (setq symon-refresh-rate 5 ;; Refresh less by 1 second
+       ;;           symon-history-size 35 ;; keep history shorter by 15 observations to more quickly see patterns as they occur.
+       ;;           ))
+       ;;   ;; Turning off by default, for now.
+       ;;   ;; I really like Symon mode, but I would like to figure out a way such that
+       ;;   ;; when the emacs daemon doesn't have a window open, it doesn't spam
+       ;;   ;; my journactl log with symon's output.
+       ;;   ;; (symon-mode)
+       ;;   )
      #+END_SRC
 **** frame-parameters
      So tooltip is messy and has given me a lot of headaches over the months. Here are some tweaks
@@ -935,16 +938,6 @@
       (require 'smartparens-config)
     #+END_SRC
 ** special modes
-**** quelpa/quelpa-use-package
-     These allow me to install emacs packages from non-traditional sources, i.e. git repos and
-     whatnot. It's a lot more powerful than that, but tbh i'll probably only ever use it for git
-     repos.
-     #+BEGIN_SRC emacs-lisp
-       (use-package quelpa
-         :ensure t)
-       (use-package quelpa-use-package
-         :ensure t)
-     #+END_SRC
 **** git/magit
 ***** diff-hl
       package by same person maintaining/behind company-mode, so you know it’s
