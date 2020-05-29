@@ -355,10 +355,13 @@
        ;;   )
      #+END_SRC
 **** frame-parameters
+     *now that i don't use emacs built with gtk, i'm disabling these for now and will remove/update
+     as necessary after trial run*
+
      So tooltip is messy and has given me a lot of headaches over the months. Here are some tweaks
      that make it work better after hours of agonizing procrastination and self-inflicted pain.
 
-     #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp :tangle no
        (setq tooltip-frame-parameters
              '((name . "tooltip")
                (internal-border-width . 2)
@@ -387,7 +390,7 @@
      #+END_SRC
 
      i don't think this has anything to do with it, but it's more of a basic precaution:
-     #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp :tangle no
        (setq x-max-tooltip-size '(260 . 140))
      #+END_SRC
 **** limit buffer name size in modeline
