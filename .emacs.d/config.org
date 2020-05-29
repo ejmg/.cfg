@@ -1046,6 +1046,12 @@
          (diminish 'auto-fill-mode)
          (diminish 'auto-fill-function)
          (setq org-latex-listings t)
+         ;; reminder you can always use luatex as an alt in case xetex is giving
+         ;; issues. i have found this to work with utf8 problems before.
+         (setq org-latex-compiler "xetex")
+         (setq org-latex-pdf-process '("xelatex -shell-escape %f"
+                                       "xelatex -shell-escape %f"
+                                       "xelatex -shell-escape %f"))
          (setq org-hide-emphasis-markers t)
          (prettify-symbols-mode 1)
          (set-fill-column 100))
@@ -1063,9 +1069,38 @@
                                     (clojure . t)
                                     ;; TODO figure out how to get rust. there's at least one solution out there: https://gitlab.com/ajyoon/ob-rust
                                     (js . t)))
+      #+END_SRC
 
+      now also enable jsx for codeblocks:
+      #+begin_src emacs-lisp
+        (add-to-list 'org-src-lang-modes (cons "jsx" 'js-jsx))
+      #+end_src
+                                    
+***** org-mode tex notes
 
-     #+END_SRC
+      Here's what org-latex-pdf-process is currently by default (idk if set by other mode or not, but
+      for preservation):
+      #+BEGIN_SRC emacs-lisp :tangle no
+        ("%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f")
+      #+END_SRC
+
+      Here's an attempt at a config that allows bibtex for future reference
+     
+      #+BEGIN_SRC emacs-lisp :tangle no
+        (setq org-latex-to-pdf-process (list "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode' -pdf -bibtex -f %f"))
+        (setq org-latex-pdf-process (list "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode' -pdf -bibtex -f %f"))
+        ;; alternatives? 
+        ;; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+        ;; (setq org-latex-to-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+      #+END_SRC
+
+      What is used in my org-minor-mode setup hook above. taken from [[https://github.com/kaushalmodi/.emacs.d/blob/42831e8997f7a3c90bf4bd37ae9f03c48277781d/setup-files/setup-org.el#L413-L584][here]].
+      #+BEGIN_SRC emacs-lisp :tangle no
+        (setq org-latex-pdf-process '("xelatex -shell-escape %f"
+                                      "xelatex -shell-escape %f"
+                                      "xelatex -shell-escape %f"))
+      #+END_SRC
+
 ***** org journal
       i use org-journal as a driver for my ~daily journal writing. nothing
       special about how i use it in-of-itself, given i now handle encryption
@@ -1949,22 +1984,7 @@
         (setq-default shr-inhibit-images t)   ; toggle with `I`
         (setq-default shr-use-fonts nil)      ; toggle with `F`
       #+END_SRC
-**** TODO tex
-     Here's what org-latex-pdf-process is currently by default (idk if set by other mode or not, but
-     for preservation):
-     #+BEGIN_SRC emacs-lisp :tangle no
-       ("%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f")
-     #+END_SRC
 
-     Here's an attempt at a config that allows bibtex
-     
-     #+BEGIN_SRC emacs-lisp
-       (setq org-latex-to-pdf-process (list "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode' -pdf -bibtex -f %f"))
-       (setq org-latex-pdf-process (list "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode' -pdf -bibtex -f %f"))
-       ;; alternatives? 
-       ;; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
-       ;; (setq org-latex-to-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
-     #+END_SRC
 **** anki mode
      anki mode doesn't come with its own keymap, so i define one to generate better keybindings
      using general mode.
@@ -2707,6 +2727,9 @@
       ;; (use-package auctex)
       (defun generic-tex-minor-modes ()
         (interactive)
+        ;; luatex works good for fancy utf8 stuff, i’ve used it when xetex couldn’t
+        ;; handle weird utf8 math symbols before, so keep that in mind.
+        (setq TeX-engine 'xetex)
         (company-mode 1)
         (auto-fill-mode 1))
 
