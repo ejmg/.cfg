@@ -805,7 +805,11 @@
        :ensure t
        :commands lsp)
 
-     (use-package lsp-ui :commands lsp-ui-mode)
+     (use-package lsp-ui :commands lsp-ui-mode
+       :config
+       (setq lsp-ui-doc-use-childframe nil)
+       )
+
      (use-package company-lsp :commands company-lsp
        :config
        ;; caching always good. less lag/compilation.
@@ -854,6 +858,9 @@
 
      ;; rust
      (add-to-list 'company-backends '(company-lsp :with company-yasnippet))
+
+     ;; elm
+     (add-to-list 'company-backends 'elm-company)
 
 
      ;; (eval-after-load "company"
@@ -2504,33 +2511,54 @@
     #+BEGIN_SRC emacs-lisp
 
       ;;js2 setup is taken from https://blog.jft.rocks/javascript/emacs-and-typescript.html
-      (use-package js2-mode
-        :ensure t
-        :init
-        (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
+      ;; NOTE not sure i want js2-mode anymore since jsx is supported by default
+      ;;      and web mode tends to be good enough
+      ;; (use-package js2-mode
+      ;;   :ensure t
+      ;;   :init
+      ;;   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
 
       (use-package web-mode
         :defer t
-        :mode ("\\.html\\'" "\\.css\\'" "\\.sass\\'" "\\.scss\\'")
+        :mode ("\\.html\\'" "\\.css\\'" "\\.sass\\'" "\\.scss\\'" "\\.tera\\'" "\\.js[x]?\\'")
         :init
         (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
         :config
         (defun my-web-mode-setup ()
           (interactive)
+          (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
           (company-mode)
+          (setq web-mode-enable-current-element-highlight t)
+          (setq web-mode-enable-current-column-highlight t)
           (smartparens-mode 0)
+          (setq web-mode-code-indent-offset 2)
           (electric-pair-mode 0)
+          (set-fill-column 120)
           (linum-mode 1)
-          ;; (web-mode-enable-current-column-highlight t)
-          ;; (emmet-mode)
-          )
+          (emmet-mode))
         (add-hook 'web-mode-hook 'my-web-mode-setup))
 
-      ;; Useful when I was doing python. not relevant right now.
+      ;; templating engines and what file extensions to associate them with
+      ;; update as necessary
       (setq web-mode-engines-alist
             '(("django" . "\\.tera\\'")))
-              ;; ("jinja" . "\\.djhtml\\'")))
+      ;; ("jinja" . "\\.djhtml\\'")))
+
+      (add-hook 'web-mode-hook 'tera-web-mode-auto-pairs)
+      (defun tera-web-mode-auto-pairs ()
+        (when (string= (file-name-extension buffer-file-name) "tera")
+          (setq web-mode-auto-pairs '(("{{ " . " }}")
+                                      ("{% " . " %}")
+                                      ("{%-" . " -%}")
+                                      ("{# " . " #}")
+                                      ("{#- " . " -#}")
+                                      ("<!-" . "- | -->")))))
     #+END_SRC
+
+    I believe this is for json formatting, which gets ran within JSON mode buffers...
+    #+begin_src emacs-lisp
+      (setq js-indent-level 2)
+    #+end_src
 **** typescript
      #+BEGIN_SRC emacs-lisp
        ;; Taken directly from the tide setup page. Don't know how good it is,
@@ -2572,6 +2600,15 @@
                  (lambda ()
                    (set-face-background 'mmm-default-submode-face nil)))
      #+END_SRC
+*** elm
+    setup is bare for now, just want to get going
+    #+begin_src emacs-lisp
+      (use-package elm-mode
+        :config
+        (defun elm-setup ()
+          (interactive)
+          (lsp)))
+    #+end_src
 *** TODO clojure
     #+BEGIN_SRC emacs-lisp
       ;; FROM BRAVECLOJURE
