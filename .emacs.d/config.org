@@ -102,7 +102,8 @@
                 golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
                 smartparens ggtags expand-region ag neotree keychain-environment workgroups2 multiple-cursors
                 dimmer pdf-tools smooth-scrolling exec-path-from-shell unfill xterm-color
-                pandoc-mode lorem-ipsum quelpa-use-package symon sx alarm-clock
+                pandoc-mode lorem-ipsum quelpa-use-package sx alarm-clock 
+                ;; symon is causing issues, i think. no time to debug rn.
                 ;;bookmarks+ dired+ no longer on melpa, need to config from emacs wiki or their mirror on github
 
                 ;; TODO actually config this up so I have a more spacemacs-like navigation experience
@@ -143,7 +144,7 @@
                 ;; TODO: actually set these up
                 ;; js
                 js-doc js2-mode js2-refactor json-mode json-snatcher web-beautify coffee-mode vue-mode
-                tide
+                tide nodejs-repl
 
                 ;; TODO: actually set these up to be used.
                 ;; webprogramming
@@ -153,11 +154,16 @@
                 ;; ruby
                 bundler chruby rbenv rspec-mode rubocop ruby-tools rvm rake
 
+                ;; elm
+                elm-mode
+
                 ;; tex
                 auctex auctex-latexmk typo cdlatex
 
                 ;; org
-                org-bullets org-pomodoro org-download htmlize org-journal secretaria org-download
+                org-bullets org-pomodoro org-download htmlize org-journal secretaria org-download toc-org
+                ;; not compiling correctly, investigate later
+                ;; org-plus-contrib
 
                 ;; themes
                 challenger-deep-theme exotica-theme seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme material-theme
