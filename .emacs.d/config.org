@@ -1023,8 +1023,7 @@
      generic settings/my initialization hook for org-mode.
 
      #+BEGIN_SRC emacs-lisp
-
-       (defun generic-org-minor-modes ()
+     (defun generic-org-minor-modes ()
          (interactive)
          (org-bullets-mode 1)
          ;; I don't really use cdlatex mode that much anymore, so i'm
@@ -1130,6 +1129,15 @@
         (use-package org-pomodoro
           :init
           (setq org-pomodoro-length 30)
+          (setq org-pomodoro-manual-break t)
+          (setq org-pomodoro-clock-break t)
+          (setq org-pomodoro-overtime-sound-p t)
+          ;; TODO find a way to set an interval alarm that sets of every X minutes after
+          ;; entering overtime to remind to clock into/take a break.
+          ;; (setq org-pomodoro-overtime-sound
+          ;;       (concat (expand-file-name
+          ;;                (concat user-emacs-directory
+          ;;                        "resources/freesound-org-338148__artordie__ding-REPEAT-4.wav"))))
           (setq org-pomodoro-ticking-sound-p t)
           (setq org-pomodoro-long-break-frequency 4))
       #+END_SRC
@@ -1139,7 +1147,7 @@
         ;; other symbols that might be of use idk:
         ;; ● ◼ ⁍ ◙ ◯ □ ◎ ◪ ▆ ▅ █ ⨀ ⨁ ⨂ ✱ ⏣ ⋙ ⃟
         ;; ✲ ✺ ✹ ✸ ✽ ✻ ✿ ➤ ➡ ➔ ✪ ✜ ✚ ✙ ▢ ⧐ ▷ ◆
-        (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤")))
+        (setq org-bullets-bullet-list (quote ("⬛" "⬤" "▣" "⦿" "►" "◼" "●" "➤" "□" "◯" "◆")))
         ;; (setq org-hide-emphasis-markers t)
       #+END_SRC
 
@@ -1186,6 +1194,8 @@
 ***** TODO modules
       #+BEGIN_SRC emacs-lisp
         (add-to-list 'org-modules 'org-habit)
+        (add-to-list 'org-modules 'org-tempo)
+        (require 'org-tempo)
         (require 'org-habit)
       #+END_SRC
 ***** GDT Methodology
@@ -1253,6 +1263,15 @@
                        (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 
        #+END_SRC
+
+       I don't want to see the history of TODO state changes. This gets especially egregious for
+       things like habits or things that generally repeat for long periods of time (once a week over
+       years, etc).
+
+       #+BEGIN_SRC emacs-lisp
+         (setq org-log-into-drawer t)
+       #+END_SRC
+
 
        I slightly tweak the default color settings for the faces of these
        states:
@@ -2179,7 +2198,7 @@
              "c" 'org-clock-cancel
              "g" 'org-clock-goto
              "j" 'org-journal-new-entry
-             "k" 'org-clock-cancel
+             "k" nil
              "l" 'org-clock-in-last
              "o" 'org-clock-out
              "p" 'org-pomodoro
