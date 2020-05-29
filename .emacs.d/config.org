@@ -2237,13 +2237,15 @@
 
       (launcher-map
        "sc" 'spotify-remote-mode
-       "sd" 'spotify-device-select-mode
-       "s SPC p" 'spotify-toggle-play
-       "s SPC r" 'spotify-toggle-repeat
-       "s SPC s" 'spotify-toggle-shuffle
+       "sd" 'spotify-select-device
+       "s SPC" 'spotify-toggle-play
+       "sr" 'spotify-toggle-repeat
+       "ss" 'spotify-toggle-shuffle
+       "sn" 'spotify-next-track
+       "sp" 'spotify-previous-track
        "smr" 'spotify-set-mode-line-refresh
        "smd" 'spotify-disable-mode-line
-       "sp" 'spotify-playlist-select
+       "sl" 'spotify-my-playlists
        )
 
       (which-key-add-key-based-replacements "s-l s" "spotify")
