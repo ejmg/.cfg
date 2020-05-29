@@ -444,6 +444,10 @@
 
        ;; i have one them i play with that isn't on melpa
        (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+
+       (use-package colorless-themes
+         :quelpa (colorless-themes :fetcher github :repo "lthms/colorless-themes.el"))
+
        (use-package kaolin-themes)
        (use-package minimal-theme)
        ;; for dark: seti, kaolin-aurora;
