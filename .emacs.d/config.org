@@ -117,7 +117,7 @@
 
 
                 ;; lsp stuff
-                lsp-mode lsp-ui company-lsp dap-mode lsp-treemacs
+                lsp-mode lsp-ui company-lsp dap-mode lsp-treemacs lsp-ivy
 
                 ;; git
                 magit diff-hl
@@ -337,23 +337,18 @@
                   '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
     #+END_SRC
 **** buffer, symon display
-     Basically gives me system stats in my buffer when I'm not using it. Extremely cute and useful, tbh.
-
-     symon is causing bugs and no time to debug right now.
-     #+BEGIN_SRC emacs-lisp
-       ;; (use-package symon
-       ;;   :ensure t
-       ;;   :config
-       ;;   (progn  
-       ;;     (setq symon-refresh-rate 5 ;; Refresh less by 1 second
-       ;;           symon-history-size 35 ;; keep history shorter by 15 observations to more quickly see patterns as they occur.
-       ;;           ))
-       ;;   ;; Turning off by default, for now.
-       ;;   ;; I really like Symon mode, but I would like to figure out a way such that
-       ;;   ;; when the emacs daemon doesn't have a window open, it doesn't spam
-       ;;   ;; my journactl log with symon's output.
-       ;;   ;; (symon-mode)
-       ;;   )
+     Basically gives me system stats in my buffer when I'm not using it. It's nice, but was causing
+     some weird issues at some point so I disabled tangling it for now.
+     #+BEGIN_SRC emacs-lisp :tangle no
+       (use-package symon
+         :ensure t
+         :config
+         (progn  
+           (setq symon-refresh-rate 5 ;; Refresh less by 1 second
+                 symon-history-size 35 ;; keep history shorter by 15 observations to more quickly see patterns as they occur.
+                 ))
+         (symon-mode)
+         )
      #+END_SRC
 **** frame-parameters
      *now that i don't use emacs built with gtk, i'm disabling these for now and will remove/update
@@ -415,7 +410,8 @@
      key bindings are left to the actual key binding section
 
      #+BEGIN_SRC emacs-lisp
-       (use-package general)
+       (use-package general
+         :ensure t)
 
        (use-package which-key
          :diminish ""
@@ -429,12 +425,23 @@
          (setq which-key-side-window-max-height .10))
      #+END_SRC
 **** fill-column, spaces, tabs, and unfilling paragraphs
+     I like my line wrapping, generally speaking, at around 80 characters. I change this for
+     different languages, but when in markup/markdown langs like org-mode I still prefer my lines
+     wrapping at around 80 chars.
+
+     unfill helps with making a set of lines that I select be formed into a proper paragraph that
+     wraps at the current fill-column value.
      #+BEGIN_SRC emacs-lisp
        (setq-default fill-column 79)
-       (setq-default indent-tabs-mode nil)
-       (setq-default default-tab-width 2)
        (use-package unfill)
      #+END_SRC
+
+
+     I generally don't use tabs and what them to be treated with a width of 2 when they do appear.
+     #+begin_src emacs-lisp
+       (setq-default indent-tabs-mode nil)
+       (setq-default default-tab-width 2)     
+     #+end_src
 **** theme, styling, and transparency
      #+BEGIN_SRC emacs-lisp
        ;; Set transparency of emacs
