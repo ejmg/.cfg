@@ -807,90 +807,128 @@
      #+END_SRC
 ** completion
 
-   #+BEGIN_SRC emacs-lisp
+   this section concerns primarily two modes: =lsp= and =company=. both have to do with autocomplete but
+   at different levels and overlap in the nature of their functionality but do so as complements.
 
-     (use-package lsp-mode
-       :ensure t
-       :commands lsp)
+   i also like using =yasnippet= for autocompletion of boilerplate-like snippets of code,
+   i.e. function declaration, a testing module in rust, etc.
 
-     (use-package lsp-ui :commands lsp-ui-mode
-       :config
-       (setq lsp-ui-doc-use-childframe nil)
-       )
+   finally, there are some other small sections in here to do with things like undo or syntax checking/linting.
 
-     (use-package company-lsp :commands company-lsp
-       :config
-       ;; caching always good. less lag/compilation.
-       (setq company-lsp-cache-candidates 'auto
-             ;; otherwise completion candidates come with arg params
-             ;; which is often more annoying than not, imho.
-             lsp-enable-snippet nil))
+*** =lsp=
+   
+    #+BEGIN_SRC emacs-lisp
+      (use-package lsp-mode
+        :ensure t
+        :hook ((rust-mode . lsp)
+               (web-mode . lsp)
+               (elm-mode . lsp)
+               (lsp-mode . lsp-enable-which-key-integration))
+        :commands lsp)     
 
-     (use-package yasnippet :diminish ""
-       :config
-       (diminish 'yas-minor-mode))
-     (yas-global-mode 1)
+      (use-package company-lsp :commands company-lsp
+        :config
+        ;; caching always good. less lag/compilation.
+        (setq company-lsp-cache-candidates 'auto
+              ;; otherwise completion candidates come with arg params
+              ;; which is often more annoying than not, imho.
+              lsp-enable-snippet nil))
+    #+END_SRC
+
+    lsp-ui helps give pretty popups with API/library information for whatever completion candidate I
+    may be looking at. I disable childrame because it felt laggy/stole focus iirc and am tentatively
+    trying out the ability to see my docs and peek at declarations.
+    #+begin_src emacs-lisp
+      (use-package lsp-ui :commands lsp-ui-mode
+        :ensure t
+        :config
+        (progn
+          (setq lsp-ui-peek-enable t
+                lsp-ui-doc-use-childframe nil
+                lsp-ui-doc-enable t
+                )))
+    #+end_src
+
+    lsp ivy allows me to use lsp to search symbols in an lsp workspace:
+    #+begin_src emacs-lisp
+      (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+    #+end_src
+
+    this lets me see a list of my errors using treemacs:
+    #+begin_src emacs-lisp
+      (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+    #+end_src
+
+*** =company=
+    
+    here is my initial company declaration. a lot is happening here.
+
+    #+begin_src emacs-lisp
+      (use-package company
+        :defer t
+        :diminish ""
+        :bind ("C-." . company-complete)
+        :init (add-hook 'prog-mode-hook 'company-mode)
+        :config
+        (progn
+          (setq company-idle-delay 0.1
+                company-minimum-prefix-length 2
+                company-selection-wrap-around t
+                company-dabbrev-minimum-length 3
+                company-dabbrev-time-limit 0.05
+                company-dabbrev-downcase nil
+                company-transformers '(company-sort-by-occurrence))
+          (bind-keys :map company-active-map
+                     ("C-n" . company-select-next)
+                     ("C-p" . company-select-previous)
+                     ("C-d" . company-show-doc-buffer)
+                     ("<tab>" . company-complete)))
+        (add-hook 'company-mode-hook 'company-statistics-mode))
+
+      (use-package company-web)
+
+      ;; haskell
+      (eval-after-load "company"
+        '(add-to-list 'company-backends 'company-ghci))
+
+      ;; python
+      (eval-after-load "company"
+        '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
+
+      ;; rust
+      (add-to-list 'company-backends '(company-lsp :with company-yasnippet))
+
+      ;; elm
+      (add-to-list 'company-backends 'elm-company)
 
 
-
-     (use-package company
-       :defer t
-       :diminish ""
-       :bind ("C-." . company-complete)
-       :init (add-hook 'prog-mode-hook 'company-mode)
-       :config
-       (progn
-         (setq company-idle-delay 0.1
-               company-minimum-prefix-length 2
-               company-selection-wrap-around t
-               company-dabbrev-minimum-length 3
-               company-dabbrev-time-limit 0.05
-               company-dabbrev-downcase nil
-               company-transformers '(company-sort-by-occurrence))
-         (bind-keys :map company-active-map
-                    ("C-n" . company-select-next)
-                    ("C-p" . company-select-previous)
-                    ("C-d" . company-show-doc-buffer)
-                    ("<tab>" . company-complete)))
-       (add-hook 'company-mode-hook 'company-statistics-mode))
-
-     (use-package company-web)
-
-     ;; haskell
-     (eval-after-load "company"
-       '(add-to-list 'company-backends 'company-ghci))
-
-     ;; python
-     (eval-after-load "company"
-       '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
-
-     ;; rust
-     (add-to-list 'company-backends '(company-lsp :with company-yasnippet))
-
-     ;; elm
-     (add-to-list 'company-backends 'elm-company)
+      ;; (eval-after-load "company"
+      ;;   '(add-to-list 'company-backends company-web-html))
 
 
-     ;; (eval-after-load "company"
-     ;;   '(add-to-list 'company-backends company-web-html))
+      ;; Add yasnippet support for all company backends
+      ;; https://github.com/syl20bnr/spacemacs/pull/179
+      ;; (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
 
+      ;; (defun company-mode/backend-with-yas (backend)
+      ;;   (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+      ;;       backend
+      ;; (append (if (consp backend) backend (list backend))
+      ;;         '(:with company-yasnippet))))
+      ;; (eval-after-load "company"
+      ;;   '(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
 
-     ;; Add yasnippet support for all company backends
-     ;; https://github.com/syl20bnr/spacemacs/pull/179
-     ;; (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
+      ;;(eval-after-load "company"
+      ;;'(add-to-list 'company-backends 'company-yasnippet))    
+    #+end_src
 
-     ;; (defun company-mode/backend-with-yas (backend)
-     ;;   (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-     ;;       backend
-     ;; (append (if (consp backend) backend (list backend))
-     ;;         '(:with company-yasnippet))))
-     ;; (eval-after-load "company"
-     ;;   '(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
-
-     ;;(eval-after-load "company"
-     ;;'(add-to-list 'company-backends 'company-yasnippet))
-
-   #+END_SRC
+*** yasnippet
+    #+begin_src emacs-lisp
+      (use-package yasnippet :diminish ""
+        :config
+        (diminish 'yas-minor-mode))
+      (yas-global-mode 1)
+    #+end_src
 
 *** ignore buffers with bad completion candidates
     I use dabbrev mode as a completion candidate with company mode. This means
