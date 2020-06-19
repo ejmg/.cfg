@@ -144,8 +144,7 @@
                 anaconda-mode pyenv-mode hy-mode pytest py-yapf ;; python-pytest
 
                 ;; TODO: actually set these up
-                ;; js
-                js-doc js2-mode js2-refactor json-mode json-snatcher web-beautify coffee-mode vue-mode
+                js-doc js2-mode js2-refactor rjsx-mode json-mode json-snatcher web-beautify coffee-mode vue-mode
                 tide nodejs-repl
 
                 ;; TODO: actually set these up to be used.
@@ -2619,7 +2618,8 @@
           (setq web-mode-enable-current-column-highlight t)
           (smartparens-mode 0)
           (setq web-mode-code-indent-offset 2)
-          (electric-pair-mode 0)
+          (electric-pair-mode)
+          (rjsx-minor-mode)
           (set-fill-column 120)
           (linum-mode 1)
           (emmet-mode))
