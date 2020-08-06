@@ -335,6 +335,20 @@
             (list (format "%s %%S: %%j " (system-name))
                   '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
     #+END_SRC
+**** garbage collection & read process throughput
+     emacs' default gc threshold is set an extraordinarily small value, like 80KB, which is great
+     in terms of performance relative to other text editors sans Vim; however, since we use [[lsp
+     mode]], to get performance on par with other IDE's like VSCode, we need to increase it a fair
+     amount. This is per the [[https://emacs-lsp.github.io/lsp-mode/page/performance/][LSP recommendations themselves]]:
+     #+BEGIN_SRC emacs-lisp
+     (setq gc-cons-threshold 150000000) ;; 150mb
+     #+end_src
+
+     for a similar reason, we need to increase the amount of data that emacs can read from a single
+     process. The default is at 4KB when we need somewhere between 800KB-3MB:
+     #+BEGIN_SRC emacs-lisp
+     (setq read-process-output-max (* 1024 1024)) ;; 1mb
+     #+end_src
 **** buffer, symon display
      Basically gives me system stats in my buffer when I'm not using it. It's nice, but was causing
      some weird issues at some point so I disabled tangling it for now.
@@ -860,7 +874,20 @@
 
 *** =company=
     
-    here is my initial company declaration. a lot is happening here.
+    company is the driver for most auto-complete functionality. it provides a common interface for
+    different backends to integrate with in order to offer completion candidates across different
+    languages, modes.
+
+    the settings i provide below do a few things, in order:
+    - associate which key to trigger completion on
+    - trigger company on all buffers considered a programming buffer
+    - set the delay for company to look for candidates at 0.1 seconds
+    - require a minimum of 2 characters before looking up candidates
+      + for dabbrev in particular, which looks across all buffers for a best-guess attempt, require
+        3 characters
+      + don't allow dabbrev to spend more than 0.05 seconds looking
+      + make dabbrev case sensitive
+    - sort the results by occurrence
 
     #+begin_src emacs-lisp
       (use-package company
@@ -881,8 +908,7 @@
                      ("C-n" . company-select-next)
                      ("C-p" . company-select-previous)
                      ("C-d" . company-show-doc-buffer)
-                     ("<tab>" . company-complete)))
-        (add-hook 'company-mode-hook 'company-statistics-mode))
+                     ("C-;" . company-complete))))
 
       (use-package company-web)
 
@@ -899,26 +925,14 @@
 
       ;; elm
       (add-to-list 'company-backends 'elm-company)
+    #+end_src
 
-
-      ;; (eval-after-load "company"
-      ;;   '(add-to-list 'company-backends company-web-html))
-
-
-      ;; Add yasnippet support for all company backends
-      ;; https://github.com/syl20bnr/spacemacs/pull/179
-      ;; (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
-
-      ;; (defun company-mode/backend-with-yas (backend)
-      ;;   (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-      ;;       backend
-      ;; (append (if (consp backend) backend (list backend))
-      ;;         '(:with company-yasnippet))))
-      ;; (eval-after-load "company"
-      ;;   '(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
-
-      ;;(eval-after-load "company"
-      ;;'(add-to-list 'company-backends 'company-yasnippet))    
+    company-statistics tries to help put more relevant candidates at the top of your company results
+    after some usage. the configuration is straightforward per [[https://github.com/company-mode/company-statistics][readme]]:
+    #+begin_src emacs-lisp
+      (use-package company-statistics
+        :ensure t)
+      (add-hook 'after-init-hook 'company-statistics-mode)
     #+end_src
 
 *** yasnippet
@@ -927,6 +941,24 @@
         :config
         (diminish 'yas-minor-mode))
       (yas-global-mode 1)
+    #+end_src
+
+    to get yasnippet to work with company mode, let's sure it is enabled for all modes that are
+    valid:
+    #+begin_src emacs-lisp
+      (defun mars/company-backend-with-yas (backends)
+            "Add :with company-yasnippet to company BACKENDS.
+      Taken from https://github.com/syl20bnr/spacemacs/pull/179."
+            (if (and (listp backends) (memq 'company-yasnippet backends))
+                backends
+              (append (if (consp backends)
+                          backends
+                        (list backends))
+                      '(:with company-yasnippet))))
+
+          ;; add yasnippet to all backends
+          (setq company-backends
+                (mapcar #'mars/company-backend-with-yas company-backends))
     #+end_src
 
 *** ignore buffers with bad completion candidates
