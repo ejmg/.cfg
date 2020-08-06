@@ -349,6 +349,29 @@
      #+BEGIN_SRC emacs-lisp
      (setq read-process-output-max (* 1024 1024)) ;; 1mb
      #+end_src
+**** truncate line fringe
+     by default, truncate lines will show a little arrow pointing right when a line is longer than
+     the visual line of the current frame. when i use fill-column-indicater mode (fci), which i do
+     for basically all programming buffers, this results in the entire right fringe being covered in
+     arrows whenever the frame is of a smaller width than the fill column i've set for that given
+     language. this tweak here simply removes the fringe indicater for line truncation because,
+     afaik, i've never needed emacs to warn me of a line truncation, at least when using the GUI
+     version.
+     #+begin_src emacs-lisp
+       (setq-default fringe-indicator-alist (assq-delete-all 'truncation fringe-indicator-alist))
+     #+end_src
+     the above tweak was taken from [[https://www.reddit.com/r/emacs/comments/2t16il/is_there_a_way_to_remove_the_truncated_lines/cnurpo4?utm_source=share&utm_medium=web2x][sergeinosov]]
+**** delete selection mode
+     if you C-a while in a text box on a browser like firefox and then type anything, whether the
+     character "f" or hit the backspace key, the whole selection of text is deleted. emacs, by
+     default, doesn't do this. instead, when a region is marked, it just appends the text and
+     deactivates the selection. in newish versions of emacs, though, you can enable the behavior you
+     typically expect via =delect-section-mode=. that's what we're doing here.
+
+     #+begin_src emacs-lisp
+       (delete-selection-mode 1)
+     #+end_src
+
 **** buffer, symon display
      Basically gives me system stats in my buffer when I'm not using it. It's nice, but was causing
      some weird issues at some point so I disabled tangling it for now.
