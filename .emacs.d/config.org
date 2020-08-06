@@ -125,6 +125,9 @@
                 ;; markdown
                 markdown-mode toml-mode yaml-mode
 
+                ;; lua
+                lua-mode
+
                 ;; c/cpp
                 clang-format cmake-mode
 
@@ -2697,11 +2700,21 @@
           (smartparens-mode 0)
           (setq web-mode-code-indent-offset 2)
           (electric-pair-mode)
-          (rjsx-minor-mode)
           (set-fill-column 120)
           (linum-mode 1)
           (emmet-mode))
         (add-hook 'web-mode-hook 'my-web-mode-setup))
+
+      (use-package rjsx-mode
+        :ensure t
+        :config
+        (setq js-jsx-indent-level 2)
+        ;; we enable rjsx like this because otherwise it gets activated
+        ;; for every file type specified in web-mode's :mode property below
+        (defun enable-rjsx-minor-mode ()
+          (when (string= (file-name-extension buffer-file-name) "js")
+            (rjsx-minor-mode 1)))
+        (add-hook 'web-mode-hook 'enable-rjsx-minor-mode))
 
       ;; templating engines and what file extensions to associate them with
       ;; update as necessary
