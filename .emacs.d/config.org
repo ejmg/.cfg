@@ -1177,11 +1177,30 @@
         (add-to-list 'org-src-lang-modes (cons "jsx" 'js-jsx))
       #+end_src
                                     
+***** org-html-export-to-html and fci mode fix
+      the way org-mode handles exporting blocks to html is to handle them via =(funcall lang-mode)=,
+      which triggers =fci-mode=. the fci indicators then get added into the exported html and cause
+      really weird looking and invalid unicode characters. 
+
+      this is the [[https://github.com/alpaker/Fill-Column-Indicator/issues/45#issuecomment-108911964][fix prescribed from the open issue on fci-mode's repo]]:
+      #+begin_src emacs-lisp
+        (defun fci-mode-override-advice (&rest args))
+        (advice-add 'org-html-fontify-code :around
+                    (lambda (fun &rest args)
+                      (advice-add 'fci-mode :override #'fci-mode-override-advice)
+                      (let ((result  (apply fun args)))
+                        (advice-remove 'fci-mode #'fci-mode-override-advice)
+                        result)))
+      #+end_src
+
+      an alternative solution was also cross-posted on to sx ([[https://emacs.stackexchange.com/a/44577][for future reference]]).
 ***** org-mode tex notes
 
       Here's what org-latex-pdf-process is currently by default (idk if set by other mode or not, but
       for preservation):
       #+BEGIN_SRC emacs-lisp :tangle no
+        ;; TODO: figure out if this will respect the default engine when set to xelatex or luatex
+        ;; TODO: then figure out if that behavior will hold when exported from org-mode for compilation
         ("%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f")
       #+END_SRC
 
@@ -1193,13 +1212,6 @@
         ;; alternatives? 
         ;; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
         ;; (setq org-latex-to-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
-      #+END_SRC
-
-      What is used in my org-minor-mode setup hook above. taken from [[https://github.com/kaushalmodi/.emacs.d/blob/42831e8997f7a3c90bf4bd37ae9f03c48277781d/setup-files/setup-org.el#L413-L584][here]].
-      #+BEGIN_SRC emacs-lisp :tangle no
-        (setq org-latex-pdf-process '("xelatex -shell-escape %f"
-                                      "xelatex -shell-escape %f"
-                                      "xelatex -shell-escape %f"))
       #+END_SRC
 
 ***** org journal
@@ -1339,6 +1351,13 @@
          ;;           'append)
        #+END_SRC
 
+****** Org exports
+       i use org-mode for tons of pdf stuff and so waiting a long time is not ideal. this should
+       theoretically make it async.
+       #+begin_src emacs-lisp
+       ;; TODO
+       ;; https://stackoverflow.com/a/23192928
+       #+end_src
 ****** Org Agenda
        Here are the files I will be using to sort and organize my tasks:
        #+BEGIN_SRC emacs-lisp
