@@ -389,8 +389,9 @@
          )
      #+END_SRC
 **** frame-parameters
-     *now that i don't use emacs built with gtk, i'm disabling these for now and will remove/update
-     as necessary after trial run*
+     *now that i don't use emacs built with gtk, i'm disabling these*. I am keeping them for future
+     reference, if anything, though. to anyone seeing this, if tooltip gives you dumb issues,
+     consider these tweaks.
 
      So tooltip is messy and has given me a lot of headaches over the months. Here are some tweaks
      that make it work better after hours of agonizing procrastination and self-inflicted pain.
@@ -853,7 +854,7 @@
 
    finally, there are some other small sections in here to do with things like undo or syntax checking/linting.
 
-*** =lsp=
+*** =lsp mode=
    
     #+BEGIN_SRC emacs-lisp
       (use-package lsp-mode
@@ -1125,51 +1126,52 @@
      generic settings/my initialization hook for org-mode.
 
      #+BEGIN_SRC emacs-lisp
-     (defun generic-org-minor-modes ()
-         (interactive)
-         (org-bullets-mode 1)
-         ;; I don't really use cdlatex mode that much anymore, so i'm
-         ;; disabling it for now. if i realize i miss it/incidentally used it before,
-         ;; i'll reenable it later. otherwise i'll delete this line entirely soon.
-         ;; (org-cdlatex-mode 1)
+       (defun generic-org-minor-modes ()
+           (interactive)
+           (org-bullets-mode 1)
+           (setq org-src-window-setup 'split-window-below)
+           ;; I don't really use cdlatex mode that much anymore, so i'm
+           ;; disabling it for now. if i realize i miss it/incidentally used it before,
+           ;; i'll reenable it later. otherwise i'll delete this line entirely soon.
+           ;; (org-cdlatex-mode 1)
 
-         ;; emojify mode results in top level, single *, headings to get replaced with literal solid black square
-         ;; emojy somehow and fucks with things in a very special way. until i can unfuck that, i'm disabling it.
-         ;; (emojify-mode 1)
+           ;; emojify mode results in top level, single *, headings to get replaced with literal solid black square
+           ;; emojy somehow and fucks with things in a very special way. until i can unfuck that, i'm disabling it.
+           ;; (emojify-mode 1)
 
-         ;; org-mode uses visual line mode, which makes sense for text editing.
-         ;; however, it means that if you ever look at an org-mode file without
-         ;; line-wrapping behavior, you can have huge long lines of text that is hard
-         ;; to read. i generally don't like that, so i enable auto-fill-mode to
-         ;; prevent it.
-         (auto-fill-mode 1)
-         ;; i don't need to know fill mode is going
-         (diminish 'auto-fill-mode)
-         (diminish 'auto-fill-function)
-         (setq org-latex-listings t)
-         ;; reminder you can always use luatex as an alt in case xetex is giving
-         ;; issues. i have found this to work with utf8 problems before.
-         (setq org-latex-compiler "xetex")
-         (setq org-latex-pdf-process '("xelatex -shell-escape %f"
-                                       "xelatex -shell-escape %f"
-                                       "xelatex -shell-escape %f"))
-         (setq org-hide-emphasis-markers t)
-         (prettify-symbols-mode 1)
-         (set-fill-column 100))
-       (add-hook 'org-mode-hook 'generic-org-minor-modes)
+           ;; org-mode uses visual line mode, which makes sense for text editing.
+           ;; however, it means that if you ever look at an org-mode file without
+           ;; line-wrapping behavior, you can have huge long lines of text that is hard
+           ;; to read. i generally don't like that, so i enable auto-fill-mode to
+           ;; prevent it.
+           (auto-fill-mode 1)
+           ;; i don't need to know fill mode is going
+           (diminish 'auto-fill-mode)
+           (diminish 'auto-fill-function)
+           (setq org-latex-listings t)
+           ;; reminder you can always use luatex as an alt in case xetex is giving
+           ;; issues. i have found this to work with utf8 problems before.
+           (setq org-latex-compiler "xetex")
+           (setq org-latex-pdf-process
+                 (list
+                  "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode' -pdf -f  %f"))
+           (setq org-hide-emphasis-markers t)
+           (prettify-symbols-mode 1)
+           (set-fill-column 100))
+         (add-hook 'org-mode-hook 'generic-org-minor-modes)
 
 
-       ;; enable org to evaluate the following PL code blocks with C-c C-c
-       ;; one of the many cool things you can use org-mode for!
-       (org-babel-do-load-languages
-        'org-babel-load-languages '((C . t)
-                                    (python . t)
-                                    (shell . t)
-                                    (haskell . t)
-                                    (emacs-lisp . t)
-                                    (clojure . t)
-                                    ;; TODO figure out how to get rust. there's at least one solution out there: https://gitlab.com/ajyoon/ob-rust
-                                    (js . t)))
+         ;; enable org to evaluate the following PL code blocks with C-c C-c
+         ;; one of the many cool things you can use org-mode for!
+         (org-babel-do-load-languages
+          'org-babel-load-languages '((C . t)
+                                      (python . t)
+                                      (shell . t)
+                                      (haskell . t)
+                                      (emacs-lisp . t)
+                                      (clojure . t)
+                                      ;; TODO figure out how to get rust. there's at least one solution out there: https://gitlab.com/ajyoon/ob-rust
+                                      (js . t)))
       #+END_SRC
 
       now also enable jsx for codeblocks:
