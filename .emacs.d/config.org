@@ -256,7 +256,9 @@
       (menu-bar-mode -1)
 
       ;; scrolling speed is bad, make it nicer
-      (smooth-scrolling-mode 1)
+      ;; NOTE: It appears smooth scrolling has a very perverse effect on
+      ;; erc mode by hogging up the cpu by a significant %. Disabling for now.
+      ;; (smooth-scrolling-mode 1)
       (setq mouse-wheel-progressive-speed nil)
 
       ;; UTF-8 is our friend in a world of shitty programming standards
