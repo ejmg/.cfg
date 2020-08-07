@@ -859,22 +859,27 @@
    finally, there are some other small sections in here to do with things like undo or syntax checking/linting.
 
 *** =lsp mode=
-   
+
+    lsp-mode (along with eglot) is the future of intelligent code completion with emacs. my current
+    configuration only has rust, elm, and web mode supported right now and, of those three, only
+    Rust has serious consideration.
+
+    other than that:
+    - i enable which-key integration because it's a useful utility to have setup for me.
+    - disable lsp from managing my autocomplete provider to better control that on a case-by-case
+      basis
     #+BEGIN_SRC emacs-lisp
       (use-package lsp-mode
         :hook ((rust-mode . lsp)
                (web-mode . lsp)
                (elm-mode . lsp)
+               ;; TODO: Figure out if either of these really are worth it
+               ;; (lua-mode . lsp)
+               ;; (python-mode . lsp)
                (lsp-mode . lsp-enable-which-key-integration))
-        :commands lsp)     
-
-      (use-package company-lsp :commands company-lsp
+        :commands lsp
         :config
-        ;; caching always good. less lag/compilation.
-        (setq company-lsp-cache-candidates 'auto
-              ;; otherwise completion candidates come with arg params
-              ;; which is often more annoying than not, imho.
-              lsp-enable-snippet nil))
+        (setq lsp-completion-provider :none))
     #+END_SRC
 
     lsp-ui helps give pretty popups with API/library information for whatever completion candidate I
@@ -893,6 +898,7 @@
 
     lsp ivy allows me to use lsp to search symbols in an lsp workspace:
     #+begin_src emacs-lisp
+    ;; TODO: Better configure this!
       (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
     #+end_src
 
@@ -902,31 +908,33 @@
     #+end_src
 
 *** =company=
-    
+
     company is the driver for most auto-complete functionality. it provides a common interface for
     different backends to integrate with in order to offer completion candidates across different
     languages, modes.
 
-    the settings i provide below do a few things, in order:
-    - associate which key to trigger completion on
+    the settings i provide below do a few things but all of which generally hope to improve
+    performance of company. in order:
     - trigger company on all buffers considered a programming buffer
     - set the delay for company to look for candidates at 0.1 seconds
     - require a minimum of 2 characters before looking up candidates
       + for dabbrev in particular, which looks across all buffers for a best-guess attempt, require
         3 characters
       + don't allow dabbrev to spend more than 0.05 seconds looking
-      + make dabbrev case sensitive
+      + don't let dabbrev modify casing of results found
     - sort the results by occurrence
 
+    finally, i also explicitly set the keybindings for company mode. note that i avoid using
+    =<tab>=. this is because is explicitly separates the behavior of indentation from a critical and
+    super common editor behavior.
     #+begin_src emacs-lisp
       (use-package company
         :defer t
         :diminish ""
-        :bind ("C-." . company-complete)
-        :init (add-hook 'prog-mode-hook 'company-mode)
+        :hook (prog-mode . company-mode)
         :config
         (progn
-          (setq company-idle-delay 0.1
+          (setq company-idle-delay 0.2
                 company-minimum-prefix-length 2
                 company-selection-wrap-around t
                 company-dabbrev-minimum-length 3
@@ -937,23 +945,15 @@
                      ("C-n" . company-select-next)
                      ("C-p" . company-select-previous)
                      ("C-d" . company-show-doc-buffer)
-                     ("C-;" . company-complete))))
+                     ("C-;" . company-complete)
+                     ("C-;" . company-other-backend))))
+    #+end_src
 
+    here are company back-ends i want to use for development:
+    #+begin_src emacs-lisp
       (use-package company-web)
-
-      ;; haskell
-      (eval-after-load "company"
-        '(add-to-list 'company-backends 'company-ghci))
-
-      ;; python
-      (eval-after-load "company"
-        '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
-
-      ;; rust
-      (add-to-list 'company-backends '(company-lsp :with company-yasnippet))
-
-      ;; elm
-      (add-to-list 'company-backends 'elm-company)
+      (use-package company-ghci)
+      (use-package company-anaconda)
     #+end_src
 
     company-statistics tries to help put more relevant candidates at the top of your company results
@@ -964,16 +964,24 @@
     #+end_src
 
 *** yasnippet
+
+    yasnippet provides snippets for programming languages that are generally templates or
+    boilerplate for common tasks.
     #+begin_src emacs-lisp
-      (use-package yasnippet :diminish ""
+      (use-package yasnippet
+        :diminish ""
         :config
+        (yas-global-mode 1)
+        ;; have to set this explicitly rather than use `:diminish` unfortunately, not sure why.
         (diminish 'yas-minor-mode))
-      (yas-global-mode 1)
     #+end_src
 
-    to get yasnippet to work with company mode, let's sure it is enabled for all modes that are
-    valid:
-    #+begin_src emacs-lisp
+
+    this is an old solution for enabling company-yasnippet for all backends. it's actually very overkill for
+    what i want out of yasnippet so *i do not export this*, but rather keep it here for future
+    reference. as you will see where i handle yasnippet with respect to completion, i typically add
+    it /only/ to `company-capf`.
+    #+begin_src :tangle no
       (defun mars/company-backend-with-yas (backends)
             "Add :with company-yasnippet to company BACKENDS.
       Taken from https://github.com/syl20bnr/spacemacs/pull/179."
