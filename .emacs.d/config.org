@@ -199,11 +199,9 @@
      whatnot. It's a lot more powerful than that, but tbh i'll probably only ever use it for git
      repos.
      #+BEGIN_SRC emacs-lisp
-       (use-package quelpa
-         :ensure t)
+       (use-package quelpa)
          ;; this lets me use quelpa as if its use-package
-       (use-package quelpa-use-package
-         :ensure t)
+       (use-package quelpa-use-package)
      #+END_SRC
 *** general settings
 
@@ -381,10 +379,9 @@
 
 **** buffer, symon display
      Basically gives me system stats in my buffer when I'm not using it. It's nice, but was causing
-     some weird issues at some point so I disabled tangling it for now.
+     some weird issues at some point so I disable tangling it as of now.
      #+BEGIN_SRC emacs-lisp :tangle no
        (use-package symon
-         :ensure t
          :config
          (progn  
            (setq symon-refresh-rate 5 ;; Refresh less by 1 second
@@ -454,8 +451,7 @@
      key bindings are left to the actual key binding section
 
      #+BEGIN_SRC emacs-lisp
-       (use-package general
-         :ensure t)
+       (use-package general)
 
        (use-package which-key
          :diminish ""
@@ -866,7 +862,6 @@
    
     #+BEGIN_SRC emacs-lisp
       (use-package lsp-mode
-        :ensure t
         :hook ((rust-mode . lsp)
                (web-mode . lsp)
                (elm-mode . lsp)
@@ -887,7 +882,7 @@
     trying out the ability to see my docs and peek at declarations.
     #+begin_src emacs-lisp
       (use-package lsp-ui :commands lsp-ui-mode
-        :ensure t
+        :hook (lsp-mode . lsp-ui-mode)
         :config
         (progn
           (setq lsp-ui-peek-enable t
@@ -964,8 +959,7 @@
     company-statistics tries to help put more relevant candidates at the top of your company results
     after some usage. the configuration is straightforward per [[https://github.com/company-mode/company-statistics][readme]]:
     #+begin_src emacs-lisp
-      (use-package company-statistics
-        :ensure t)
+      (use-package company-statistics)
       (add-hook 'after-init-hook 'company-statistics-mode)
     #+end_src
 
@@ -1233,7 +1227,6 @@
       existential ennui.
       #+BEGIN_SRC emacs-lisp
         (use-package org-journal
-          :ensure t
           :defer t
           :custom
           (org-journal-dir "~/org/journal/"))
@@ -2691,7 +2684,6 @@
       ;; NOTE not sure i want js2-mode anymore since jsx is supported by default
       ;;      and web mode tends to be good enough
       ;; (use-package js2-mode
-      ;;   :ensure t
       ;;   :init
       ;;   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
 
@@ -2716,7 +2708,6 @@
         (add-hook 'web-mode-hook 'my-web-mode-setup))
 
       (use-package rjsx-mode
-        :ensure t
         :config
         (setq js-jsx-indent-level 2)
         ;; we enable rjsx like this because otherwise it gets activated
@@ -2773,7 +2764,6 @@
        (add-hook 'typescript-mode-hook #'setup-tide-mode)
 
        (use-package tide
-         :ensure t
          :after (typescript-mode company flycheck)
          :hook ((typescript-mode . tide-setup)
                 (typescript-mode . tide-hl-identifier-mode)
@@ -2915,7 +2905,7 @@
      #+END_SRC
 *** java
     #+BEGIN_SRC emacs-lisp
-      (use-package lsp-java :ensure t :after lsp
+      (use-package lsp-java :after lsp
         :config (add-hook 'java-mode-hook 'lsp))
     #+END_SRC
 ** bug fixes
