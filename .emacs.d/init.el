@@ -27,6 +27,15 @@
   (package-refresh-contents) ; updage packages archive. should only have to do this one time.
   (package-install 'use-package)) ; and install the most recent version of use-package
 
+(eval-when-compile
+  (require 'use-package))
+(require 'diminish)
+(require 'bind-key)
+
+(require 'use-package-ensure)
+;; TODO: Remove unnecessary `:ensure t` in config.org
+(setq use-package-always-ensure t)
+
 ;; Bootstrap `quelpa'
 (unless (package-installed-p 'quelpa)
   (package-refresh-contents)

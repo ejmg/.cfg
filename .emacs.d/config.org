@@ -325,8 +325,10 @@
 
       ;; differentiate buffers with identical names
       (use-package uniquify
+        :ensure nil
         :config
         (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
+
 
       ;; use newer files rather than old compiled files, .elc
       (setq load-prefer-newer t)
@@ -669,18 +671,21 @@
          (toggle-truncate-lines 1))
 
        (use-package dired
+         :ensure nil
          :bind ("C-x C-j" . dired-jump)
          :config
          (progn
            (use-package dired-x
+             :ensure nil
              :init (setq-default dired-omit-files-p t)
              :config
              (add-to-list 'dired-omit-extensions ".DS_Store"))
            (customize-set-variable 'diredp-hide-details-initially-flag nil)
-           ;; (use-package dired+) no longer available via melpa
            (use-package dired-aux
-             :init (use-package dired-async))
-           (put 'dired-find-alternate-file 'disabled nil)
+           :ensure nil
+           :init (use-package dired-async :ensure nil))
+           ;; TODO: no clue what this is for anyway and it uses puts, probably should just delete
+           ;; (put 'dired-find-alternate-file 'disabled nil)
            (setq ls-lisp-dirs-first t
                  dired-recursive-copies 'always
                  dired-recursive-deletes 'always
@@ -2465,12 +2470,17 @@
         (linum-mode)
         (emojify-mode)
         (smartparens-mode)
-        ;;(yas-reload-all)
-        ;;(yas-minor-mode-on)
         (show-paren-mode))
 
       (add-hook 'prog-mode-hook 'things-all-prog-modes-should-do-dot-jay-peg)
     #+END_SRC
+
+    tentatively experimenting with hs mode, which lets you "fold" code:
+    #+begin_src emacs-lisp
+      (use-package hs-minor-mode
+        :ensure nil
+        :hook (rust-mode))
+    #+end_src
 *** Haskell
 
     #+BEGIN_SRC emacs-lisp
