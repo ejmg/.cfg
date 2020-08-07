@@ -2657,9 +2657,13 @@
       (define-key lisp-mode-shared-map (kbd "RET") 'reindent-then-newline-and-indent)
     #+END_SRC
 *** rust
+
+    settings for rust should largely be self explanatory. i first setup the minor mode for cargo,
+    which is useful for managing things like the compilation buffer.
     #+BEGIN_SRC emacs-lisp
       (use-package cargo
         :config
+        ;; TODO remove the unnecessary defun into a :hook after testing
         (defun enable-cargo-visual-line ()
           (interactive)
           (visual-line-mode 1))
@@ -2667,24 +2671,33 @@
           ;; this is the mode the buffer holding the output of cargo
           ;; commands takes.
         (add-hook 'cargo-process-mode-hook 'enable-cargo-visual-line))
+    #+END_SRC
 
+    to help increase performance and also manage the completions to my taste, i specifically set
+    aside what backends i want company to use locally for any rust buffers.
+    #+begin_src emacs-lisp
+      (defun rust-company-backends ()
+        (setq-local company-backends
+                    '((company-capf :with company-yasnippet company-keywords company-gtags)
+                      company-dabbrev-code
+                      company-files)))
+    #+end_src
+
+    finally, here are rust-mode's configs. i have a hook to make sure that flycheck sets up
+    correctly along with setting the company backends i just declared above. finally, i set minor
+    configurations that effect formatting and enable cargo-mode.
+    #+begin_src emacs-lisp
       (use-package rust-mode
         :defer t
+        :hook ((rust-mode . flycheck-rust-setup)
+               (rust-mode . rust-company-backends))
+        :init
+        (setq lsp-rust-clippy-preference "on")
         :config
-        (defun my-rust-setup ()
-          (interactive)
-          (lsp)
-          (cargo-minor-mode)
-          (hs-minor-mode)
-          (rust-enable-format-on-save)
-          (flycheck-mode)
-          ;; (cargo-process--command-flags "--color never")
-          (set-fill-column 100)
-          (flycheck-rust-setup))
-        (add-hook 'rust-mode-hook 'my-rust-setup))
-
-      (setq lsp-rust-clippy-preference "on")
-    #+END_SRC
+        (cargo-minor-mode)
+        (setq rust-format-on-save t)
+        (set-fill-column 100))
+    #+end_src
 *** TODO webprogramming
     #+BEGIN_SRC emacs-lisp
 
@@ -2787,14 +2800,18 @@
                    (set-face-background 'mmm-default-submode-face nil)))
      #+END_SRC
 *** elm
+    i need to set this up properly for elm as i have for rust mode with respect to lsp mode.
+    #+begin_src emacs-lisp
+    ;; TODO
+    ;; only valid when using elm-mode, should configure correctly as such
+    ;; (add-to-list 'company-backends 'elm-company)
+    #+end_src
+
     setup is bare for now, just want to get going
     #+begin_src emacs-lisp
-      (use-package elm-mode
-        :config
-        (defun elm-setup ()
-          (interactive)
-          (lsp)))
+      (use-package elm-mode)
     #+end_src
+
 *** TODO clojure
     #+BEGIN_SRC emacs-lisp
       ;; FROM BRAVECLOJURE
