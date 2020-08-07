@@ -191,7 +191,7 @@
      setup the directory used for custom packages, i.e. stuff that isn't typically up on melpa but i
      might find on github, the emacs wiki, or i might write myself
      #+BEGIN_SRC emacs-lisp
-       (let ((default-directory (concat (expand-file-name (concat user-emacs-directory "custom/")))))
+       (let ((default-directory (concat (expand-file-name (concat user-emacs-directory "site-lisp/")))))
          (normal-top-level-add-subdirs-to-load-path))
      #+END_SRC
 **** quelpa/quelpa-use-package
@@ -613,11 +613,15 @@
      #+END_SRC
 **** projectile
 
+     Projectile is a project management minor-mode that helps with basically all facets one
+     would expect for a software project. I don't have anything fancy for it yet, just enable it and
+     make the modeline symbol a little shorter.
      #+BEGIN_SRC emacs-lisp
        (use-package projectile
-         :diminish ""
          :init
-         (projectile-mode))
+         (projectile-mode)
+         :config
+         (setq projectile-mode-line-prefix " proj:"))
 
        (use-package counsel-projectile
          :hook projectile-mode)
@@ -1084,16 +1088,13 @@
 
      #+END_SRC
 **** TODO spotify
-     as of now spotify w/o async doesn't work too hot, so ontop of having to install it locally
-     under custom, i have to use the async branch until it updates.
 
-     i would use quelpa, but idk how to specify which branch to use and can't seem to find immediate
-     docs for that. For when that gets fixed, *TODO*:
-     - [ ] re-enable quelpa + use-package
-     - [ ] make shortcut to easily restart spotifyd when it hiccups
-       - could just make hook to run eshell command with my alias
+     a very clean and functional client for spotify that needs to still be configured for usage if i
+     want it. i use ncspotify for the most part now, but if the async support has improved then i'd
+     probably be convinced into switching as i could then run spotify using spotifyd >:)
      #+BEGIN_SRC emacs-lisp
-       (require 'spotify)
+       (use-package spotify
+         :load-path "~/.emacs.d/site-lisp/spotify.el")
 
        (eval-after-load "spotify"
          '(setq spotify-remote-mode-map (make-sparse-keymap)))
@@ -2104,13 +2105,6 @@
      #+BEGIN_SRC emacs-lisp
        (use-package sx)
      #+END_SRC
-**** vlc-rc
-     [[https://github.com/MoHKale/vlc-rc][vlc-rc]] is a nice mode that lets you control vlc when you
-     enable its remote control interface. run =vlc= and it'll give you a set of options + kick off a
-     vlc instance that it is correctly connected to.
-     #+BEGIN_SRC emacs-lisp
-       (require 'vlc-rc)
-     #+END_SRC
 **** eww
      So I've started to unironically use, and enjoy, emacs' built in web browser, =eww=. Websites that
      are heavily reliant on js won't work well with it, but the reality is i already avoid websites
@@ -2480,7 +2474,9 @@
     #+begin_src emacs-lisp
       (use-package hs-minor-mode
         :ensure nil
-        :hook (rust-mode))
+        :hook (rust-mode lua-mode)
+        :init
+        (diminish 'hs-minor-mode ""))
     #+end_src
 *** Haskell
 
@@ -2811,7 +2807,29 @@
     #+begin_src emacs-lisp
       (use-package elm-mode)
     #+end_src
+*** lua
 
+    here's an initial attempt at lua mode for emacs using the lsp-lua-emmy client for lsp mode.
+    #+begin_src emacs-lisp
+      (use-package lsp-lua-emmy
+        :demand
+        :ensure nil
+        :load-path "~/.emacs.d/site-lisp/lsp-lua-emmy"
+        :config
+        (setq lsp-lua-emmy-jar-path
+              (expand-file-name "EmmyLua-LS-all.jar"
+                                (concat default-directory "lsp-lua-emmy"))))
+
+      (defun lua-company-backends ()
+        (setq-local company-backends
+                    '((company-capf :with company-yasnippet company-keywords company-gtags)
+                      company-dabbrev-code
+                      company-files)))
+
+      (use-package lua-mode
+        :mode "\\.lua$"
+        :hook (lua-mode . lua-company-backends))
+    #+end_src
 *** TODO clojure
     #+BEGIN_SRC emacs-lisp
       ;; FROM BRAVECLOJURE
