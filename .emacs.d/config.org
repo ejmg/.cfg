@@ -2481,13 +2481,16 @@
 
     tentatively experimenting with hs mode, which lets you "fold" code:
     #+begin_src emacs-lisp
-      (use-package hs-minor-mode
-        :ensure nil
-        :hook (rust-mode lua-mode)
-        :init
-        (diminish 'hs-minor-mode ""))
+      (use-package hideshow
+        ;; :ensure nil
+        :diminish hs-minor-mode
+        :hook (rust-mode lua-mode))
     #+end_src
-*** Haskell
+*** TODO Haskell
+
+    like python, i need to revisit what is actually still relevant here anymore and cleanup when i
+    get the chance. i just haven't used haskell recently. unlike python, i actually miss learning
+    and playing with this language.
 
     #+BEGIN_SRC emacs-lisp
       (use-package haskell-mode
@@ -2536,10 +2539,12 @@
       #+END_SRC
 *** python
 
-    #+BEGIN_SRC emacs-lisp
+    I don't really actively develop on python that much anymore, so figuring out what i still need
+    in a configuration is something left to be done when i work on python again; alternatively, i
+    think i will remove most of the configuration with the exception of what is inside the
+    use-package declaration.
 
-      ;; bug fix for readline error
-      (with-eval-after-load 'python
+    #+BEGIN_SRC emacs-lisp
         (defun python-shell-completion-native-try ()
           "Return non-nil if can trigger native completion."
           (let ((python-shell-completion-native-enable t)
@@ -2547,12 +2552,23 @@
                  python-shell-completion-native-try-output-timeout))
             (python-shell-completion-native-get-completions
              (get-buffer-process (current-buffer))
-             nil "_"))))
+             nil "_")))
 
-      (with-eval-after-load 'python
-        (add-hook
-         'python-mode-hook (lambda ()
-                             (setq python-shell-interpreter "python3"))))
+      ;; bug fix for readline error
+      ;; (with-eval-after-load 'python
+      ;;   (defun python-shell-completion-native-try ()
+      ;;     "Return non-nil if can trigger native completion."
+      ;;     (let ((python-shell-completion-native-enable t)
+      ;;           (python-shell-completion-native-output-timeout
+      ;;            python-shell-completion-native-try-output-timeout))
+      ;;       (python-shell-completion-native-get-completions
+      ;;        (get-buffer-process (current-buffer))
+      ;;        nil "_"))))
+
+      ;; (with-eval-after-load 'python
+      ;;   (add-hook
+      ;;    'python-mode-hook (lambda ()
+      ;;                        (setq python-shell-interpreter "python3"))))
 
       ;; allows triple quote strings to automatically be paired by electrip-pair
       (defun python-electric-pair-string-delimiter ()
@@ -2564,35 +2580,41 @@
                      (= count 3)))
           (save-excursion (insert (make-string 3 last-command-event)))))
 
-      (add-hook 'python-mode-hook
-                (lambda ()
-                  (add-hook 'post-self-insert-hook
-                            #'python-electric-pair-string-delimiter 'append t)))
+      ;; TODO: Ensure moving the hook into the use-package declaration operates fine.
+      ;; (add-hook 'python-mode-hook
+      ;;           (lambda ()
+      ;;             (add-hook 'post-self-insert-hook
+      ;;                       #'python-electric-pair-string-delimiter 'append t)))
 
 
       (use-package python
         :defer t
+        :hook (python-mode . python-shell-completion-native-try)
         :config
         (setq-default py-indent-tabs-mode nil)
         (setq-default flycheck-python-flake8-executable "flake8")
         (setq python-indent-offset 4)
         (setq python-indent-guess-indent-offset nil)
         (setq pytest-cmd-flags "-x -s --color=yes")
-        (defun my-python-setup ()
-          (interactive)
-          (lsp)
-          (electric-pair-mode)
-          (anaconda-mode)
-          (anaconda-eldoc-mode)
-          (pyenv-mode)
-          ;; (py-yapf-enable-on-save) ;; turns out this causes problems when you are
-          ;; working collaboratively on code where everyone isn't yapf'ing their stuff.
-          )
-          (add-hook 'python-mode-hook 'my-python-setup))
+        (setq python-shell-interpreter "python3")
+        ;; (py-yapf-enable-on-save) ;; turns out this causes problems when you are
+        ;; working collaboratively on code where everyone isn't yapf'ing their stuff.
+        (electric-pair-mode t)
+        (anaconda-mode t)
+        (anaconda-eldoc-mode t)
+        (pyenv-mode t)
+        (add-hook 'python-mode-hook
+                  ;; TODO: Not sure if this has to be an anonymous function, but,
+                  ;;       then again, how else do I declare a post-self-insert-hook?
+                  (lambda ()
+                    (add-hook 'post-self-insert-hook
+                              #'python-electric-pair-string-delimiter 'append t))))
 
 
     #+END_SRC
 *** common-lisp
+    like emacs-lisp, these configs are old. not sure where i got them but they've worked well enough
+    to the extent i've used them and are simple enough that i don't feel inclined to delete them.
     #+BEGIN_SRC emacs-lisp
       (defun activate-slime-helper ()
         (when (file-exists-p "~/.quicklisp/slime-helper.el")
@@ -2618,6 +2640,11 @@
       (add-hook 'lisp-mode-hook #'my/helpful-lisp-modes)
     #+END_SRC
 *** emacs-lisp
+
+    these configurations are old: i don't know exactly where i got them from. that said, i use them
+    a lot and like how my emacs-lisp editing experiencing is thus far, so i don't see a need to fix
+    them any time soon lol
+
     #+BEGIN_SRC emacs-lisp
       (defun my/turn-on-paredit-and-eldoc ()
         (interactive)
@@ -2704,6 +2731,10 @@
         (set-fill-column 100))
     #+end_src
 *** TODO webprogramming
+    here lies the train wreck that is my webprogramming setup. i am currently refactoring my entire
+    emacs config but this is one i'm putting off until i figure out more what i need to have nice
+    react functionality on top of basic html/css editing.
+
     #+BEGIN_SRC emacs-lisp
 
       ;;js2 setup is taken from https://blog.jft.rocks/javascript/emacs-and-typescript.html
@@ -2817,7 +2848,6 @@
       (use-package elm-mode)
     #+end_src
 *** lua
-
     here's an initial attempt at lua mode for emacs using the lsp-lua-emmy client for lsp mode.
     #+begin_src emacs-lisp
       (use-package lsp-lua-emmy
