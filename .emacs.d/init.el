@@ -57,7 +57,14 @@
 (require 'cl-lib)
 (require 'cl)
 
+(let ((normal-gc-cons-threshold (* 150 1024 1024))
+      (init-gc-cons-threshold (* 250 1024 1024)))
+  (setq gc-cons-threshold init-gc-cons-threshold)
+  (add-hook 'emacs-startup-hook
+            (lambda () (setq gc-cons-threshold normal-gc-cons-threshold))))
+
 (org-babel-load-file "~/.emacs.d/config.org")
+(byte-compile-file (concat user-emacs-directory "config.el"))
 
 ;; Other way of doing this that I'm abandoning but don't want to forget.
 ;; It is possible to byte-compile your emacs configs which makes execution faster.
