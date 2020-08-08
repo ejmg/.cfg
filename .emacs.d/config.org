@@ -955,10 +955,19 @@
 
     here are company back-ends i want to use for development:
     #+begin_src emacs-lisp
+    ;; TODO: move any meaninful configs for these into here
       (use-package company-web)
       (use-package company-ghci)
       (use-package company-anaconda)
     #+end_src
+
+     the setup of company-c-headers for c++. super basic, haven't needed it extensively but alas
+     just in case it comes up again.
+     #+begin_src emacs-lisp
+       (use-package company-c-headers
+         :config
+         (setq company-c-headers-path-system "/usr/include/c++/10.1.0"))
+     #+end_src
 
     company-statistics tries to help put more relevant candidates at the top of your company results
     after some usage. the configuration is straightforward per [[https://github.com/company-mode/company-statistics][readme]]:
@@ -2918,38 +2927,45 @@
            (define-key clojure-mode-map (kbd "C-c u") 'cider-user-ns)
            (define-key cider-mode-map (kbd "C-c u") 'cider-user-ns)))
     #+END_SRC
-*** TODO latex-mode
+*** latex-mode
+    i primarily write/generate tex from org-mode, but here's a config that has been drastically
+    simplified from what i used to have. if writing tex becomes a more common chore of mine again, i
+    will revisit this section again.
     #+BEGIN_SRC emacs-lisp
-      ;; (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
-      ;; (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
-      ;;(use-package auctex)
       (use-package tex
-         :ensure auctex)
-      ;; (use-package auctex)
-      (defun generic-tex-minor-modes ()
-        (interactive)
-        ;; luatex works good for fancy utf8 stuff, i’ve used it when xetex couldn’t
-        ;; handle weird utf8 math symbols before, so keep that in mind.
-        (setq TeX-engine 'xetex)
-        (company-mode 1)
-        (auto-fill-mode 1))
-
-      (add-hook 'tex-mode-hook 'generic-tex-minor-modes)
-
+         :ensure auctex
+         :init
+         (setq TeX-engine 'xetex)
+         :config
+         (auto-fill-mode t))
     #+END_SRC
-*** TODO c/c++
+*** c/c++
 **** basic autocomplete
-     Following Tuh-Do's tutorial/guide for C++ with emacs:
-     #+BEGIN_SRC emacs-lisp
-       (use-package company-c-headers)
-       (add-to-list 'company-backends 'company-c-headers)
-       (add-to-list 'company-c-headers-path-system "/usr/include/c++/8.2.1/")
+     Originally inspired from Tuh-Do's tutorial/guide for C++ with emacs, but it was never much of a
+     setup.
 
+     the company backends i want to use to use for c++:
+     #+BEGIN_SRC emacs-lisp
+       (defun cpp-company-backends ()
+         (setq-local company-backends '((company-capf :with company-yasnippet
+                                                     company-c-headers
+                                                     company-keywords company-gtags)
+                             company-dabbrev-code
+                             company-files)))
      #+END_SRC
+     the setup of c++ mode proper
+     #+begin_src emacs-lisp
+       ;; TODO: Figure a way, if at all, to reconcile configurations for c vs c++
+       ;; given the behavior of cc and c-mode-common-hook
+       (use-package cc-mode
+          :hook (c-mode-common . cpp-company-backends))
+     #+end_src
+     
 *** java
+    toy setup for using lsp with java. if it weren't so simply, i would probably just delete it.
     #+BEGIN_SRC emacs-lisp
       (use-package lsp-java :after lsp
-        :config (add-hook 'java-mode-hook 'lsp))
+        :hook (java-mode . lsp))
     #+END_SRC
 ** bug fixes
 
