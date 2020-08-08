@@ -16,8 +16,14 @@
   ensures i can debug issues and problems when they occur, something i lost in
   the midst of spacemac’s complexity. ergo, the return of my =.emacs= file.
 
-  heavily inspired by [[https://github.com/larstvei/dot-emacs][Lar's]] and [[https://writequit.org/org/][Lee's]] dot-emacs files. I have learned a lot
-  about what and what not to do from them.
+  this emacs borrows code directly from and/or took inspiration from the following users:
+  - [[https://github.com/larstvei/dot-emacs][Lars]]
+  - [[https://writequit.org/org/][Lee]]
+  - [[https://github.com/purcell/emacs.d][Purcell]]
+
+
+  i have learned an incredible amount about what nice/clean elisp looks like from these user configs
+  and do a horrible job of reflecting that below.
 
 ** overview
 *** philosophy
@@ -89,7 +95,10 @@
      times and pre-loading things when we might never use them.
 
 ** the basics
-*** packages
+*** TODO packages
+    one single action on this section:
+    - [ ] remove all the shit i just don't need/use.
+      + defer to use-package declarations to do the work for me, if anything.
 
     the spice of emacs begins with packages:
 
@@ -113,7 +122,7 @@
                 company flycheck flycheck-tip hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
                 elisp-slime-nav company-math company-auctex company-anaconda company-tern
                 slime-company company-ycmd flycheck-rust enh-ruby-mode company-web
-                company-ghci flycheck-haskell company-statistics yasnippet-snippets 
+                company-ghci flycheck-haskell company-statistics yasnippet-snippets
 
 
                 ;; lsp stuff
@@ -346,7 +355,7 @@
      mode]], to get performance on par with other IDE's like VSCode, we need to increase it a fair
      amount. This is per the [[https://emacs-lsp.github.io/lsp-mode/page/performance/][LSP recommendations themselves]]:
      #+BEGIN_SRC emacs-lisp
-     (setq gc-cons-threshold 150000000) ;; 150mb
+     (setq gc-cons-threshold 150000000) ;; ~150mb
      #+end_src
 
      for a similar reason, we need to increase the amount of data that emacs can read from a single
@@ -383,7 +392,7 @@
      #+BEGIN_SRC emacs-lisp :tangle no
        (use-package symon
          :config
-         (progn  
+         (progn
            (setq symon-refresh-rate 5 ;; Refresh less by 1 second
                  symon-history-size 35 ;; keep history shorter by 15 observations to more quickly see patterns as they occur.
                  ))
@@ -480,7 +489,7 @@
      I generally don't use tabs and what them to be treated with a width of 2 when they do appear.
      #+begin_src emacs-lisp
        (setq-default indent-tabs-mode nil)
-       (setq-default default-tab-width 2)     
+       (setq-default default-tab-width 2)
      #+end_src
 **** theme, styling, and transparency
      #+BEGIN_SRC emacs-lisp
@@ -1198,11 +1207,11 @@
       #+begin_src emacs-lisp
         (add-to-list 'org-src-lang-modes (cons "jsx" 'js-jsx))
       #+end_src
-                                    
+
 ***** org-html-export-to-html and fci mode fix
       the way org-mode handles exporting blocks to html is to handle them via =(funcall lang-mode)=,
       which triggers =fci-mode=. the fci indicators then get added into the exported html and cause
-      really weird looking and invalid unicode characters. 
+      really weird looking and invalid unicode characters.
 
       this is the [[https://github.com/alpaker/Fill-Column-Indicator/issues/45#issuecomment-108911964][fix prescribed from the open issue on fci-mode's repo]]:
       #+begin_src emacs-lisp
@@ -1227,11 +1236,11 @@
       #+END_SRC
 
       Here's an attempt at a config that allows bibtex for future reference
-     
+
       #+BEGIN_SRC emacs-lisp :tangle no
         (setq org-latex-to-pdf-process (list "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode' -pdf -bibtex -f %f"))
         (setq org-latex-pdf-process (list "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode' -pdf -bibtex -f %f"))
-        ;; alternatives? 
+        ;; alternatives?
         ;; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
         ;; (setq org-latex-to-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
       #+END_SRC
@@ -2124,7 +2133,7 @@
       automatically. this makes refreshing annoying when on a bad connection, and i typically don't
       want the images anyway for what i use eww for.
 
-      This works beautifully, very thankful to [[https://emacs.stackexchange.com/a/38639][Glucas' solution]]! 
+      This works beautifully, very thankful to [[https://emacs.stackexchange.com/a/38639][Glucas' solution]]!
       #+BEGIN_SRC emacs-lisp
         (defun glucas/eww-toggle-images ()
           "Toggle whether images are loaded and reload the current page from cache."
@@ -2902,7 +2911,7 @@
        (use-package cc-mode
           :hook (c-mode-common . cpp-company-backends))
      #+end_src
-     
+
 *** java
     toy setup for using lsp with java. if it weren't so simply, i would probably just delete it.
     #+BEGIN_SRC emacs-lisp
@@ -2931,6 +2940,3 @@
      (add-hook 'company-completion-finished-hook 'company-maybe-turn-on-fci)
      (add-hook 'company-completion-cancelled-hook 'company-maybe-turn-on-fci)
    #+END_SRC
-
-
-
