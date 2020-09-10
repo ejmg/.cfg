@@ -1,0 +1,20 @@
+[user]
+	email = elias.jm.garcia@gmail.com
+	name = elias
+[core]
+	editor = emacsclient -t -a='nano'
+	pager = delta
+
+# all delta settings taken from the top of the README. Not customized other than theme.
+[delta]
+	features = side-by-side line-numbers decorations
+	whitespace-error-style = 22 reverse
+	syntax-theme = DarkNeon
+
+[delta "decorations"]
+	commit-decoration-style = bold yellow box ul
+	file-style = bold yellow ul
+	file-decoration-style = none
+
+[interactive]
+    diffFilter = delta --color-only
