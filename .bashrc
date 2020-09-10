@@ -2,6 +2,8 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+# set -x
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -10,10 +12,7 @@ esac
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-HISTCONTROL=ignoreboth
-
-# append to the history file, don't overwrite it
-shopt -s histappend
+# HISTCONTROL=ignoreboth
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
@@ -67,6 +66,7 @@ if [ "$color_prompt" = yes ]; then
     # PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$  '
 
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\] \n\n💀 ↛  '
+    # PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[01;31m\]\[\033[00m\] \n\n💀 ↛  '
 else
     # PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
@@ -126,6 +126,23 @@ if ! shopt -oq posix; then
   fi
 fi
 
+## BASH HISTORY
+## --------------
+##
+## Summary:
+## Give me the ability to grab history across sessions,
+## including new ones created after one session executes a command.
+## --------------
+
+# avoid duplicates..
+HISTCONTROL=ignoredups:erasedups
+
+# append history entries..
+shopt -s histappend
+
+# After each command, save and reload history
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
+
 ## PATH VARIABLE CONFIGURATIONS
 ## -----------------------------
 ##
@@ -165,6 +182,15 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH=~/bin:$PATH
 
 export PATH="/usr/racket/bin/:$PATH"
+
+# Lua and Luarocks path variables
+
+export LUA_PATH='/usr/share/lua/5.4/?.lua;/usr/share/lua/5.4/?/init.lua;/usr/lib/lua/5.4/?.lua;/usr/lib/lua/5.4/?/init.lua;./?.lua;./?/init.lua;/home/spook/.luarocks/share/lua/5.4/?.lua;/home/spook/.luarocks/share/lua/5.4/?/init.lua'
+export LUA_CPATH='/usr/lib/lua/5.4/?.so;/usr/lib/lua/5.4/loadall.so;./?.so;/home/spook/.luarocks/lib/lua/5.4/?.so'
+
+# Bridge and helm data
+
+export BRIDGE_HOME="$HOME/.local/share/bridge"
 
 # KEYCHAIN CONFIG
 
