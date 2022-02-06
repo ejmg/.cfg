@@ -800,17 +800,15 @@
     - disable lsp from managing my autocomplete provider to better control that on a case-by-case
       basis
     #+BEGIN_SRC emacs-lisp
-      (use-package lsp-mode
-        :hook ((rust-mode . lsp)
-               (web-mode . lsp)
-               (elm-mode . lsp)
-               ;; TODO: Figure out if either of these really are worth it
-               ;; (lua-mode . lsp)
-               ;; (python-mode . lsp)
-               (lsp-mode . lsp-enable-which-key-integration))
-        :commands lsp
-        :config
-        (setq lsp-completion-provider :none))
+      ;; TODO: make hook cleaner using the ((mode mode mode) . lsp) syntax
+        (use-package lsp-mode
+          :hook ((rust-mode . lsp)
+                 (web-mode . lsp)
+                 (tuareg-mode . lsp)
+                 (lsp-mode . lsp-enable-which-key-integration))
+          :commands lsp
+          :config
+          (setq lsp-completion-provider :none))
     #+END_SRC
 
     lsp-ui helps give pretty popups with API/library information for whatever completion candidate I
@@ -822,8 +820,11 @@
         :config
         (progn
           (setq lsp-ui-peek-enable t
-                lsp-ui-doc-use-childframe nil
+                lsp-ui-doc-use-childframe t
                 lsp-ui-doc-enable t
+                lsp-ui-doc-delay 0.5
+                lsp-ui-doc-use-webkit nil
+                lsp-ui-sideline-diagnostic-max-lines 3
                 )))
     #+end_src
 
@@ -833,8 +834,9 @@
       (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
     #+end_src
 
-    this lets me see a list of my errors using treemacs:
-    #+begin_src emacs-lisp
+    this lets me see a list of my errors using treemacs. treemacs might be the source of some weird
+    issues, so disabled for now.
+    #+begin_src emacs-lisp :tangle no
       (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
     #+end_src
 
@@ -862,22 +864,22 @@
       (use-package company
         :defer t
         :diminish ""
+        :bind (:map company-active-map
+                    ("C-n" . company-select-next)
+                    ("C-p" . company-select-previous)
+                    ("C-d" . company-show-doc-buffer)
+                    ("C-;" . company-complete)
+                    ("C-;" . company-other-backend))
         :hook (prog-mode . company-mode)
         :config
         (progn
           (setq company-idle-delay 0.2
-                company-minimum-prefix-length 2
+                company-minimum-prefix-length 1
                 company-selection-wrap-around t
                 company-dabbrev-minimum-length 3
                 company-dabbrev-time-limit 0.05
                 company-dabbrev-downcase nil
-                company-transformers '(company-sort-by-occurrence))
-          (bind-keys :map company-active-map
-                     ("C-n" . company-select-next)
-                     ("C-p" . company-select-previous)
-                     ("C-d" . company-show-doc-buffer)
-                     ("C-;" . company-complete)
-                     ("C-;" . company-other-backend))))
+                company-transformers '(company-sort-by-occurrence))))
     #+end_src
 
     here are company back-ends i want to use for development:
@@ -921,20 +923,27 @@
     what i want out of yasnippet so *i do not export this*, but rather keep it here for future
     reference. as you will see where i handle yasnippet with respect to completion, i typically add
     it /only/ to `company-capf`.
-    #+begin_src :tangle no
-      (defun mars/company-backend-with-yas (backends)
-            "Add :with company-yasnippet to company BACKENDS.
-      Taken from https://github.com/syl20bnr/spacemacs/pull/179."
-            (if (and (listp backends) (memq 'company-yasnippet backends))
-                backends
-              (append (if (consp backends)
-                          backends
-                        (list backends))
-                      '(:with company-yasnippet))))
+    #+begin_src emacs-lisp
+      (defun company-mode/backend-with-yas (backend)
+        (if (and (listp backend) (member 'company-yasnippet backend))
+            backend
+          (append (if (consp backend) backend (list backend))
+                  '(:with company-yasnippet))))
+      (setq-local company-backends
+            (mapcar #'company-mode/backend-with-yas company-backends))
+      ;; (defun mars/company-backend-with-yas (backends)
+      ;;   "Add :with company-yasnippet to company BACKENDS.
+      ;; Taken from https://github.com/syl20bnr/spacemacs/pull/179."
+      ;;   (if (and (listp backends) (memq 'company-yasnippet backends))
+      ;;       backends
+      ;;     (append (if (consp backends)
+      ;;                 backends
+      ;;               (list backends))
+      ;;             '(:with company-yasnippet))))
 
-          ;; add yasnippet to all backends
-          (setq company-backends
-                (mapcar #'mars/company-backend-with-yas company-backends))
+      ;;     ;; add yasnippet to all backends
+      ;;     (setq company-backends
+      ;;           (mapcar #'mars/company-backend-with-yas company-backends))
     #+end_src
 
 *** ignore buffers with bad completion candidates
@@ -2304,7 +2313,7 @@
       (use-package hideshow
         ;; :ensure nil
         :diminish hs-minor-mode
-        :hook (rust-mode lua-mode))
+        :hook (prog-mode . hs-minor-mode))
     #+end_src
 *** TODO Haskell
 
