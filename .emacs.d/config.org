@@ -2325,6 +2325,28 @@
         "en" 'flycheck-next-error
         )
     #+END_SRC
+*** ocaml keybindings
+    same story as rust bindings
+    #+begin_src emacs-lisp
+      (local-leader
+        :keymaps 'tuareg-mode-map
+        "b" '(:ignore b :which-key "build")
+        "b" #'(lambda () (interactive) (compile "dune build ."))
+        "o" 'tuareg-opam-update-env
+        ;; TODO? Do i actually use this? Delete?
+        "h" 'hs-toggle-hiding
+        "l" '(:ignore l :which-key "lsp")
+        "l." 'lsp
+        "lr" 'lsp-restart-workspace
+        "t" #'(lambda () (interactive) (compile "dune test ."))
+        "u" '(:ignore u :which-key "utop")
+        "uu" 'utop
+        "ur" 'utop-eval-region
+        "ub" 'utop-eval-buffer
+        "ur" 'utop-restart
+        "ui" 'utop-interrupt
+        "uk" 'utop-kill)
+    #+end_src
 *** eww
     These keybindings just go with the custom function I pulled from sx and documented for [[eww][eww]]
     earlier.
@@ -2432,6 +2454,20 @@
     think i will remove most of the configuration with the exception of what is inside the
     use-package declaration.
 
+    i use pyenv to manage python virtual environments. it Just Works and keeps things simple + makes
+    installing python versions trivial and separate from my system's setup.
+    #+begin_src emacs-lisp
+      (use-package pyenv-mode
+        :hook python-mode)
+    #+end_src
+
+    anaconda-mode is my favorite minor-mode for working with python and getting intelligent
+    completion that doesn't involve lsp and isn't as heavy as elpy:
+    #+begin_src emacs-lisp
+      (use-package anaconda-mode
+        :hook python-mode)
+    #+end_src
+
     #+BEGIN_SRC emacs-lisp
         (defun python-shell-completion-native-try ()
           "Return non-nil if can trigger native completion."
@@ -2477,7 +2513,7 @@
 
       (use-package python
         :defer t
-        :hook (python-mode . python-shell-completion-native-try)
+        ;; :hook ;; (python-mode . python-shell-completion-native-try)
         :config
         (setq-default py-indent-tabs-mode nil)
         (setq-default flycheck-python-flake8-executable "flake8")
@@ -2485,20 +2521,17 @@
         (setq python-indent-guess-indent-offset nil)
         (setq pytest-cmd-flags "-x -s --color=yes")
         (setq python-shell-interpreter "python3")
+        (setq anaconda-eldoc-mode t)
         ;; (py-yapf-enable-on-save) ;; turns out this causes problems when you are
         ;; working collaboratively on code where everyone isn't yapf'ing their stuff.
-        (electric-pair-mode t)
-        (anaconda-mode t)
-        (anaconda-eldoc-mode t)
-        (pyenv-mode t)
-        (add-hook 'python-mode-hook
-                  ;; TODO: Not sure if this has to be an anonymous function, but,
-                  ;;       then again, how else do I declare a post-self-insert-hook?
-                  (lambda ()
-                    (add-hook 'post-self-insert-hook
-                              #'python-electric-pair-string-delimiter 'append t))))
-
-
+        ;; (electric-pair-mode t)
+        ;; (add-hook 'python-mode-hook
+        ;;           ;; TODO: Not sure if this has to be an anonymous function, but,
+        ;;           ;;       then again, how else do I declare a post-self-insert-hook?
+        ;;           (lambda ()
+        ;;             (add-hook 'post-self-insert-hook
+        ;;                       #'python-electric-pair-string-delimiter 'append t)))
+        )
     #+END_SRC
 *** common-lisp
     like emacs-lisp, these configs are old. not sure where i got them but they've worked well enough
@@ -2598,9 +2631,9 @@
     #+begin_src emacs-lisp
       (defun rust-company-backends ()
         (setq-local company-backends
-                    '((company-capf :with company-yasnippet company-keywords company-gtags)
+                    (mapcar #'company-mode/backend-with-yas '((company-capf company-keywords company-gtags)
                       company-dabbrev-code
-                      company-files)))
+                      company-files))))
     #+end_src
 
     finally, here are rust-mode's configs. i have a hook to make sure that flycheck sets up
@@ -2610,13 +2643,14 @@
       (use-package rust-mode
         :defer t
         :hook ((rust-mode . flycheck-rust-setup)
-               (rust-mode . rust-company-backends))
+               (rust-mode . rust-company-backends)
+               (rust-mode . (lambda () (set-fill-column 100))))
         :init
         (setq lsp-rust-clippy-preference "on")
+        (setq lsp-rust-server 'rust-analyzer)
         :config
         (cargo-minor-mode)
-        (setq rust-format-on-save t)
-        (set-fill-column 100))
+        (setq rust-format-on-save t))
     #+end_src
 *** TODO webprogramming
     here lies the train wreck that is my webprogramming setup. i am currently refactoring my entire
@@ -2639,9 +2673,11 @@
           (setq web-mode-enable-current-column-highlight t)
           (smartparens-mode 0)
           (setq web-mode-code-indent-offset 2)
+          (setq web-mode-markup-indent-offset 2) ; this applies to jsx
           (electric-pair-mode)
           (set-fill-column 120)
           (linum-mode 1)
+          (setq web-mode-enable-auto-pairing t)
           (emmet-mode))
         (add-hook 'web-mode-hook 'my-web-mode-setup))
 
@@ -2659,11 +2695,12 @@
       ;; update as necessary
       (setq web-mode-engines-alist
             '(("django" . "\\.tera\\'")))
-      ;; ("jinja" . "\\.djhtml\\'")))
 
+      ;; TODO disable electric-pair-local for tera files
       (add-hook 'web-mode-hook 'tera-web-mode-auto-pairs)
       (defun tera-web-mode-auto-pairs ()
         (when (string= (file-name-extension buffer-file-name) "tera")
+          (electric-pair-local-mode)
           (setq web-mode-auto-pairs '(("{{ " . " }}")
                                       ("{% " . " %}")
                                       ("{%-" . " -%}")
@@ -2676,6 +2713,12 @@
     #+begin_src emacs-lisp
       (setq js-indent-level 2)
     #+end_src
+    rainbow mode allows me to actually see the colors of stylings when editing scss/sass with
+    web-mode:
+    #+begin_src emacs-lisp
+      (use-package rainbow-mode
+        :mode ("\\.scss\\'" "\\.sass\\'"))
+    #+end_src
 **** typescript
      #+BEGIN_SRC emacs-lisp
        ;; Taken directly from the tide setup page. Don't know how good it is,
@@ -2687,6 +2730,7 @@
          (flycheck-mode +1)
          (setq flycheck-check-syntax-automatically '(save mode-enabled))
          (eldoc-mode +1)
+         (setq typescript-indent-level 2)
          (tide-hl-identifier-mode +1)
          ;; company is an optional dependency. You have to
          ;; install it separately via package-install
@@ -2714,7 +2758,7 @@
     #+begin_src emacs-lisp
       (defun lua-company-backends ()
         (setq-local company-backends
-                    '((company-capf :with company-yasnippet company-keywords company-gtags)
+                    '((company-capf company-keywords company-gtags)
                       company-dabbrev-code
                       company-files)))
 
@@ -2735,6 +2779,15 @@
          (auto-fill-mode t))
     #+END_SRC
 *** c/c++
+**** ccls
+     here is a first attempt at getting ccls setup for emacs and lsp mode. will it work? to be
+     determined.
+     #+begin_src emacs-lisp
+       (use-package ccls
+         :hook ((c-mode c++-mode) . (lambda () (require 'ccls (lsp))))
+         :config
+         (setq ccls-executable "/usr/bin/ccls"))
+     #+end_src
 **** basic autocomplete
      Originally inspired from Tuh-Do's tutorial/guide for C++ with emacs, but it was never much of a
      setup.
@@ -2742,9 +2795,11 @@
      the company backends i want to use to use for c++:
      #+BEGIN_SRC emacs-lisp
        (defun cpp-company-backends ()
-         (setq-local company-backends '((company-capf :with company-yasnippet
-                                                     company-c-headers
-                                                     company-keywords company-gtags)
+         (setq-local company-backends '((company-capf 
+                                         ;; let's see how ccls works
+                                         ;; company-c-headers
+                                         company-keywords company-gtags
+                                         company-semantic :with company-yasnippet)
                              company-dabbrev-code
                              company-files)))
      #+END_SRC
@@ -2762,6 +2817,130 @@
       (use-package lsp-java :after lsp
         :hook (java-mode . lsp))
     #+END_SRC
+*** TODO ocaml
+
+    TODO: just switch to lsp, apparently the perf is as good if not better than merlin now.
+
+**** TODO user-setup
+     - [ ] delete this section
+       + [ ] get comfortable with lsp + tuareg + utop
+       + [ ] see about pulling out individual opam utility functions from =opam-user-setup.el= and
+         putting them somewhere else to keep.
+
+     a really nice library that sets up emacs to use ocaml with no effort via =opam install user-setup=
+     and following the instructions. *no longer using* because of performance of =lsp= being
+     on-par, if not /better/, than =merlin=. everything below was old config.
+    
+     provided by =opam user-install=. moved from init.el into here.
+
+     #+BEGIN_SRC emacs-lisp :tangle no
+       ;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
+       (require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
+       ;; ## end of OPAM user-setup addition for emacs / base ## keep this line
+     #+END_SRC
+
+     this file sources resources provided by =user-install=, which basically configures emacs as
+     required for ocaml dev that roughly aligns with how i would do it by hand. these files are all
+     found in =~/.opam/default/share/emacs/site-lisp/=.
+    
+**** merlin
+
+     auto-completion for ocaml before lsp. very good, but will probably be phased out. use for
+     utop-mode still, however.
+
+     #+begin_src emacs-lisp
+       (use-package merlin
+         :config
+         (setq merlin-command
+               (concat
+                (file-name-as-directory
+                 (substring (shell-command-to-string "opam var bin --switch=ocamlformat --safe") 0 -1))
+                "ocamlmerlin")))
+       (use-package merlin-company)
+     #+end_src
+
+**** ocamlformat
+
+     initially added for the cs3110 class, but i'm switching to ocamlformat and ocaml-lsp in general.
+
+     however, to help keep my version of ocamlformat isolated from all other packages and ocaml
+     installs, we use a designated switch for ocamlformat called, well, =ocamlformat=. that's what the
+     lambda in the use-package declaration is doing for us. this was originally taken from the
+     ocamlformat README itself, but it was seemingly removed. [[https://github.com/ocaml-ppx/ocamlformat/blob/31ce39658661ed0f8a9545071813e66f74e84798/doc/editor_setup.mld#L42-L70][you can still find it here]]. the end
+     result is we have =ocamlformat= set to work on any ocaml code we open because of
+     ='enable-outside-detected-project=, and we use an isolated version of ocamlformat in all
+     instances.
+    
+     #+begin_src emacs-lisp
+       (use-package ocamlformat
+         :load-path
+         (lambda ()
+           (concat
+                ;; Never use "/" or "\" since this is not portable (opam-user-setup does this though)
+                ;; Always use file-name-as-directory since this will append the correct separator if needed
+                ;; (or use a package that does it well like https://github.com/rejeep/f.el)
+                ;; This is the verbose and not package depending version:
+                (file-name-as-directory
+                 ;; Couldn't find an option to remove the newline so a substring is needed
+                 (substring (shell-command-to-string "opam var share --switch=ocamlformat --safe") 0 -1))
+                (file-name-as-directory "emacs")
+                (file-name-as-directory "site-lisp")))
+         :custom
+         (ocamlformat-enable 'enable-outside-detected-project)
+         (ocamlformat-command
+          (concat
+           (file-name-as-directory
+            (substring (shell-command-to-string "opam var bin --switch=ocamlformat --safe") 0 -1))
+           "ocamlformat"))
+         :hook (before-save . ocamlformat-before-save))
+     #+end_src
+
+**** utop
+     utop is the REPL used by most ocaml developers and it can be run inside of emacs.
+
+     #+begin_src emacs-lisp
+       (defun utop-company-backends ()
+          (setq-local company-backends
+                             (mapcar #'company-mode/backend-with-yas
+                                     '((company-capf company-keywords company-gtags)
+                                       company-dabbrev-code
+                                       company-files))))
+
+        (use-package utop
+          :hook ((tuareg-mode . utop-minor-mode)
+                 (utop-mode . merlin-mode)
+                 (utop-mode . company-mode))
+          :config
+          ;; run utop via dune to build and auto-load project modules.
+          (setq utop-command "opam config exec -- dune utop . -- -emacs")
+          (add-hook 'utop-mode-hook #'utop-company-backends))
+     #+end_src
+
+**** TODO dune
+     dune is the de-facto build tool of ocaml now with the exception of how the compiler itself is
+     managed.
+
+     #+begin_src emacs-lisp
+       (use-package dune)
+     #+end_src
+**** tuareg
+
+     tuareg is the mode used for editing ocaml along with popular ocaml DSL's like Menhir's =.mly= and
+     jsoo's =.eliom= files.
+
+     #+begin_src emacs-lisp
+       (defun ocaml-company-backends ()
+         (setq-local company-backends
+                     (mapcar #'company-mode/backend-with-yas
+                             '((company-capf company-keywords company-gtags)
+                               company-dabbrev-code
+                               company-files))))
+       (use-package tuareg
+         :config
+         (add-hook 'tuareg-mode-hook #'(lambda () (setq mode-name "🐫")))
+         (add-hook 'tuareg-mode-hook #'ocaml-company-backends))
+     #+end_src
+
 ** bug fixes
 
    it's not good code if it doesn't have bugs in it.
