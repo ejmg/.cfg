@@ -555,7 +555,7 @@
        (use-package counsel-projectile
          :hook projectile-mode)
 
-
+       (use-package projectile-ripgrep)
        ;; This defun assumes I am always switching python projects and that I
        ;; name my pyenvs after specific projects. It causes a lot of unecessary
        ;; error messages in my buffer for reasons listed above. Tweak or get rid of.
@@ -2032,6 +2032,31 @@
 
        (add-hook 'anki-editor-mode-hook 'anki-tweaks)
      #+END_SRC
+**** all the icons
+     there are packages (such as lsp mode and it's minor modes, treemacs, etc) that use fancy
+     icons. not having them installed leads to missing character boxes like you would expect for
+     utf8. might as well just install them. NOTE: must run =all-the-icons-install-fonts= for this to
+     actually go to use. 
+     #+begin_src emacs-lisp
+     ;; TODO probably should config to run `all-the-icons-install-fonts` as post install hook command
+       (use-package all-the-icons)
+     #+end_src
+**** treemacs
+     provides a nice project directory outline
+     #+begin_src emacs-lisp
+     (use-package treemacs)
+     #+end_src
+**** pomidor
+     a simple pomidoro mode that provides a nice graphical counter/tracker. while over complicating
+     things, i sometimes like to use it alongside org's clocking mechanism in place of org-pomidoro,
+     particularly when i'm doing something that isn't computer-focused, ie taking notes from a book
+
+     #+begin_src emacs-lisp
+       (use-package pomidor
+         :config
+         ; 35 minute pomidoro
+         (setq pomidor-seconds (* 60 35)))
+     #+end_src
 ** TODO keybindings
 
    So this is something i really don't have a full or proper opinion on as of now. I think the idea
