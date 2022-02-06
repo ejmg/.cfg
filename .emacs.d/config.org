@@ -109,24 +109,25 @@
                 ;; utilities
                 ivy swiper counsel fill-column-indicator volatile-highlights
                 golden-ratio undo-tree ace-window paredit projectile counsel-projectile diminish rainbow-delimiters
-                smartparens ggtags expand-region ag neotree keychain-environment workgroups2 multiple-cursors
-                dimmer pdf-tools smooth-scrolling exec-path-from-shell unfill xterm-color
-                pandoc-mode lorem-ipsum quelpa-use-package sx alarm-clock symon
-                ;;bookmarks+ dired+ no longer on melpa, need to config from emacs wiki or their mirror on github
+                smartparens ggtags expand-region keychain-environment workgroups2 multiple-cursors
+                dimmer smooth-scrolling exec-path-from-shell unfill xterm-color
+                pandoc-mode lorem-ipsum quelpa-use-package alarm-clock
 
                 ;; keybindings
                 general which-key
 
 
                 ;; auto-complete
-                company flycheck flycheck-tip hippie-exp yasnippet auto-yasnippet flycheck-irony company-c-headers
-                elisp-slime-nav company-math company-auctex company-anaconda company-tern
-                slime-company company-ycmd flycheck-rust enh-ruby-mode company-web
+                company flycheck flycheck-tip yasnippet auto-yasnippet flycheck-irony company-c-headers
+                elisp-slime-nav company-math company-auctex company-anaconda
+                slime-company company-ycmd flycheck-rust company-web
                 company-ghci flycheck-haskell company-statistics yasnippet-snippets
 
 
                 ;; lsp stuff
-                lsp-mode lsp-ui company-lsp dap-mode lsp-treemacs lsp-ivy
+                ;; removed dap-mode for debugging over modeline and tooltip
+                ;; same goes for lsp-treemacs
+                lsp-mode lsp-ui lsp-ivy
 
                 ;; git
                 magit diff-hl
@@ -163,10 +164,6 @@
                 ;; webprogramming
                 haml-mode sass-mode scss-mode slim-mode web-mode less-css-mode pug-mode emmet-mode
 
-                ;; TODO: SETUP
-                ;; ruby
-                bundler chruby rbenv rspec-mode rubocop ruby-tools rvm rake
-
                 ;; elm
                 elm-mode
 
@@ -175,19 +172,13 @@
 
                 ;; org
                 org-bullets org-pomodoro org-download htmlize org-journal secretaria org-download toc-org
-                ;; not compiling correctly, investigate later
-                ;; org-plus-contrib
 
                 ;; themes
-                challenger-deep-theme exotica-theme seti-theme gandalf-theme cyberpunk-theme dark-mint-theme dracula-theme material-theme
-                kaolin-themes minimal-theme smart-mode-line-powerline-theme
+                challenger-deep-theme seti-theme gandalf-theme cyberpunk-theme dark-mint-theme
+                kaolin-themes minimal-theme smart-mode-line smart-mode-line-powerline-theme
 
                 ;; other
-                writeroom-mode minimap gnuplot csv-mode mips-mode smart-mode-line fireplace anki-editor emojify wolfram
-                define-word
-
-                ;; google
-                google-this google-translate
+                writeroom-mode minimap gnuplot csv-mode fireplace anki-editor emojify define-word
 
                 )))
         (let ((packages (remove-if 'package-installed-p packages)))
