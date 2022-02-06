@@ -1055,6 +1055,8 @@
            (diminish 'auto-fill-mode)
            (diminish 'auto-fill-function)
            (setq org-latex-listings t)
+           ;; allow body text to indent to its headline's level via <tab>
+           (setq org-adapt-indentation t)
            ;; reminder you can always use luatex as an alt in case xetex is giving
            ;; issues. i have found this to work with utf8 problems before.
            (setq org-latex-compiler "xetex")
@@ -1076,6 +1078,7 @@
                                       (haskell . t)
                                       (emacs-lisp . t)
                                       (clojure . t)
+                                      (ocaml . t)
                                       ;; TODO figure out how to get rust. there's at least one solution out there: https://gitlab.com/ajyoon/ob-rust
                                       (js . t)))
       #+END_SRC
@@ -1149,7 +1152,8 @@
       #+BEGIN_SRC emacs-lisp
         (use-package org-pomodoro
           :init
-          (setq org-pomodoro-length 30)
+          (setq org-pomodoro-length 35) ;; i need more time to get into a groove
+          (setq org-pomodoro-long-break-frequency 3) ;; 4 is too long imo
           (setq org-pomodoro-manual-break t)
           (setq org-pomodoro-clock-break t)
           (setq org-pomodoro-overtime-sound-p t)
@@ -1159,8 +1163,7 @@
           ;;       (concat (expand-file-name
           ;;                (concat user-emacs-directory
           ;;                        "resources/freesound-org-338148__artordie__ding-REPEAT-4.wav"))))
-          (setq org-pomodoro-ticking-sound-p t)
-          (setq org-pomodoro-long-break-frequency 4))
+          (setq org-pomodoro-ticking-sound-p t))
       #+END_SRC
 ***** misc settings
       org bullets is a minor mode that lets you have pretty header symbols.
@@ -1269,7 +1272,8 @@
        Here are the files I will be using to sort and organize my tasks:
        #+BEGIN_SRC emacs-lisp
          (setq org-agenda-files '("~/org/inbox.org"
-                                  "~/org/tasks.org"))
+                                  "~/org/tasks.org"
+                                  "~/org/sc.org"))
        #+END_SRC
 
        You can also tell Org mode your lat/long to get sunrise/sunset times to
@@ -1382,6 +1386,7 @@
          ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
          (setq org-refile-targets '(("~/org/tasks.org" :maxlevel . 9)
                                     ("~/org/later.org" :maxlevel . 9)
+                                    ("~/org/sc.org" :maxlevel . 9)
                                     ("~/org/reference.org" :maxlevel . 9)
                                     ("~/org/anki/anki.org" :maxlevel . 9)
                                     ))
@@ -1748,9 +1753,10 @@
        #+END_SRC
 ****** TODO clock
        Sometimes I like having the total time shown be only for the current
-       session of a task. When I want that, set this to ='current=.
+       session of a task. When I want that, set this to ='current=. When i want only for today, that's
+       ='today=. for total time, ='auto= or ='all= works.
        #+BEGIN_SRC emacs-lisp
-         (setq org-clock-mode-line-total 'auto)
+         (setq org-clock-mode-line-total 'today)
        #+END_SRC
 
        #+BEGIN_SRC emacs-lisp
@@ -1875,15 +1881,13 @@
          (add-hook 'org-clock-out-hook 'bh/clock-out-maybe 'append)
        #+END_SRC
 ****** Displaying the clock
-       I want to be able to see my clocked time in as many places as
-       possible. This makes sure I see it both in the mode-line and the frame
-       title. I have it this way because if the frame/window is small enough,
-       the clock in the mode-line will be cut off, with emacs preferring to
-       display major-mode and minor-mode information instead. Until I fix that
-       behavior, this provides a good compromise:
+       where to display the clocked time for the current work item. i can do =both= to have it on both
+       frame and mode-line, or one of =mode-line= and =frame-title=. the problem with setting it to
+       =frame-title= is that it seems to steal focus from my window manager which makes tabbing
+       through applications confusing when it changes every minute.
 
        #+BEGIN_SRC emacs-lisp
-         (setq org-clock-clocked-in-display 'both)
+         (setq org-clock-clocked-in-display 'mode-line)
        #+END_SRC
 ****** reminders of tasks
        Secretaria is a minor mode that will remind you of things currently
