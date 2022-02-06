@@ -206,28 +206,22 @@
 *** general settings
 
     things that don't seem to go anywhere because of their generality or edge-case nature:
-**** FONTS
+**** Fonts
 
-     I have given up on ligatures for now in GUI emacs. It's just too
-     painful/work to maintain, and even then I never got it working at a level
-     of consistency that made it satisfactory. For now, I just default to Fira
-     Code but don't do anything to enable ligatures.
+     someone put together an emacs package mode that seems to make fira code actually play nicely
+     and without requiring tons of messing around (i've lost literal days to this lol).
 
      #+BEGIN_SRC emacs-lisp
-       ;; experiment to fix tooltip font errors
+       (use-package fira-code-mode
+         :hook prog-mode
+         :config
+         (setq fira-code-mode-disabled-ligatures '("x")))
+     #+end_src
 
-       ;; emacs typically comes built with GTK support, and will default
-       ;; to using the tooltips of GTK. However, this doesn't play nicely
-       ;; when it comes to any kind of customizations because GTK has control
-       ;; over the tooltips, not emacs. Swerve.
-       (setq x-gtk-use-system-tooltips nil)
+     #+BEGIN_SRC emacs-lisp
+       ;; using gccemacs built with gtk, doesn't give me issues apparently so i'm re-using it
+       (setq x-gtk-use-system-tooltips t)
 
-       ;; (set-frame-font "Fira Code") ;;; set default font
-       ;; (setq default-frame-alist '((font . "Fira Code-10"))) ;; set it for the daemon itself
-
-
-       (setq default-frame-alist '((font . "-CTDB-Fira Code-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1")))
-       ;; set it for the daemon itself
      #+END_SRC
 
 **** system defaults
