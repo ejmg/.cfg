@@ -731,11 +731,9 @@
        This makes sure it sets up as expected. It should run once and then
        never be an issue again.
        #+BEGIN_SRC emacs-lisp
-         (use-package pdf-tools)
-
-         ;; throws error about not being a thing
-         ;; (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
-         (pdf-loader-install)
+         (use-package pdf-tools
+           :config
+           (pdf-tools-install :noquery))
        #+END_SRC
 ***** Searching PDFs.
       So searching a PDF with =swiper=, which is my default search fn bound to
@@ -1017,57 +1015,7 @@
           (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
           (add-hook 'prog-mode-hook 'diff-hl-margin-mode))
       #+END_SRC
-**** TODO bookmarks
-     i want to start using these, but am not sure where to get started with them.
 
-     =bookmark+= is only hosted on the emacswiki and its github mirror ran by Jonas Bernoulli, so I
-     gotta clone it first and require it. I should use quelpa or something to better handle this.
-     #+BEGIN_SRC emacs-lisp
-
-     #+END_SRC
-**** TODO spotify
-
-     a very clean and functional client for spotify that needs to still be configured for usage if i
-     want it. i use ncspotify for the most part now, but if the async support has improved then i'd
-     probably be convinced into switching as i could then run spotify using spotifyd >:)
-     #+BEGIN_SRC emacs-lisp
-       (use-package spotify
-         :load-path "~/.emacs.d/site-lisp/spotify.el")
-
-       (eval-after-load "spotify"
-         '(setq spotify-remote-mode-map (make-sparse-keymap)))
-
-       (load "~/.emacs.d/.spotify-auth")
-       (setq spotify-transport 'connect)
-       (setq spotify-api-search-limit 20)
-       (setq spotify-mode-line-truncate-length 10)
-       ;; How often it basically runs a blocking
-       ;; query for all of my ****ing emacs daemon
-       ;; just to update the song title in modeline.
-       ;; Default is once a second. Try that on a low
-       ;; bandwidth connection and see how productive
-       ;; you can be.
-       (setq spotify-mode-line-refresh-interval 60)
-       (setq spotify-mode-line-format "[%p: %a - %t|%r%s]")
-
-       ;; (use-package spotify
-       ;;   ;; For now, need async branch and it appears that this isn't being picked
-       ;;   ;; up by quelpa??
-       ;;   :quelpa (spotify
-       ;;            :fetcher github
-       ;;            :repo "danielfm/spotify.el")
-       ;;   :config
-       ;;   ;; my config secrets
-       ;;   (load "~/.emacs.d/.spotify-auth")
-       ;;   ;; ability to use/control other devices running my spotify via emacs 🤓
-       ;;   (setq spotify-transport 'connect)
-       ;;   ;; bit plus of this mode is i can run the spotifyd on my linux
-       ;;   ;; machine and use <10kb of memory and virtually ~0% cpu, so
-       ;;   ;; clogging my emacs instance with huge api searches seems
-       ;;   ;; assinine lol
-       ;;   (setq spotify-api-search-limit 20)
-       ;;   (setq spotify-mode-line-truncate-length 20))
-     #+END_SRC
 **** TODO org
 
      one day i'll have proper documentation for this entire sub-heading.
@@ -2027,22 +1975,7 @@
        ;; Interpret mIRC-style color commands in IRC chats
        (setq erc-interpret-mirc-color t)
      #+END_SRC
-**** matrix chat
-     matrix is popular these days as an alt to both irc and slack, so here's a nice package that
-     lets me run it with emacs. it's not on melpa, which is why quelpa is necessary for this one.
 
-     #+BEGIN_SRC emacs-lisp
-       (use-package matrix-client
-         :quelpa (matrix-client :fetcher github :repo "alphapapa/matrix-client.el"
-                                :files (:defaults "logo.png" "matrix-client-standalone.el.sh")))
-     #+END_SRC
-
-**** sx mode
-     =sx= is a really awesome mode that lets you search stackexchange via their API. It's essentially
-     native support in emacs because of how the author implemented it, which is super nice.
-     #+BEGIN_SRC emacs-lisp
-       (use-package sx)
-     #+END_SRC
 **** eww
      So I've started to unironically use, and enjoy, emacs' built in web browser, =eww=. Websites that
      are heavily reliant on js won't work well with it, but the reality is i already avoid websites
@@ -2280,48 +2213,6 @@
         "tl" 'org-toggle-link-display)
     #+END_SRC
 
-*** TODO spotify
-    Consider rebinding the defaults provided for a better interface. This might even be a good use
-    case for hydra mode, for example. I think some of the defaults are a bit too arbitrary for me vs
-    what the author might have as their workflow.
-    #+BEGIN_SRC emacs-lisp
-      ;; TODO make spotify config stuff more organized.
-      ;; (general-create-definer spotify-leader
-      ;;   :prefix "M-p")
-
-      (defun spotify-disable-mode-line ()
-        (interactive)
-        (setq spotify-mode-line-refresh-interval 0))
-
-      (defun spotify-set-mode-line-refresh ()
-        (interactive)
-        (let* ((prompt "Set interval [seconds]:")
-               (val (read-number prompt 60)))
-          (setq spotify-mode-line-refresh-interval val)))
-
-      (launcher-map
-       "sc" 'spotify-remote-mode
-       "sd" 'spotify-select-device
-       "s SPC" 'spotify-toggle-play
-       "sr" 'spotify-toggle-repeat
-       "ss" 'spotify-toggle-shuffle
-       "sn" 'spotify-next-track
-       "sp" 'spotify-previous-track
-       "smr" 'spotify-set-mode-line-refresh
-       "smd" 'spotify-disable-mode-line
-       "sl" 'spotify-my-playlists
-       )
-
-      (which-key-add-key-based-replacements "s-l s" "spotify")
-
-    #+END_SRC
-*** TODO sx
-    #+BEGIN_SRC emacs-lisp
-      (launcher-map
-       "xs" 'sx-search
-       "xt" 'sx-tab-all-questions)
-       (which-key-add-key-based-replacements "s-l x" "sx")
-    #+END_SRC
 *** rust keybindings
     Basically, I just want less keystrokes to get to cargo commands. Pretty straight forward.
 
@@ -2666,13 +2557,6 @@
 
     #+BEGIN_SRC emacs-lisp
 
-      ;;js2 setup is taken from https://blog.jft.rocks/javascript/emacs-and-typescript.html
-      ;; NOTE not sure i want js2-mode anymore since jsx is supported by default
-      ;;      and web mode tends to be good enough
-      ;; (use-package js2-mode
-      ;;   :init
-      ;;   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
-
       (use-package web-mode
         :defer t
         :mode ("\\.html\\'" "\\.css\\'" "\\.sass\\'" "\\.scss\\'" "\\.tera\\'" "\\.js[x]?\\'")
@@ -2756,38 +2640,10 @@
                 (before-save . tide-format-before-save)))
 
      #+END_SRC
-**** vue(?)
-     Disable ugly af vue background:
-     #+BEGIN_SRC emacs-lisp
-       (use-package vue-mode)
-       (add-hook 'mmm-mode-hook
-                 (lambda ()
-                   (set-face-background 'mmm-default-submode-face nil)))
-     #+END_SRC
-*** elm
-    i need to set this up properly for elm as i have for rust mode with respect to lsp mode.
-    #+begin_src emacs-lisp
-    ;; TODO
-    ;; only valid when using elm-mode, should configure correctly as such
-    ;; (add-to-list 'company-backends 'elm-company)
-    #+end_src
 
-    setup is bare for now, just want to get going
-    #+begin_src emacs-lisp
-      (use-package elm-mode)
-    #+end_src
 *** lua
     here's an initial attempt at lua mode for emacs using the lsp-lua-emmy client for lsp mode.
     #+begin_src emacs-lisp
-      (use-package lsp-lua-emmy
-        :demand
-        :ensure nil
-        :load-path "~/.emacs.d/site-lisp/lsp-lua-emmy"
-        :config
-        (setq lsp-lua-emmy-jar-path
-              (expand-file-name "EmmyLua-LS-all.jar"
-                                (concat default-directory "lsp-lua-emmy"))))
-
       (defun lua-company-backends ()
         (setq-local company-backends
                     '((company-capf :with company-yasnippet company-keywords company-gtags)
