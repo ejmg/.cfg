@@ -2111,6 +2111,36 @@
       ;;   :prefix "M-m p")
     #+END_SRC
 
+**** TODO local leader
+     - [ ] move local leader declaration above into this subsection
+     - [ ] is there a better way to clear, preserve the top-level "global" local-leader than
+       preemptively rebinding them to nil????
+       + ie what happens if two local-mode bindings end up using the same leading key? will that
+         break things? yes? no?
+
+
+     For some reason unbinding a leading key stroke to chain more complex commands, eg like:
+     #+begin_src emacs-lisp :tangle no
+       (local-leader
+         :keymap 'org-mode-map
+         "t" '(:ignore t :which-key "description")
+         "ti" 'madeup-function-with-mneumonic-i)
+     #+end_src
+
+     then the top-level of key =local-leader= becomes polluted irrespective of the mode with
+     keystroke =local-leader t= showing ="t -> +description"=. the work around i have for this now is
+     simply preemptively binding any leading keys used by a local mode like this to nil. feels
+     like i'm either defining these keystrokes wrong and/or there is a better way of binding
+     leading keys for a "local leader" "in the first place.
+
+     #+BEGIN_SRC emacs-lisp
+       (general-define-key
+        "M-SPC t" nil
+        "M-SPC e" nil
+        "M-SPC l" nil
+        )
+     #+END_SRC
+
 *** TODO utility key bindings
     these are keybindings that i find myself using universally across modes and thus want to have
     ready access to. <XF86Launch1> makes a good candidate for a leader key when universal access is
@@ -2122,7 +2152,7 @@
        (g-leader
          "ps" 'counsel-projectile-switch-project
          "pp" 'counsel-projectile
-         "pa" 'counsel-projectile-ag
+         "pa" 'counsel-projectile-rg
          "pf" 'counsel-find-file
          "pk" 'projectile-kill-buffers)
 
@@ -2248,20 +2278,20 @@
     #+BEGIN_SRC emacs-lisp
       (local-leader
         :keymap 'org-mode-map
-        "tl" 'org-toggle-link-display)
+        "l" '(:ignore t :which-key "links")
+        "lt" 'org-toggle-link-display
+        "ll" 'org-insert-link
+        "lc" 'counsel-org-link
+        "e" '(:ignore t :which-key "exports")
+        "ep" 'org-latex-export-to-pdf
+        "el" 'org-latex-export-as-latex
+        "eh" 'org-html-export-as-html
+        "em" 'org-md-export-as-markdown
+        "eo" 'org-odt-export-to-odt)
     #+END_SRC
 
 *** rust keybindings
     Basically, I just want less keystrokes to get to cargo commands. Pretty straight forward.
-
-    First I set the keystroke =M-SPC t= to nothing globally, otherwise the rust declaration becomes
-    global.
-
-    #+BEGIN_SRC emacs-lisp
-      (general-define-key
-       "M-SPC t" nil
-       )
-    #+END_SRC
 
     now i provide my rust-mode local keybindings!
 
