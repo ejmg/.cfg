@@ -370,60 +370,6 @@
      #+begin_src emacs-lisp
        (delete-selection-mode 1)
      #+end_src
-
-**** buffer, symon display
-     Basically gives me system stats in my buffer when I'm not using it. It's nice, but was causing
-     some weird issues at some point so I disable tangling it as of now.
-     #+BEGIN_SRC emacs-lisp :tangle no
-       (use-package symon
-         :config
-         (progn
-           (setq symon-refresh-rate 5 ;; Refresh less by 1 second
-                 symon-history-size 35 ;; keep history shorter by 15 observations to more quickly see patterns as they occur.
-                 ))
-         (symon-mode)
-         )
-     #+END_SRC
-**** frame-parameters
-     *now that i don't use emacs built with gtk, i'm disabling these*. I am keeping them for future
-     reference, if anything, though. to anyone seeing this, if tooltip gives you dumb issues,
-     consider these tweaks.
-
-     So tooltip is messy and has given me a lot of headaches over the months. Here are some tweaks
-     that make it work better after hours of agonizing procrastination and self-inflicted pain.
-
-     #+BEGIN_SRC emacs-lisp :tangle no
-       (setq tooltip-frame-parameters
-             '((name . "tooltip")
-               (internal-border-width . 2)
-               (border-width . 0)
-               (no-special-glyphs . t)
-               (right-divider-width . 0)
-               (bottom-divider-width . 0)
-               (menu-bar-lines . 0)
-               (tool-bar-lines . 0)
-               (right-fringe . 0)
-               (inhibit-double-buffering . t)
-               (undecorated . t)
-               ;; (frame-inhibit-implied-resize t)
-               ;; (internal-border-width . 300)
-               ;; (line-spacing . 0)
-               ;; (line-height . 1.5)
-               ;; lsp-ui tooltip has these settings but they don't seem to help
-               ;;
-               ;; (unsplittable . t)
-               ;; (width . 400)
-               ;; (height . 200)
-               ;; (min-height . 0)
-               ;; (min-width . 0)
-               ))
-
-     #+END_SRC
-
-     i don't think this has anything to do with it, but it's more of a basic precaution:
-     #+BEGIN_SRC emacs-lisp :tangle no
-       (setq x-max-tooltip-size '(260 . 140))
-     #+END_SRC
 **** limit buffer name size in modeline
      Sometimes I have very long file names (think textbook pdfs) and it makes
      seeing anything else on my mode line impossible. So let's reduce what can
@@ -491,11 +437,8 @@
          :quelpa (colorless-themes :fetcher github :repo "lthms/colorless-themes.el"))
 
        (use-package kaolin-themes)
-       (use-package minimal-theme)
-       ;; for dark: seti, kaolin-aurora;
-       ;; for light: gandalf, kaolin-valley-light
-       ;; when i feel like a hacker: cyberpunk or dark-mint
-       ;; 'challenger-deep
+       (use-package tao-theme)
+
        (load-theme 'minimal-light t)
 
 
@@ -509,7 +452,7 @@
         '(org-block-begin-line ((t (:foreground "gray70" :background "gray98"))))
         '(org-block-end-line ((t (:foreground "gray70" :background "gray98"))))
         '(tooltip ((t (:background "gray90" :height 0.95 :family "Fira Code"))))
-        '(italic ((t (:font "Fira Sans" :slant italic))))
+        '(italic ((t (:font "Hack" :slant italic :height 1.05))))
         '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
         '(lsp-ui-sideline-current-symbol ((t (:foreground "DarkBlue"))))
         '(lsp-ui-sideline-symbol ((t (:foreground "Black"))))
@@ -519,14 +462,6 @@
         '(fringe ((t (:background "gray100"))))
         '(lsp-ui-doc-border ((t (:border "black"))))
         )
-       ;; (with-eval-after-load "minimal-theme"
-       ;;   (setq lsp-ui-doc-border "black")
-       ;;   )
-
-       ;; (custom-theme-set-faces
-       ;;  'gandalf
-       ;;  '(lsp-ui-sideline-code-action ((t (:foreground "DarkRed"))))
-       ;;  '(lsp-ui-sideline-current-symbol ((t (:foreground "MediumBlue")))))
 
        ;; pretty symbols
        (setq-default prettify-symbols-alist '(("lambda" . ?λ)
