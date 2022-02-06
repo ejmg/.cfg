@@ -29,7 +29,7 @@
 
 (eval-when-compile
   (require 'use-package))
-(require 'diminish)
+
 (require 'bind-key)
 
 (require 'use-package-ensure)
@@ -66,17 +66,6 @@
 (org-babel-load-file "~/.emacs.d/config.org")
 (byte-compile-file (concat user-emacs-directory "config.el"))
 
-;; Other way of doing this that I'm abandoning but don't want to forget.
-;; It is possible to byte-compile your emacs configs which makes execution faster.
-;; How beneficial this is vs the compile time required is ???
-;; find the config file and load it
-;; (find-file  "/home/spook/.myemacs.d/my-configs/my-init.org")
-;; extract all the code blocks from my-init.org
-;; (org-babel-tangle)
-;; convert it into my-init.el
-;; (load-file  "/home/spook/.myemacs.d/my-configs/my-init.el")
-;; byte compilation
-;; (byte-compile-file "/home/spook/.myemacs.d/my-configs/my-init.el")
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
